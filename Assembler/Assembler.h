@@ -18,15 +18,32 @@
 
 
 const size_t DEFAULT_BCODE_SIZE = 1024;
+const size_t DEFAULT_LABEL_NUM  = 8;
 const size_t MAX_WORDS_IN_LINE  = 2;
 
-static const char* delimeters = " \n\r\0";
+static const char* delimeters = " \t\r\0";
 
+
+typedef struct label
+{
+    char*  name;
+    size_t ptr;
+} label_t;
+
+typedef struct labels
+{
+    label_t* labels;
+    size_t   num = DEFAULT_LABEL_NUM;
+    size_t   pos = 0;
+} labs_t;
 
 typedef struct assembler
 {
-    text_t  input = {};
-    bcode_t bcode = {};
+    text_t   input = {};
+    bcode_t  bcode = {};
+    
+    labs_t defined_labels   = {};
+    labs_t undefined_labels = {};
 } asm_t;
 
 
@@ -53,6 +70,30 @@ char CMDIdentify (const char* word);
 //------------------------------------------------------------------------------
 
 char REGIdentify (const char* word);
+
+//------------------------------------------------------------------------------
+
+int LabelsConstruct (labs_t* p_labs, size_t size);
+
+//------------------------------------------------------------------------------
+
+int LabelsDestruct (labs_t* p_labs);
+
+//------------------------------------------------------------------------------
+
+int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
+
+//------------------------------------------------------------------------------
+
+int LabelFind (asm_t* p_asm, char* name);
+
+//------------------------------------------------------------------------------
+
+int LabelReturn (asm_t* p_asm);
+
+//------------------------------------------------------------------------------
+
+int LabelsExpand (labs_t* p_labs);
 
 //------------------------------------------------------------------------------
 

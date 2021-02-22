@@ -13,17 +13,14 @@
 
 int main(int argc, char* argv[])
 {
-    /*
     if (argc != 2)
     {
         printf("wrong input parameters");
         return 0;
     }
-    */
-    // argv[1] --- prog.code
 
     cpu_t cpu = {};
-    CPUConstruct(&cpu, "prog.code" /*argv[1]*/);
+    CPUConstruct(&cpu, argv[1] /*"prog.code"*/);
 
     Execute(&cpu);
 

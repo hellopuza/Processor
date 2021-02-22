@@ -13,8 +13,8 @@
 
 int TextConstruct(text_t* txtstruct, const char* filename)
 {
-    assert(txtstruct);
-    assert(filename);
+    assert(txtstruct != nullptr);
+    assert(filename  != nullptr);
 
     FILE* fp = nullptr;
     if ((fp = fopen(filename, "r")) == NULL)
@@ -29,7 +29,7 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
     if (err)
     {
-        printf(errstr[err]);
+        printf(errstr[err + 1]);
         return err;
     }
 
@@ -42,8 +42,8 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
 int fillinTextStruct(text_t* txtstruct, FILE* fp)
 {
-    assert(txtstruct);
-    assert(fp);
+    assert(txtstruct != nullptr);
+    assert(fp != nullptr);
 
 
     txtstruct->size = CountSize(fp);
@@ -70,7 +70,9 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 
 int TextDestruct(text_t* txtstruct)
 {
-    assert(txtstruct);
+    assert(txtstruct != nullptr);
+    assert(txtstruct->lines != nullptr);
+    assert(txtstruct->text  != nullptr);
 
     if (txtstruct->num != 0)
     {
@@ -100,7 +102,7 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
     if (p_bcode->data == nullptr)
         return NO_MEMORY;
 
-    p_bcode->pos = 0;
+    p_bcode->ptr = 0;
     p_bcode->size = size;
 
     return OK;
@@ -110,7 +112,7 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
 
 int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
 {
-    assert(p_bcode != nullptr);
+    assert(p_bcode  != nullptr);
     assert(filename != nullptr);
 
     FILE* fp = nullptr;
@@ -131,7 +133,7 @@ int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
 
     fclose(fp);
 
-    p_bcode->pos = 0;
+    p_bcode->ptr = 0;
 
     return OK;
 }
@@ -142,10 +144,11 @@ int BCodeDestruct(bcode_t* p_bcode)
 {
     assert(p_bcode != nullptr);
 
+
     if (p_bcode->size != 0)
     {
         free(p_bcode->data);
-        p_bcode->pos = 0;
+        p_bcode->ptr = 0;
         p_bcode->size = 0;
     }
 
@@ -157,7 +160,7 @@ int BCodeDestruct(bcode_t* p_bcode)
 char* GetFileName(int argc, char** argv)
 {
     assert(argc);
-    assert(argv);
+    assert(argv != nullptr);
 
     if (argc > 1)
     {
@@ -171,7 +174,7 @@ char* GetFileName(int argc, char** argv)
 
 size_t CountSize(FILE* fp)
 {
-    assert(fp);
+    assert(fp != nullptr);
 
     struct stat prop;
     fstat(_fileno(fp), &prop);
@@ -183,7 +186,7 @@ size_t CountSize(FILE* fp)
 
 char* GetText(FILE* fp, size_t len)
 {
-    assert(fp);
+    assert(fp != nullptr);
     assert(len);
 
     char* text = (char*)calloc(len + 2, 1);
@@ -199,18 +202,19 @@ char* GetText(FILE* fp, size_t len)
 
 size_t GetLineNum(char* text, size_t len)
 {
-    assert(text);
+    assert(text != nullptr);
     assert(len);
 
     char* start = text;
 
     size_t num = 0;
 
-    while (1)
+    while (text - start <= len)
     {
         while (isspace(*text++) && (text - start < len));
-        
-        ++num;
+
+        if ((! isspace(*(text - 1))) && (*(text - 1) != '\0'))
+            ++num;
 
         text = strchr(text, '\n') + 1;
         if ((int)text == 1)
@@ -225,7 +229,7 @@ size_t GetLineNum(char* text, size_t len)
 
 struct line* GetLine(const char* text, size_t num)
 {
-    assert(text);
+    assert(text != nullptr);
     assert(num);
 
     struct line* Lines = (struct line*)calloc(num + 2, sizeof(struct line));
@@ -250,7 +254,7 @@ struct line* GetLine(const char* text, size_t num)
 
 size_t GetWordNum(line_t line)
 {
-    assert(line.str);
+    assert(line.str != nullptr);
 
     int num = 0;
     char f = 0;
@@ -269,6 +273,24 @@ size_t GetWordNum(line_t line)
     }
 
     return num;
+}
+
+//------------------------------------------------------------------------------
+
+size_t chrcnt(char* str, char c)
+{
+    assert(str != nullptr);
+
+    size_t count = 0;
+
+    str = strchr(str, c);
+    while (str != NULL)
+    {
+        ++count;
+        str = strchr(str + 1, c);
+    }
+
+    return count;
 }
 
 //------------------------------------------------------------------------------
@@ -298,7 +320,6 @@ int CompareFromRight(const void* p1, const void* p2)
 int StrCompare(line_t line1, line_t line2, int dir)
 {
     assert((dir == 1) || (dir == -1));
-
 
     int i1 = 0;
     int i2 = 0;

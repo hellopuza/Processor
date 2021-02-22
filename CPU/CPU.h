@@ -19,6 +19,7 @@
 #include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
+#include "../StackLib/Stack.h"
 
 
 const size_t DEFAULT_STACK_CAPACITY = 8;
@@ -34,15 +35,15 @@ typedef struct CPU
 
 //------------------------------------------------------------------------------
 
-int CPUConstruct(cpu_t* p_cpu, const char* filename);
+int CPUConstruct (cpu_t* p_cpu, const char* filename);
 
 //------------------------------------------------------------------------------
 
-int Execute(cpu_t* p_cpu);
+int Execute (cpu_t* p_cpu);
 
 //------------------------------------------------------------------------------
 
-int CPUDestruct(cpu_t* p_cpu);
+int CPUDestruct (cpu_t* p_cpu);
 
 //------------------------------------------------------------------------------
 

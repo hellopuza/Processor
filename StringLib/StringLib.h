@@ -40,9 +40,9 @@ typedef struct text_info
 
 typedef struct byte_code
 {
-    char* data = nullptr;
+    char*  data = nullptr;
     size_t size = 0;
-    size_t pos = 0;
+    size_t ptr  = 0;
 } bcode_t;
 
 
@@ -167,13 +167,23 @@ struct line* GetLine (const char* text, size_t num);
 //------------------------------------------------------------------------------
 /*! @brief   Get number of words in string
  *
- *  @param   str is pointer to string
- *  @param   size is string size
- * 
+ *  @param   line is pointer to struct line
+ *
  *  @return  number of words
  */
 
 size_t GetWordNum(line_t line);
+
+//------------------------------------------------------------------------------
+/*! @brief   Counting characters in string
+ *
+ *  @param   str is pointer to string
+ *  @param   c Character to be located
+ *
+ *  @return  number of words
+ */
+
+size_t chrcnt (char* str, char c);
 
 //------------------------------------------------------------------------------
 /*! @brief   Compare two lines from left alphabetically
