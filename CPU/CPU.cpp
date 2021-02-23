@@ -53,10 +53,6 @@ int Execute(cpu_t* p_cpu)
         {
         case CMD_END:
 
-            if (p_cpu->bcode.ptr + 1 != p_cpu->bcode.size)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
             return PROCESS_END;
             break;
 
@@ -223,6 +219,8 @@ int Execute(cpu_t* p_cpu)
             
             if (num2 == num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_JNE:
@@ -239,6 +237,8 @@ int Execute(cpu_t* p_cpu)
 
             if (num2 != num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_JA:
@@ -255,6 +255,8 @@ int Execute(cpu_t* p_cpu)
 
             if (num2 > num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_JAE:
@@ -271,6 +273,8 @@ int Execute(cpu_t* p_cpu)
 
             if (num2 >= num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_JB:
@@ -287,6 +291,8 @@ int Execute(cpu_t* p_cpu)
 
             if (num2 < num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_JBE:
@@ -301,8 +307,10 @@ int Execute(cpu_t* p_cpu)
             TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
             TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
 
-            if (num2 < num1)
+            if (num2 <= num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            else
+                p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         default:

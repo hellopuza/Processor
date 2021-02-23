@@ -1,3 +1,6 @@
+push 20
+pop rbx
+
 push 1
 pop rax
 
@@ -11,4 +14,8 @@ push rax
 push 1
 add
 pop rax
-jmp :sas
+push rax
+push rbx
+jbe :sas
+
+end
