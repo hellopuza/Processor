@@ -10,6 +10,23 @@
 #ifndef HASH_H_INCLUDED
 #define HASH_H_INCLUDED
 
+#if _WIN32 || _WIN64
+    #if _WIN64
+        #define ENV64BIT 1
+    #else
+        #define ENV32BIT 1
+    #endif
+#endif
+
+#if __GNUC__
+    #if __x86_64__ || __ppc64__
+        #define ENV64BIT 1
+    #else
+        #define ENV32BIT 1
+    #endif
+#endif
+
+
 #include <assert.h>
 #include <limits.h>
 #include <memory.h>
@@ -22,7 +39,12 @@ typedef unsigned long long hash_t;
 
 #define HASH_SIZE sizeof(hash_t)
 #define MAX_HASH  ULLONG_MAX
-#define HASH_PRINT_FORMAT "%p%p"
+
+#if defined(ENV64BIT)
+    #define HASH_PRINT_FORMAT "%p"
+#else
+    #define HASH_PRINT_FORMAT "%p%p"
+#endif
 
 static const size_t BLOCK_SIZE = 64;
 static const size_t KEYS_NUM   = 16;

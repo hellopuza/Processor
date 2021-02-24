@@ -9,10 +9,12 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 
 #include "StackConfig.h"
 #include "Template.h"
-#include <windows.h>
 #include <assert.h>
 #include <limits.h>
 #include <memory.h>
@@ -251,7 +253,7 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
 {
     if ((p_stk->errCode != NOT_CONSTRUCTED) && (p_stk->errCode != STACK_DESTRUCTED))
     {
-        printf(errstr[STACK_CONSTRUCTED + 1]);
+        printf("%s\n", errstr[STACK_CONSTRUCTED + 1]);
 
         return STACK_CONSTRUCTED;
     }
@@ -264,14 +266,14 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
     }
     else if (capacity == 0)
     {
-        printf("Cannot create stack with capacity 0\n", capacity);
+        printf("Cannot create stack with capacity 0\n");
         printf("minimal capacity of stack is 1\n");
 
         return CAPACITY_WRONG_VALUE;
     }
     else if (stack_id == MAX_STACK_NUM)
     {
-        printf("Cannot create new stack \n", capacity);
+        printf("Cannot create new stack\n");
         printf("max number of stacks is %u\n", MAX_STACK_NUM);
 
         return NO_MEMORY;
@@ -281,7 +283,7 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
 
     if (temp == nullptr)
     {
-        printf("\n%s", errstr[NO_MEMORY + 1]);
+        printf("%s\n", errstr[NO_MEMORY + 1]);
         printf("impossible to create a stack\n");
 
         return NO_MEMORY;
@@ -359,10 +361,15 @@ static error_t TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE val
     {
         if (TEMPLATE(StackExpand, TYPE) (p_stk) == NO_MEMORY)
         {
-            printf(errstr[NO_MEMORY + 1]);
+            p_stk->errCode = NO_MEMORY;
+
             DUMP_PRINT{ TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__); }
 
-            p_stk->errCode = OK;
+#ifdef HASH_PROTECT
+            p_stk->datahash  = hash(p_stk->data, p_stk->capacity * sizeof(TYPE));
+            p_stk->stackhash = hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk));
+#endif // HASH_PROTECT
+
             return NO_MEMORY;
         }
     }
@@ -395,10 +402,7 @@ static TYPE TEMPLATE(StackPop, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
     if (p_stk->errCode == EMPTY_STACK)
     {
-        printf(errstr[EMPTY_STACK + 1]);
         DUMP_PRINT{ TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__); }
-
-        p_stk->errCode = OK;
 
 #ifdef HASH_PROTECT
         p_stk->datahash  = hash(p_stk->data, p_stk->capacity * sizeof(TYPE));
@@ -432,8 +436,8 @@ static TYPE TEMPLATE(StackPop, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
 static void TEMPLATE(StackPoison, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
-    assert(p_stk);
-    assert(p_stk->data);
+    assert(p_stk != nullptr);
+    assert(p_stk->data != nullptr);
     assert(p_stk->size_cur < p_stk->capacity);
 
     for (int i = p_stk->size_cur; i < p_stk->capacity; ++i)
@@ -458,6 +462,8 @@ static int TEMPLATE(isPOISON, TYPE) (TYPE value)
 
 static error_t TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
+    assert(p_stk != nullptr);
+
     p_stk->capacity *= 2;
 
     void* temp = calloc(p_stk->capacity * sizeof(TYPE) + 2 * sizeof(can_t), sizeof(char));
@@ -508,6 +514,7 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
     if (funcname != nullptr)
         fprintf(fp, "This dump was called from a function %s\n", funcname);
 
+#if defined(_WIN32)
     SYSTEMTIME localtime = {};
     GetLocalTime(&localtime);
 
@@ -519,11 +526,16 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
         localtime.wMinute,
         localtime.wSecond,
         localtime.wMilliseconds);
+#else
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    fprintf(fp, "TIME: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+#endif
 
     if (p_stk == nullptr)
     {
         fprintf(fp, "\nStack (ERROR) [0x%p] \"unidentified stack\"\n", p_stk);
-        fprintf(fp, errstr[NULL_STACK_PTR + 1]);
+        fprintf(fp, "%s\n", errstr[NULL_STACK_PTR + 1]);
 
         fprintf(fp, "%s\n", divline);
         fclose(fp);
@@ -561,21 +573,21 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
 
         fprintf(fp, "\tType of data is %s\n\n", TEMPLATE(TYPE, PRINT_TYPE));
 
-        fprintf(fp, "\tCapacity           = %u\n", p_stk->capacity);
+        fprintf(fp, "\tCapacity           = %u\n",   p_stk->capacity);
         fprintf(fp, "\tCurrent size       = %u\n\n", p_stk->size_cur);
 
 #ifdef CANARY_PROTECT
-        fprintf(fp, "\tCanary stack 1     = " CAN_PRINT_FORMAT "\n", p_stk->canary1);
+        fprintf(fp, "\tCanary stack 1     = " CAN_PRINT_FORMAT "\n",   p_stk->canary1);
         fprintf(fp, "\tCanary stack 2     = " CAN_PRINT_FORMAT "\n\n", p_stk->canary2);
 #endif // CANARY_PROTECT
 
 #ifdef HASH_PROTECT
-        fprintf(fp, "\tStack hash         = 0x" HASH_PRINT_FORMAT "\n", p_stk->stackhash);
+        fprintf(fp, "\tStack hash         = 0x" HASH_PRINT_FORMAT "\n",   p_stk->stackhash);
         fprintf(fp, "\tData hash          = 0x" HASH_PRINT_FORMAT "\n\n", p_stk->datahash);
 
-        if (p_stk->errCode)
+        if ((p_stk->errCode != OK) && (p_stk->errCode != EMPTY_STACK) && (p_stk->errCode != NO_MEMORY))
         {
-            fprintf(fp, "\tTrue stack hash    = 0x" HASH_PRINT_FORMAT "\n", hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk)));
+            fprintf(fp, "\tTrue stack hash    = 0x" HASH_PRINT_FORMAT "\n",   hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk)));
             fprintf(fp, "\tTrue data hash     = 0x" HASH_PRINT_FORMAT "\n\n", hash(p_stk->data, p_stk->capacity * sizeof(TYPE)));
         }
 #endif // HASH_PROTECT
@@ -654,11 +666,6 @@ static error_t TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const c
     {
         p_stk->errCode = EMPTY_STACK;
 
-#ifdef HASH_PROTECT
-        p_stk->datahash  = hash(p_stk->data, p_stk->capacity * sizeof(TYPE));
-        p_stk->stackhash = hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk));
-#endif // HASH_PROTECT
-
         return OK;
     }
 
@@ -705,28 +712,22 @@ static void TEMPLATE(printError, TYPE) (TEMPLATE(stack, TYPE)* p_stk, FILE* fp)
 
     if (p_stk == nullptr)
     {
-        CONSOLE_PRINT{ printf(errstr[NULL_STACK_PTR + 1]); }
+        CONSOLE_PRINT{ printf("%s\n", errstr[NULL_STACK_PTR + 1]); }
     }
 
     else if (p_stk->errCode != OK)
     {
-        CONSOLE_PRINT{ printf(errstr[p_stk->errCode + 1]); }
+        CONSOLE_PRINT{ printf("%s\n", errstr[p_stk->errCode + 1]); }
 
-        fprintf(fp, errstr[p_stk->errCode + 1]);
+        fprintf(fp, "\n%s\n", errstr[p_stk->errCode + 1]);
     }
-
-    else if (p_stk->errCode == OK)
-    {
-        /* WOW! Program works correctly! eeeeeeeeeeeeeeeeee */
-    }
-    else { assert(0); }
 }
 
 //------------------------------------------------------------------------------
 
 static can_t TEMPLATE(CanaryChange, TYPE) (can_t canary)
 {
-    return (canary * 2 + rand() * (rand() % 3 - 1)) % ULLONG_MAX;
+    return (canary * 2 + rand() * ((can_t)rand() % 3 - 1)) % ULLONG_MAX;
 }
 
 //------------------------------------------------------------------------------
