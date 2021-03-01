@@ -20,11 +20,11 @@ int main(int argc, char* argv[])
     }
     
     asm_t assembler = {};
-    AsmConstruct(&assembler, argv[2] /*"prog.asm"*/);
+    AsmConstruct(&assembler, argv[2]);
 
     Assemble(&assembler);
 
-    AsmWrite(&assembler, argv[1] /*"prog.code"*/ );
+    AsmWrite(&assembler, argv[1]);
     
     AsmDestruct(&assembler);
 

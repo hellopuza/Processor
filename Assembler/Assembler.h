@@ -10,6 +10,10 @@
 #ifndef ASSEMBLER_H
 #define ASSEMBLER_H
 
+#define _CRT_SECURE_NO_WARNINGS
+//#define NDEBUG
+
+
 #include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"

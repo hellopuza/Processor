@@ -86,7 +86,7 @@ int Assemble(asm_t* p_asm)
             if (isdigit(word[0]) || (word[0] == '-')) // numbers
             {
                 char* end = 0;
-                TYPE number = (TYPE)strtod(word, &end);
+                NUM_TYPE number = (NUM_TYPE)strtod(word, &end);
                 if (end[0] != '\0')
                 {
                     printf("#efee %d eefe#", __LINE__);
@@ -111,14 +111,22 @@ int Assemble(asm_t* p_asm)
 
         case CMD_POP:
 
-            reg = REGIdentify(word);
-            if (reg == NOT_OK)
+            if (word == NULL) // to space
             {
-                printf("#efee %d eefe#", __LINE__);
+                //resize p_bcode.data
+                p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
             }
-            //resize p_bcode.data
-            p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
-            p_asm->bcode.data[p_asm->bcode.ptr++] = reg;
+            else // to register
+            {
+                reg = REGIdentify(word);
+                if (reg == NOT_OK)
+                {
+                    printf("#efee %d eefe#", __LINE__);
+                }
+                //resize p_bcode.data
+                p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | REG_FLAG;
+                p_asm->bcode.data[p_asm->bcode.ptr++] = reg;
+            }
             break;
 
         case CMD_IN:
@@ -127,7 +135,6 @@ int Assemble(asm_t* p_asm)
             {
                 //resize p_bcode.data
                 p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
-                continue;
             }
             else // to register
             {
@@ -145,26 +152,14 @@ int Assemble(asm_t* p_asm)
         default:
             if (isJUMP(cmd))
             {
-                if (word[0] == ':')
-                {
-                    if (strlen(word) == 1)
-                    {
-                        word = strtok(NULL, delimeters);
-                        if (word == NULL)
-                        {
-                            printf("#efee %d eefe#", __LINE__);
-                        }
-                    }
-                    else ++word;
-
-                    //resize p_bcode.data
-                    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
-                    LabelFind(p_asm, word);
-                }
-                else
+                if (word == NULL)
                 {
                     printf("#efee %d eefe#", __LINE__);
                 }
+
+                //resize p_bcode.data
+                p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
+                LabelFind(p_asm, word);
             }
             else if (word == NULL)
             {
