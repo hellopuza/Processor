@@ -13,6 +13,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
+
 #include "../Errors.h"
 #include <sys\stat.h>
 #include <assert.h>
@@ -20,6 +21,16 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+
+
+#ifndef PTR_T
+#define PTR_T
+typedef size_t ptr_t;
+
+#include <limits.h>
+#define PTR_MAX UINT_MAX
+#endif // PTR_T
+
 
 static const char* default_name = __FILE__;
 
@@ -42,7 +53,7 @@ typedef struct byte_code
 {
     char*  data = nullptr;
     size_t size = 0;
-    size_t ptr  = 0;
+    ptr_t  ptr  = 0;
 } bcode_t;
 
 
