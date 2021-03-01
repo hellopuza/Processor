@@ -8,6 +8,8 @@
 *///----------------------------------------------------------------------------
 
 #define _CRT_SECURE_NO_WARNINGS
+//#define NDEBUG
+
 
 #if defined(_WIN32)
 #include <windows.h>

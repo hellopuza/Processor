@@ -24,6 +24,15 @@ static const char* logname = "stack.log";
 #define HASH_PROTECT
 
 
+#ifndef PTR_T
+#define PTR_T
+typedef size_t ptr_t;
+
+#include <limits.h>
+#define PTR_MAX UINT_MAX
+#endif // PTR_T
+
+
 #define double_PRINT_FORMAT  "%lf"
 #define double_PRINT_TYPE    "double"
 #define double_POISON         NAN
@@ -35,6 +44,14 @@ static const char* logname = "stack.log";
 #define int_PRINT_FORMAT     "%d"
 #define int_PRINT_TYPE       "int"
 #define int_POISON            INT_MAX
+
+#define size_t_PRINT_FORMAT  "%u"
+#define size_t_PRINT_TYPE    "size_t"
+#define size_t_POISON         UINT_MAX
+
+#define ptr_t_PRINT_FORMAT   "0x%X"
+#define ptr_t_PRINT_TYPE     "ptr_t"
+#define ptr_t_POISON          PTR_MAX
 
 #define char_PRINT_FORMAT    "%c"
 #define char_PRINT_TYPE      "char"
