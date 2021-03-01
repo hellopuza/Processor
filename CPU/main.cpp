@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
     }
 
     cpu_t cpu = {};
-    CPUConstruct(&cpu, argv[1] /*"prog.code"*/);
+    CPUConstruct(&cpu, argv[1]);
 
     Execute(&cpu);
 

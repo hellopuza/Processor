@@ -17,11 +17,12 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
     assert(filename != nullptr);
 
     fillinBCodeStruct(&p_cpu->bcode, filename);
-    TEMPLATE(_StackConstruct, TYPE) (&p_cpu->stkCPU, DEFAULT_STACK_CAPACITY, (char*)"stkCPU");
+    TEMPLATE(_StackConstruct, NUM_TYPE) (&p_cpu->stkCPU_NUM, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM");
+    TEMPLATE(_StackConstruct, PTR_TYPE) (&p_cpu->stkCPU_PTR, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_PTR");
 
     for (int i = 0; i < REG_NUM; ++i)
     {
-        p_cpu->registers[i] = TEMPLATE(TYPE, POISON);
+        p_cpu->registers[i] = TEMPLATE(NUM_TYPE, POISON);
     }
     
     //checking
@@ -41,9 +42,11 @@ int Execute(cpu_t* p_cpu)
     unsigned char cmd = 0;
     char reg = 0;
 
-    TYPE num  = TEMPLATE(TYPE, POISON);
-    TYPE num1 = TEMPLATE(TYPE, POISON);
-    TYPE num2 = TEMPLATE(TYPE, POISON);
+    PTR_TYPE ptr  = TEMPLATE(PTR_TYPE, POISON);
+
+    NUM_TYPE num  = TEMPLATE(NUM_TYPE, POISON);
+    NUM_TYPE num1 = TEMPLATE(NUM_TYPE, POISON);
+    NUM_TYPE num2 = TEMPLATE(NUM_TYPE, POISON);
 
     while (p_cpu->bcode.ptr < p_cpu->bcode.size)
     {
@@ -51,9 +54,9 @@ int Execute(cpu_t* p_cpu)
 
         switch (cmd)
         {
-        case CMD_END:
+        case CMD_HLT:
 
-            return PROCESS_END;
+            return PROCESS_HALT;
             break;
 
         case CMD_PUSH | NUM_FLAG:
@@ -63,8 +66,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num = *(TYPE*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num);
+            num = *(NUM_TYPE*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
             p_cpu->bcode.ptr += NUMBER_SIZE;
             break;
 
@@ -80,16 +83,21 @@ int Execute(cpu_t* p_cpu)
             {
                 printf("#efee %d eefe#", __LINE__);
             }
-            if (TEMPLATE(isPOISON, TYPE) (p_cpu->registers[reg - 1]))
+            if (TEMPLATE(isPOISON, NUM_TYPE) (p_cpu->registers[reg - 1]))
             {
                 // register is empty
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, p_cpu->registers[reg - 1]);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, p_cpu->registers[reg - 1]);
             break;
 
         case CMD_POP:
+
+            TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            break;
+
+        case CMD_POP | REG_FLAG:
 
             if (p_cpu->bcode.size - p_cpu->bcode.ptr < 1)
             {
@@ -102,71 +110,71 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            p_cpu->registers[reg - 1] = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
+            p_cpu->registers[reg - 1] = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
             break;
 
         case CMD_ADD:
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2 + num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 + num1);
             break;
 
         case CMD_SUB:
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2 - num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 - num1);
             break;
 
         case CMD_MUL:
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2 * num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 * num1);
             break;
 
         case CMD_DIV:
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
             if (fabs(num1) < NIL)
                 return DIVISION_BY_ZERO;
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2 / num1);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 / num1);
             break;
 
         case CMD_NEG:
 
-            num = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, -num);
+            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, -num);
             break;
 
         case CMD_SIN:
 
-            num = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, (TYPE)sin(num));
+            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)sin(num));
             break;
 
         case CMD_COS:
 
-            num = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, (TYPE)cos(num));
+            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)cos(num));
             break;
 
         case CMD_SQRT:
 
-            num = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
+            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
             if (num < 0)
                 return ROOT_OF_A_NEG_NUMBER;
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, (TYPE)sqrt(num));
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)sqrt(num));
             break;
 
         case CMD_IN:
 
             printf("IN: ");
-            if (scanf(TEMPLATE(TYPE, PRINT_FORMAT), &num) != 1)
+            if (scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1)
                 return INCORRECT_INPUT;
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
             break;
 
         case CMD_IN | REG_FLAG:
@@ -176,7 +184,7 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
             printf("IN: ");
-            if (scanf(TEMPLATE(TYPE, PRINT_FORMAT), &num) != 1)
+            if (scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1)
                 return INCORRECT_INPUT;
 
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
@@ -190,9 +198,10 @@ int Execute(cpu_t* p_cpu)
 
         case CMD_OUT:
 
-            num = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num);
-            printf("OUT: " TEMPLATE(TYPE, PRINT_FORMAT) "\n", num);
+            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
+
+            printf("OUT: " TEMPLATE(NUM_TYPE, PRINT_FORMAT) "\n", num);
             break;
 
         case CMD_JMP:
@@ -212,10 +221,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
             
             if (num2 == num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -230,10 +237,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
 
             if (num2 != num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -248,10 +253,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
 
             if (num2 > num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -266,10 +269,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
 
             if (num2 >= num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -284,10 +285,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
 
             if (num2 < num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -302,10 +301,8 @@ int Execute(cpu_t* p_cpu)
                 printf("#efee %d eefe#", __LINE__);
             }
 
-            num1 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            num2 = TEMPLATE(StackPop, TYPE) (&p_cpu->stkCPU);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num2);
-            TEMPLATE(StackPush, TYPE) (&p_cpu->stkCPU, num1);
+            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
 
             if (num2 <= num1)
                 memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
@@ -313,9 +310,32 @@ int Execute(cpu_t* p_cpu)
                 p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
-        default:
-            printf("#efee %d eefe#", __LINE__);
+        case CMD_CALL:
 
+            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
+            {
+                printf("#efee %d eefe#", __LINE__);
+            }
+
+            TEMPLATE(StackPush, PTR_TYPE) (&p_cpu->stkCPU_PTR, (PTR_TYPE)(p_cpu->bcode.ptr + POINTER_SIZE));
+            memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            break;
+
+        case CMD_RET:
+
+            ptr = TEMPLATE(StackPop, PTR_TYPE) (&p_cpu->stkCPU_PTR);
+
+            if (TEMPLATE(isPOISON, PTR_TYPE) (ptr))
+            {
+                printf("#efee %d eefe#", __LINE__);
+            }
+
+            p_cpu->bcode.ptr = ptr;
+            break;
+
+        default:
+
+            printf("#efee %d eefe#", __LINE__);
             return NOT_OK;
         }
     }
@@ -330,11 +350,12 @@ int CPUDestruct(cpu_t* p_cpu)
     assert(p_cpu != nullptr);
 
     BCodeDestruct(&p_cpu->bcode);
-    TEMPLATE(StackDestruct, TYPE) (&p_cpu->stkCPU);
+    TEMPLATE(StackDestruct, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+    TEMPLATE(StackDestruct, PTR_TYPE) (&p_cpu->stkCPU_PTR);
 
     for (int i = 0; i < REG_NUM; ++i)
     {
-        p_cpu->registers[i] = TEMPLATE(TYPE, POISON);
+        p_cpu->registers[i] = TEMPLATE(NUM_TYPE, POISON);
     }
 
     return OK;

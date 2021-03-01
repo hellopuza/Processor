@@ -11,6 +11,7 @@
 #define CPU_H_INCLUDED
 
 #define _CRT_SECURE_NO_WARNINGS
+//#define NDEBUG
 
 
 #include <assert.h>
@@ -19,8 +20,14 @@
 #include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
-#include "../StackLib/Stack.h"
 
+#define TYPE NUM_TYPE
+#include "../StackLib/Stack.h"
+#undef TYPE
+
+#define TYPE PTR_TYPE
+#include "../StackLib/Stack.h"
+#undef TYPE
 
 const size_t DEFAULT_STACK_CAPACITY = 8;
 
@@ -28,8 +35,9 @@ const size_t DEFAULT_STACK_CAPACITY = 8;
 typedef struct CPU
 {
     bcode_t bcode = {};
-    TEMPLATE(stack, TYPE) stkCPU;
-    TYPE registers[REG_NUM] = {};
+    TEMPLATE(stack, NUM_TYPE) stkCPU_NUM;
+    TEMPLATE(stack, PTR_TYPE) stkCPU_PTR;
+    NUM_TYPE registers[REG_NUM] = {};
 } cpu_t;
 
 
