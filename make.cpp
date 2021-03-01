@@ -1,6 +1,6 @@
 #include <windows.h>
 
-int main(int argc, char* argv[])
+int main()
 {
     int err = system("cd ../Debug/ && "
                      "Assembler.exe ../Processor/prog.code ../Processor/prog.asm");

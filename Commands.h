@@ -10,17 +10,28 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
-#define TYPE int
 
-const size_t POINTER_SIZE = sizeof(size_t);
-const size_t NUMBER_SIZE  = sizeof(TYPE);
+#ifndef PTR_T
+#define PTR_T
+typedef size_t ptr_t;
+
+#include <limits.h>
+#define PTR_MAX UINT_MAX
+#endif // PTR_T
+
+
+#define NUM_TYPE int
+#define PTR_TYPE ptr_t
+
+const size_t POINTER_SIZE = sizeof(PTR_TYPE);
+const size_t NUMBER_SIZE  = sizeof(NUM_TYPE);
 
 const double NIL  = 1e-7;
 
 const int NUM_FLAG = 0x80;
 const int REG_FLAG = 0x40;
 
-const int PROCESS_END = -666;
+const int PROCESS_HALT = -666;
 
 /*------------------------------------------------------------------------------
                    Commands codes                                              *
@@ -28,7 +39,7 @@ const int PROCESS_END = -666;
 
 enum Commands
 {
-    CMD_END   = 0x00,
+    CMD_HLT   = 0x00,
     CMD_PUSH  = 0x01,
     CMD_POP   = 0x02,
     CMD_ADD   = 0x03,
@@ -48,7 +59,8 @@ enum Commands
     CMD_JAE   = 0x11,
     CMD_JB    = 0x12,
     CMD_JBE   = 0x13,
-
+    CMD_CALL  = 0x14,
+    CMD_RET   = 0x15,
 };
 
 struct command
@@ -59,26 +71,28 @@ struct command
 
 static command cmd_names[] =
 {
-    { CMD_END  ,  "end"  },//0
-    { CMD_PUSH ,  "push" },//1
-    { CMD_POP  ,  "pop"  },//2
-    { CMD_ADD  ,  "add"  },//3
-    { CMD_SUB  ,  "sub"  },//4
-    { CMD_MUL  ,  "mul"  },//5
-    { CMD_DIV  ,  "div"  },//6
-    { CMD_NEG  ,  "neg"  },//7
-    { CMD_SIN  ,  "sin"  },//8
-    { CMD_COS  ,  "cos"  },//9
-    { CMD_SQRT ,  "sqrt" },//10
-    { CMD_IN   ,  "in"   },//11
-    { CMD_OUT  ,  "out"  },//12
-    { CMD_JMP  ,  "jmp"  },//13
-    { CMD_JE   ,  "je"   },//14
-    { CMD_JNE  ,  "jne"  },//15
-    { CMD_JA   ,  "ja"   },//16
-    { CMD_JAE  ,  "jae"  },//17
-    { CMD_JB   ,  "jb"   },//18
-    { CMD_JBE  ,  "jbe"  },//19
+    { CMD_ADD  ,  "add"  },
+    { CMD_CALL ,  "call" },
+    { CMD_COS  ,  "cos"  },
+    { CMD_DIV  ,  "div"  },
+    { CMD_HLT  ,  "hlt"  },
+    { CMD_IN   ,  "in"   },
+    { CMD_JA   ,  "ja"   },
+    { CMD_JAE  ,  "jae"  },
+    { CMD_JB   ,  "jb"   },
+    { CMD_JBE  ,  "jbe"  },
+    { CMD_JE   ,  "je"   },
+    { CMD_JMP  ,  "jmp"  },
+    { CMD_JNE  ,  "jne"  },
+    { CMD_MUL  ,  "mul"  },
+    { CMD_NEG  ,  "neg"  },
+    { CMD_OUT  ,  "out"  },
+    { CMD_POP  ,  "pop"  },
+    { CMD_PUSH ,  "push" },
+    { CMD_RET  ,  "ret"  },
+    { CMD_SIN  ,  "sin"  },
+    { CMD_SQRT ,  "sqrt" },
+    { CMD_SUB  ,  "sub"  },
 };
 
 const int CMD_NUM = sizeof(cmd_names)/sizeof(cmd_names[0]);
@@ -125,13 +139,14 @@ const int REG_NUM = sizeof(reg_names) / sizeof(reg_names[0]);
 
 static int isJUMP(char code)
 {
-    return ( (code == CMD_JMP) ||
-             (code == CMD_JE ) ||
-             (code == CMD_JNE) ||
-             (code == CMD_JA ) ||
-             (code == CMD_JAE) ||
-             (code == CMD_JB ) ||
-             (code == CMD_JBE)   );
+    return ( (code == CMD_JMP ) ||
+             (code == CMD_JE  ) ||
+             (code == CMD_JNE ) ||
+             (code == CMD_JA  ) ||
+             (code == CMD_JAE ) ||
+             (code == CMD_JB  ) ||
+             (code == CMD_JBE ) ||
+             (code == CMD_CALL)   );
 }
 
 //------------------------------------------------------------------------------

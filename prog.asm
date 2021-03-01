@@ -1,21 +1,43 @@
-push 20
+in rax
+
+push 1
 pop rbx
 
-push 1
-pop rax
+push rax
+push 0
+jb less_zero
 
-sas:
-push rax
-push rax
-mul
+call factorial
+push rbx
 out
+hlt
+
+
+factorial: 
 
 push rax
-push 1
-add
-pop rax
+push 2
+jb ret
+
 push rax
 push rbx
-jbe :sas
+mul
+pop rbx
 
-end
+push rax
+push 1
+sub
+pop rax
+
+call factorial
+ret
+
+ret:
+ret
+
+less_zero:
+push -666
+pop rbx
+push rbx
+out
+hlt
