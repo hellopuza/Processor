@@ -5,7 +5,8 @@
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #ifndef ERRORS_DEFINED
 #define ERRORS_DEFINED
@@ -145,5 +146,7 @@ static void printError(const char* logname, const char* file, int line, const ch
 
     fclose(log);
 }
+
+//------------------------------------------------------------------------------
 
 #endif // ERRORS_DEFINED

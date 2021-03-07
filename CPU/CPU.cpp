@@ -183,8 +183,7 @@ int Execute(cpu_t* p_cpu)
 
         case CMD_OUT:
 
-            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (num)), STACK_EMPTY_STACK, 1, p_cpu);
+            Pop1Number(p_cpu, &num);
 
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
 

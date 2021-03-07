@@ -5,7 +5,8 @@
     * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #ifndef STRINGLIB_H_INCLUDED
 #define STRINGLIB_H_INCLUDED

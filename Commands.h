@@ -5,7 +5,8 @@
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED

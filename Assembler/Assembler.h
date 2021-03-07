@@ -16,11 +16,10 @@
 //#define NDEBUG
 
 
+#include <assert.h>
 #include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
-#include <assert.h>
-#include <stdio.h>
 
 
 static const char* assembler_logname = "assembler.log";
