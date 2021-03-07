@@ -98,10 +98,10 @@ typedef struct TEMPLATE(Stack, TYPE)
 //==============================================================================
 
 //------------------------------------------------------------------------------
-/*! @brief   Stack constructor
+/*! @brief   Stack constructor.
  *
- *  @param   p_stk       Pointer to stack
- *  @param   capacity    Capacity of stack
+ *  @param   p_stk       Pointer to the stack
+ *  @param   capacity    Capacity of the stack
  *  @param   stack_name  Stack variable name
  *
  *  @return  error code
@@ -110,9 +110,9 @@ typedef struct TEMPLATE(Stack, TYPE)
 static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t capacity, char* stack_name);
 
 //------------------------------------------------------------------------------
-/*! @brief   Stack destructor
+/*! @brief   Stack destructor.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *
  *  @return  error code
  */
@@ -120,9 +120,9 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
 static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
-/*! @brief   Pushing a value onto the stack
+/*! @brief   Pushing a value onto the stack.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *  @param   value       Value to push
  *
  *  @return  error code
@@ -131,9 +131,9 @@ static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 static error_t TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value);
 
 //------------------------------------------------------------------------------
-/*! @brief   Popping from stack
+/*! @brief   Popping from stack.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *
  *  @return  value from the stack if present, otherwise POISON
  */
@@ -141,15 +141,15 @@ static error_t TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE val
 static TYPE TEMPLATE(StackPop, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
-/*! @brief   Filling the stack data with POISON
+/*! @brief   Filling the stack data with POISON.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  */
 
 static void TEMPLATE(StackPoison, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
-/*! @brief   Check if value is POISON
+/*! @brief   Check if value is POISON.
  *
  *  @param   value       Value to be checked
  *
@@ -159,9 +159,9 @@ static void TEMPLATE(StackPoison, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 static int TEMPLATE(isPOISON, TYPE) (TYPE value);
 
 //------------------------------------------------------------------------------
-/*! @brief   Increase the stack by 2 times
+/*! @brief   Increase the stack by 2 times.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *
  *  @return  error code
  */
@@ -169,9 +169,9 @@ static int TEMPLATE(isPOISON, TYPE) (TYPE value);
 static error_t TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
-/*! @brief   Calculates the size of the structure stack without hash and second canary
+/*! @brief   Calculates the size of the structure stack without hash and second canary.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *
  *  @return  stack size for hash
  */
@@ -179,11 +179,11 @@ static error_t TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 static size_t TEMPLATE(StackSizeForHash, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
-/*! @brief   (THE BEST FUNCTION) Print the contents of the stack and its data to the logfile
+/*! @brief   (THE BEST FUNCTION) Print the contents of the stack and its data to the logfile.
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *  @param   funcname    Name of the function from which the StackDump was called
- *  @param   logname     Name of logfile
+ *  @param   logname     Name of the logfile
  *
  *  @return  error code
  */
@@ -191,9 +191,9 @@ static size_t TEMPLATE(StackSizeForHash, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname = "@some function@", const char* logfile = stack_logname);
 
 //------------------------------------------------------------------------------
-/*! @brief   Check stack for problems, canaries, hash (if enabled)
+/*! @brief   Check stack for problems, canaries, hash (if enabled).
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *  @param   funcname    Name of the function from which the StackCheck was called
  *
  *  @return  error code
@@ -202,10 +202,10 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
 static error_t TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname);
 
 //------------------------------------------------------------------------------
-/*! @brief   Print information and error summary to log file and to console
+/*! @brief   Print information and error summary to log file and to console.
  *
- *  @param   p_stk       Pointer to stack
- *  @param   fp          Pointer to logfile
+ *  @param   p_stk       Pointer to the stack
+ *  @param   fp          Pointer to the logfile
  *
  *  @return  error code
  */
@@ -213,9 +213,9 @@ static error_t TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const c
 static void TEMPLATE(ErrorPrint, TYPE) (TEMPLATE(stack, TYPE)* p_stk, FILE* fp);
 
 //------------------------------------------------------------------------------
-/*! @brief   Print error explanations to log file and to console
+/*! @brief   Print error explanations to log file and to console.
  *
- *  @param   logname     Name of log file
+ *  @param   logname     Name of the log file
  *  @param   file        Name of the file from which the printError was called
  *  @param   line        Line of the code from which the printError was called
  *  @param   function    Name of the function from which the StackCheck was called
@@ -226,7 +226,7 @@ static void TEMPLATE(ErrorPrint, TYPE) (TEMPLATE(stack, TYPE)* p_stk, FILE* fp);
 static void TEMPLATE(printError, TYPE) (const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
-/*! @brief   Change canary (if enabled)
+/*! @brief   Change canary (if enabled).
  *
  *  @param   canary      Canary input
  *
@@ -240,9 +240,9 @@ static can_t TEMPLATE(CanaryChange, TYPE) (can_t canary);
 #endif // CANARY_PROTECT
 
 //------------------------------------------------------------------------------
-/*! @brief   Placing canaries in stack (if enabled)
+/*! @brief   Placing canaries in stack (if enabled).
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  */
 
 #ifdef CANARY_PROTECT
@@ -252,9 +252,9 @@ static void TEMPLATE(CanaryPlacing, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 #endif // CANARY_PROTECT
 
 //------------------------------------------------------------------------------
-/*! @brief   Check stack for canaries (if enabled)
+/*! @brief   Check stack for canaries (if enabled).
  *
- *  @param   p_stk       Pointer to stack
+ *  @param   p_stk       Pointer to the stack
  *  @param   funcname    Name of the function from which the StackCheck was called
  *
  *  @return  OK if all canaries aren't damaged, otherwise NOT_OK

@@ -51,17 +51,10 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
     txtstruct->num = GetLineNum(txtstruct->text, txtstruct->size);
     if (txtstruct->num == 0)
         return STR_NO_LINES;
-    
-    txtstruct->sloc = GetSLOC(txtstruct->text, txtstruct->size);
-    if (txtstruct->sloc == 0)
-        return STR_NO_LINES;
 
-    line_t** lines = GetLine(txtstruct->text, txtstruct->num, txtstruct->sloc, &txtstruct->line_numbers);
-    if (lines == nullptr)
+    txtstruct->lines = GetLine(txtstruct->text, txtstruct->num);
+    if (txtstruct->lines == nullptr)
         return NO_MEMORY;
-
-    txtstruct->lines   = lines[0];
-    txtstruct->sclines = lines[1];
 
     return OK;
 }
@@ -79,13 +72,6 @@ int TextDestruct(text_t* txtstruct)
         free(txtstruct->lines);
         txtstruct->lines = nullptr;
         txtstruct->num   = 0;
-    }
-
-    if (txtstruct->sloc != 0)
-    {
-        free(txtstruct->sclines);
-        txtstruct->sclines = nullptr;
-        txtstruct->sloc    = 0;
     }
 
     if (txtstruct->size != 0)
@@ -247,33 +233,7 @@ size_t GetLineNum(char* text, size_t len)
 
 //------------------------------------------------------------------------------
 
-size_t GetSLOC(char* text, size_t len)
-{
-    assert(text != nullptr);
-    assert(len);
-
-    char* start = text;
-
-    size_t sloc = 0;
-
-    while (text - start <= len)
-    {
-        while (isspace(*text++) && (text - start < len));
-
-        if ((! isspace(*(text - 1))) && (*(text - 1) != '\0'))
-            ++sloc;
-
-        text = strchr(text, '\n') + 1;
-        if ((int)text == 1)
-            break;
-    }
-
-    return sloc;
-}
-
-//------------------------------------------------------------------------------
-
-line_t** GetLine(char* text, size_t num, size_t sloc, size_t** line_numbers)
+line_t* GetLine(char* text, size_t num)
 {
     assert(text != nullptr);
     assert(num);
@@ -282,59 +242,27 @@ line_t** GetLine(char* text, size_t num, size_t sloc, size_t** line_numbers)
     if (Lines == nullptr)
         return nullptr;
 
-    line_t* SCLines = (line_t*)calloc(sloc + 2, sizeof(line_t));
-    if (SCLines == nullptr)
-        return nullptr;
-
-    *line_numbers = (size_t*)calloc(sloc + 2, sizeof(size_t));
-    if (*line_numbers == nullptr)
-        return nullptr;
-
     line_t* temp1 = Lines;
-    line_t* temp2 = SCLines;
-
-    int line_cur   = 0;
-    int scline_cur = 0;
 
     while (num-- > 0)
     {
         while (isspace(*text) && (*text != '\n'))
             ++text;
-        
-        if (*text == '\n')
-        {
-            temp1->str = (char*)"";
-            temp1->len = 0;
 
-            text = strchr(text, '\n');
-            if (text == 0) break;
-        }
-        else
-        {
-            temp1->str = (char*)text;
-            temp2->str = (char*)text;
+        char* start = text;
+        text = strchr(text, '\n');
+        if (text == 0) break;
 
-            text = strchr(text, '\n');
-            if (text == 0) break;
+        *text = '\0';
 
-            temp1->len = text - temp1->str;
-            temp2->len = text - temp2->str;
+        temp1->str = (char*)start;
+        temp1->len = strlen(start);
 
-            (*line_numbers)[scline_cur++] = line_cur + 1;
-            
-            ++temp2;
-        }
-
-        text[0] = '\0';
-
-        ++line_cur;
         ++temp1;
         ++text;
     }
 
-    line_t* p_lines[2] = { Lines, SCLines };
-
-    return p_lines;
+    return Lines;
 }
 
 //------------------------------------------------------------------------------
@@ -386,8 +314,8 @@ size_t chrcnt(char* str, char c)
 
 int CompareFromLeft(const void* p1, const void* p2)
 {
-    assert(p1);
-    assert(p2);
+    assert(p1 != nullptr);
+    assert(p2 != nullptr);
     assert(p1 != p2);
 
     return StrCompare(*(line_t*)p1, *(line_t*)p2, 1);
@@ -397,8 +325,8 @@ int CompareFromLeft(const void* p1, const void* p2)
 
 int CompareFromRight(const void* p1, const void* p2)
 {
-    assert(p1);
-    assert(p2);
+    assert(p1 != nullptr);
+    assert(p2 != nullptr);
     assert(p1 != p2);
 
     return StrCompare(*(line_t*)p1, *(line_t*)p2, -1);
@@ -461,16 +389,16 @@ int isAlpha(const unsigned char c)
 
 //------------------------------------------------------------------------------
 
-void Write(line_t* Lines, size_t num, const char* filename)
+void Write(line_t* lines, size_t num, const char* filename)
 {
-    assert(Lines);
+    assert(lines != nullptr);
     assert(num);
     assert(filename);
 
     FILE* fp = fopen(filename, "w");
 
     for(int i = 0; i < num; ++i)
-        fprintf(fp, "%s\n", Lines[i].str);
+        fprintf(fp, "%s\n", lines[i].str);
 
     fclose(fp);
 }
@@ -479,7 +407,7 @@ void Write(line_t* Lines, size_t num, const char* filename)
 
 void Print(char* text, size_t len, const char* filename)
 {
-    assert(text);
+    assert(text != nullptr);
     assert(len);
     assert(filename);
 

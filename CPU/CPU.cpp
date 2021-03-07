@@ -14,8 +14,10 @@
 
 int CPUConstruct(cpu_t* p_cpu, const char* filename)
 {
-    assert(p_cpu    != nullptr);
     assert(filename != nullptr);
+
+    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, {}, 0);
+    CPU_ASSERTOK(((p_cpu->state != CPU_NOT_CONSTRUCTED) && (p_cpu->state != CPU_DESTRUCTED)), CPU_CONSTRUCTED, 0, {}, 0);
 
     int err = 0;
 
@@ -29,6 +31,8 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
     {
         p_cpu->registers[i] = TEMPLATE(NUM_TYPE, POISON);
     }
+
+    p_cpu->state = CPU_CONSTRUCTED;
 
     return OK;
 }
@@ -261,6 +265,8 @@ int CPUDestruct(cpu_t* p_cpu)
     {
         p_cpu->registers[i] = TEMPLATE(NUM_TYPE, POISON);
     }
+
+    p_cpu->state = CPU_DESTRUCTED;
 
     return OK;
 }

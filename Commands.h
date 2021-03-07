@@ -27,6 +27,7 @@ typedef size_t ptr_t;
 const size_t POINTER_SIZE = sizeof(PTR_TYPE);
 const size_t NUMBER_SIZE  = sizeof(NUM_TYPE);
 
+const int PTR_FLAG = 0xC0;
 const int NUM_FLAG = 0x80;
 const int REG_FLAG = 0x40;
 
@@ -60,6 +61,7 @@ enum Commands
     CMD_JBE   = 0x13,
     CMD_CALL  = 0x14,
     CMD_RET   = 0x15,
+    CMD_SCR   = 0x16,
 };
 
 struct command

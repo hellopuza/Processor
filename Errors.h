@@ -37,6 +37,8 @@ enum Errors
     ASM_WRONG_PUSH_OPERAND_NUMBER                                   ,
     ASM_WRONG_PUSH_OPERAND_REGISTER                                 ,
 
+    CPU_CONSTRUCTED                                                 ,
+    CPU_DESTRUCTED                                                  ,
     CPU_DIVISION_BY_ZERO                                            ,
     CPU_EMPTY_REGISTER                                              ,
     CPU_INCORRECT_INPUT                                             ,
@@ -44,6 +46,8 @@ enum Errors
     CPU_NO_SPACE_FOR_NUMBER                                         ,
     CPU_NO_SPACE_FOR_POINTER                                        ,
     CPU_NO_SPACE_FOR_REGISTER                                       ,
+    CPU_NOT_CONSTRUCTED                                             ,
+    CPU_NULL_INPUT_CPU_PTR                                          ,
     CPU_ROOT_OF_A_NEG_NUMBER                                        ,
     CPU_UNIDENTIFIED_COMMAND                                        ,
     CPU_UNIDENTIFIED_REGISTER                                       ,
@@ -90,6 +94,8 @@ static const char* errstr[] =
     "Wrong push operand number"                                     ,
     "Wrong push operand register"                                   ,
 
+    "CPU already constructed"                                       ,
+    "CPU already destructed"                                        ,
     "Division by zero"                                              ,
     "Register is empty"                                             ,
     "Incorrect input"                                               ,
@@ -97,6 +103,8 @@ static const char* errstr[] =
     "Not enough space to determine the number"                      ,
     "Not enough space to determine the pointer"                     ,
     "Not enough space to determine the register"                    ,
+    "CPU did not constructed, operation is impossible"              ,
+    "The input value of the CPU pointer turned out to be zero"      ,
     "Root of a negative number"                                     ,
     "Unidentified command"                                          ,
     "Unidentified register"                                         ,
@@ -122,6 +130,14 @@ static const char* errstr[] =
 };
 
 //------------------------------------------------------------------------------
+/*! @brief   Prints an error wih description to the console and to the log file.
+ * 
+ *  @param   logname     Name of the log file
+ *  @param   file        Name of the program file
+ *  @param   line        Number of line with an error
+ *  @param   function    Name of the function with an error
+ *  @param   err         Error code
+ */
 
 static void printError(const char* logname, const char* file, int line, const char* function, int err)
 {

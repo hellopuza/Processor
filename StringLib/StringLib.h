@@ -55,14 +55,9 @@ typedef struct text_info
    
    size_t  num         = 0;
    line_t* lines       = nullptr;
-
-   size_t  sloc        = 0;
-   line_t* sclines     = nullptr;
-
-   size_t* line_numbers = nullptr;
 } text_t;
 
-typedef struct byte_code
+typedef struct bin_code
 {
     char*  data = nullptr;
     size_t size = 0;
@@ -71,10 +66,10 @@ typedef struct byte_code
 
 
 //------------------------------------------------------------------------------
-/*! @brief   Construct the structure of text
+/*! @brief   Text structure constructor.
  *
- *  @param   txtstruct is the structure to be constructed
- *  @param   filename is input file name
+ *  @param   txtstruct   Pointer to the text structure
+ *  @param   filename    Name of the text file
  *
  *  @return  error code
  */
@@ -84,8 +79,8 @@ int TextConstruct (text_t* txtstruct, const char* filename);
 //------------------------------------------------------------------------------
 /*! @brief   Fill the structure of text
  *
- *  @param   txtstruct is the structure to be filled
- *  @param   fp is pointer to file
+ *  @param   txtstruct   Pointer to the text structure
+ *  @param   fp          Pointer to the text file
  *
  *  @return  error code
  */
@@ -93,9 +88,9 @@ int TextConstruct (text_t* txtstruct, const char* filename);
 int fillinTextStruct (text_t* txtstruct, FILE* fp);
 
 //------------------------------------------------------------------------------
-/*! @brief   Clean the structure of text
+/*! @brief   Text structure destructor.
  *
- *  @param   txtstruct is the structure to be destructed
+ *  @param   txtstruct   Pointer to the text structure
  *
  *  @return  error code
  */
@@ -103,10 +98,10 @@ int fillinTextStruct (text_t* txtstruct, FILE* fp);
 int TextDestruct (text_t* txtstruct);
 
 //------------------------------------------------------------------------------
-/*! @brief   Construct the structure of byte code
+/*! @brief   Binary code structure constructor.
  *
- *  @param   p_bcode is the structure to be constructed
- *  @param   size is size of data
+ *  @param   p_bcode     Pointer to the binary code structure
+ *  @param   size        Size of the data
  *
  *  @return  error code
  */
@@ -114,21 +109,30 @@ int TextDestruct (text_t* txtstruct);
 int BCodeConstruct (bcode_t* p_bcode, size_t size);
 
 //------------------------------------------------------------------------------
-/*! @brief   Fill the structure of byte code
+/*! @brief   Fill the binary code structure.
  *
- *  @param   p_bcode is the structure to be filled
- *  @param   filename is input file name
+ *  @param   p_bcode     Pointer to the binary code structure
+ *  @param   filename    Name of the input file
  *
  *  @return  error code
  */
 
 int fillinBCodeStruct (bcode_t* p_bcode, const char* filename);
 
-int BCodeExpand (bcode_t* p_bcode);
 //------------------------------------------------------------------------------
-/*! @brief   Clean the structure of byte code
+/*! @brief   Increase the binary code data size by 2 times.
+ * 
+ *  @param   p_bcode     Pointer to the binary code structure
+ * 
+ *  @return  error code
+ */
+
+int BCodeExpand (bcode_t* p_bcode);
+
+//------------------------------------------------------------------------------
+/*! @brief   Binary code structure destructor.
  *
- *  @param   p_bcode is the structure to be destructed
+ *  @param   p_bcode     Pointer to the binary code structure
  *
  *  @return  error code
  */
@@ -136,20 +140,20 @@ int BCodeExpand (bcode_t* p_bcode);
 int BCodeDestruct (bcode_t* p_bcode);
 
 //------------------------------------------------------------------------------
-/*! @brief   Get name of file from command line
+/*! @brief   Get name of a file from command line.
  *
- *  @param   argc is number of command line arguments
- *  @param   argv is arguments
+ *  @param   argc        Number of command line arguments
+ *  @param   argv        Arguments array
  *
- *  @return  name of file
+ *  @return  name of a file
  */
 
 char* GetFileName (int argc, char** argv);
 
 //------------------------------------------------------------------------------
-/*! @brief   Get size of file
+/*! @brief   Get a size of the file.
  *
- *  @param   fp is pointer to file
+ *  @param   fp          Pointer to the file
  *
  *  @return  size of file
  */
@@ -157,10 +161,10 @@ char* GetFileName (int argc, char** argv);
 size_t CountSize (FILE* fp);
 
 //------------------------------------------------------------------------------
-/*! @brief   Get text of file
+/*! @brief   Get text of the file.
  *
- *  @param   fp is pointer to file
- *  @param   len is length of text
+ *  @param   fp          Pointer to the file
+ *  @param   len         Length of the text
  *
  *  @return  pointer to text
  */
@@ -168,33 +172,31 @@ size_t CountSize (FILE* fp);
 char* GetText (FILE* fp, size_t len);
 
 //------------------------------------------------------------------------------
-/*! @brief   Get number of lines in text
+/*! @brief   Get number of lines in the text.
  *
- *  @param   text contains text
- *  @param   len  length of text
+ *  @param   text        C string contains text
+ *  @param   len         Length of the text
  *
- *  @return  number of lines in text
+ *  @return  number of lines in the text
  */
 
 size_t GetLineNum (char* text, size_t len);
 
-size_t GetSLOC (char* text, size_t len);
-
 //------------------------------------------------------------------------------
-/*! @brief   Get pointers to start of lines and their lengths
+/*! @brief   Get pointers to start of lines and their lengths.
  *
- *  @param   text contains text
- *  @param   num is number of strings
+ *  @param   text        C string contains text
+ *  @param   num         Number of lines
  *
  *  @return  array of lines
  */
 
-line_t** GetLine (char* text, size_t num, size_t sloc, size_t** line_numbers);
+line_t* GetLine (char* text, size_t num);
 
 //------------------------------------------------------------------------------
-/*! @brief   Get number of words in string
+/*! @brief   Get number of words in string.
  *
- *  @param   line is pointer to struct line
+ *  @param   line        Pointer to the line structure
  *
  *  @return  number of words
  */
@@ -202,10 +204,10 @@ line_t** GetLine (char* text, size_t num, size_t sloc, size_t** line_numbers);
 size_t GetWordNum(line_t line);
 
 //------------------------------------------------------------------------------
-/*! @brief   Counting characters in string
+/*! @brief   Counting characters in string.
  *
- *  @param   str is pointer to string
- *  @param   c Character to be located
+ *  @param   str         C string
+ *  @param   c           Character to be counted
  *
  *  @return  number of words
  */
@@ -213,10 +215,10 @@ size_t GetWordNum(line_t line);
 size_t chrcnt (char* str, char c);
 
 //------------------------------------------------------------------------------
-/*! @brief   Compare two lines from left alphabetically
+/*! @brief   Compare two lines from left alphabetically.
  *
- *  @param   p1 is pointer to first line
- *  @param   p2 is pointer to second line
+ *  @param   p1          Pointer to the first line
+ *  @param   p2          Pointer to the second line
  *
  *  @return  positive integer if first line bigger then second
  *  @return  0 if first line the same as second
@@ -226,10 +228,10 @@ size_t chrcnt (char* str, char c);
 int CompareFromLeft (const void *p1, const void *p2);
 
 //------------------------------------------------------------------------------
-/*! @brief   Compare two lines from right alphabetically
+/*! @brief   Compare two lines from right alphabetically.
  *
- *  @param   p1 is pointer to first line
- *  @param   p2 is pointer to second line
+ *  @param   p1          Pointer to the first line
+ *  @param   p2          Pointer to the second line
  *
  *  @return  positive integer if first line bigger then second
  *  @return  0 if first line the same as second
@@ -239,11 +241,11 @@ int CompareFromLeft (const void *p1, const void *p2);
 int CompareFromRight (const void *p1, const void *p2);
 
 //------------------------------------------------------------------------------
-/*! @brief   Copmare two strings by letters
+/*! @brief   Copmare two strings by letters.
  *
- *  @param   line1 is first line
- *  @param   line2 is second line
- *  @param   dir is direction of comparing (+1 - compare from left, -1 - compare from right)
+ *  @param   line1       First line
+ *  @param   line2       Second line
+ *  @param   dir         Direction of comparing (+1 - compare from left, -1 - compare from right)
  *
  *  @return  positive integer if first line bigger then second
  *  @return  0 if first line the same as second
@@ -253,29 +255,29 @@ int CompareFromRight (const void *p1, const void *p2);
 int StrCompare (line_t line1, line_t line2, int dir);
 
 //------------------------------------------------------------------------------
-/*! @brief   Write lines to file
+/*! @brief   Write lines to the file.
  *
- *  @param   lines is array of lines
- *  @param   num is number of lines
- *  @param   filename is name of file
+ *  @param   lines       Array of lines
+ *  @param   num         Number of lines
+ *  @param   filename    Name of the file
  */
 
 void Write (line_t* Lines, size_t num, const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Print text to file
+/*! @brief   Write lines to the file.
  *
- *  @param   text contains text
- *  @param   len is length of text
- *  @param   filename is name of file
+ *  @param   text        C string
+ *  @param   num         Number of lines
+ *  @param   filename    Name of the file
  */
 
 void Print (char* text, size_t len, const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Check that char is letter
+/*! @brief   Check that char is letter.
  *
- *  @param   c is char
+ *  @param   c           Character to be checked
  *
  *  @return  1 if c is letter
  *  @return  0 if c is not letter

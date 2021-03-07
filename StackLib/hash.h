@@ -42,7 +42,7 @@ static const size_t Keys[KEYS_NUM] =
 };
 
 //------------------------------------------------------------------------------
-/*! @brief   Circular shift of bits anywhere in any length
+/*! @brief   Circular shift of bits anywhere in any length.
  *
  *  @param   buf  Start of memory for turning round
  *  @param   size Size of memory for turning round
@@ -51,10 +51,10 @@ static const size_t Keys[KEYS_NUM] =
  *  @return 0 if error, 1 if ok
  */
 
-int bit_rotate(void* buf, size_t size, int dir);
+int bit_rotate (void* buf, size_t size, int dir);
 
 //------------------------------------------------------------------------------
-/*! @brief   Hash counting
+/*! @brief   Hash counting.
  *
  *  @param   buf  Start of memory to be hashable
  *  @param   size Size of memory to be hashable
@@ -62,7 +62,7 @@ int bit_rotate(void* buf, size_t size, int dir);
  *  @return  0 if error, else hash
  */
 
-hash_t hash(void* buf, size_t size);
+hash_t hash (void* buf, size_t size);
 
 //------------------------------------------------------------------------------
 

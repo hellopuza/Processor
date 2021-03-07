@@ -64,27 +64,23 @@ int Assemble(asm_t* p_asm)
     ASM_ASSERTOK((p_asm == nullptr), ASM_NULL_INPUT_ASSEMBLER_PTR, 0, {}, 0);
     ASM_ASSERTOK((p_asm->state != ASM_CONSTRUCTED), ASM_NOT_CONSTRUCTED, 0, {}, 0);
     
-    for (int i = 0; i < p_asm->input.sloc; ++i)
+    for (int i = 0; i < p_asm->input.num; ++i)
     {
-        char* pos = DeleteComments(&p_asm->input.sclines[i], COMMENT);
-        if (pos == NULL)
-        {
-            continue;
-        }
+        if (p_asm->input.lines[i].len == 0) continue;
 
-        int num = GetWordNum(p_asm->input.sclines[i]);
+        char* pos = DeleteComments(&p_asm->input.lines[i], COMMENT);
+        if (pos == NULL) continue;
+
+        int num = GetWordNum(p_asm->input.lines[i]);
         ASM_ASSERTOK(((num > MAX_WORDS_IN_LINE) || (num == 0)), ASM_TOO_MANY_WORDS_IN_LINE, 1, p_asm->input, i);
 
-        char* word = strtok(p_asm->input.sclines[i].str, DELIMETERS);
+        char* word = strtok(p_asm->input.lines[i].str, DELIMETERS);
 
         char cmd = CMDIdentify(word);
         if (cmd == NOT_OK)
         {
-            int state = LabelCheck(&p_asm->defined_labels, p_asm->input.sclines[i], p_asm->bcode.ptr);
-            if (state == OK)
-            {
-                continue;
-            }
+            int state = LabelCheck(&p_asm->defined_labels, p_asm->input.lines[i], p_asm->bcode.ptr);
+            if (state == OK) continue;
 
             ASM_ASSERTOK((state == NOT_OK),                    ASM_UNIDENTIFIED_COMMAND,  1, p_asm->input, i);
             ASM_ASSERTOK((state == ASM_INCORRECT_LABEL_INPUT), ASM_INCORRECT_LABEL_INPUT, 1, p_asm->input, i);
@@ -484,7 +480,7 @@ void printCode(text_t text, size_t line, const char* logname, int err)
     fprintf(log, "////////////////--CODE--////////////////" "\n");
     printf (     "////////////////--CODE--////////////////" "\n");
 
-    size_t true_line = text.line_numbers[line];
+    size_t true_line = line + 1;
     
     for (int i = -2; i <= 2; ++i)
     {

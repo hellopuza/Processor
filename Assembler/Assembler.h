@@ -24,11 +24,11 @@
 
 static const char* assembler_logname = "assembler.log";
 
-#define ASM_ASSERTOK(cond, err, printcode, p_asm, i) if (cond)                                                                 \
-                                                     {                                                                         \
-                                                         printError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                         if (printcode) printCode(p_asm, i, assembler_logname, err);           \
-                                                         exit(err); /**/                                                       \
+#define ASM_ASSERTOK(cond, err, printcode, p_asm, i) if (cond)                                                               \
+                                                     {                                                                       \
+                                                       printError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                       if (printcode) printCode(p_asm, i, assembler_logname, err);           \
+                                                       exit(err); /**/                                                       \
                                                      }
 
 
@@ -68,9 +68,9 @@ typedef struct assembler
 
 
 //------------------------------------------------------------------------------
-/*! @brief   Assmebler constructor
+/*! @brief   Assmebler constructor.
  *
- *  @param   p_asm       Pointer to assembler
+ *  @param   p_asm       Pointer to the assembler
  *  @param   filename    Name of a program file on the assembler language
  *
  *  @return  error code
@@ -79,9 +79,9 @@ typedef struct assembler
 int AsmConstruct (asm_t* p_asm, const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Assmebler destructor
+/*! @brief   Assmebler destructor.
  *
- *  @param   p_asm       Pointer to assembler
+ *  @param   p_asm       Pointer to the assembler
  *
  *  @return  error code
  */
@@ -96,7 +96,7 @@ int AsmDestruct (asm_t* p_asm);
  *           has its own binary code, and the labels have addresses to the place in the code.
  *           If a syntax error is found, the process stops and the program section with the error is output.
  *
- *  @param   p_asm       Pointer to assembler
+ *  @param   p_asm       Pointer to the assembler
  *
  *  @return  error code
  */
@@ -106,7 +106,7 @@ int Assemble (asm_t* p_asm);
 //------------------------------------------------------------------------------
 /*! @brief   Write binary program text to file.
  *
- *  @param   p_asm       Pointer to assembler
+ *  @param   p_asm       Pointer to the assembler
  *  @param   filename    File name for the program binary
  *
  *  @return  error code
@@ -135,9 +135,9 @@ char CMDIdentify (const char* word);
 char REGIdentify (const char* word);
 
 //------------------------------------------------------------------------------
-/*! @brief   Labels constructor
+/*! @brief   Labels constructor.
  *
- *  @param   p_labs      Pointer to labels array
+ *  @param   p_labs      Pointer to the labels array
  *  @param   num         Number of labels to be constructed
  *
  *  @return  error code
@@ -146,9 +146,9 @@ char REGIdentify (const char* word);
 int LabelsConstruct (labs_t* p_labs, size_t num);
 
 //------------------------------------------------------------------------------
-/*! @brief   Labels destructor
+/*! @brief   Labels destructor.
  *
- *  @param   p_labs      Pointer to labels array
+ *  @param   p_labs      Pointer to the labels array
  *
  *  @return  error code
  */
@@ -156,12 +156,12 @@ int LabelsConstruct (labs_t* p_labs, size_t num);
 int LabelsDestruct (labs_t* p_labs);
 
 //------------------------------------------------------------------------------
-/*! @brief   Checking if the line is a label
+/*! @brief   Checking if the line is a label.
  * 
  *  @note    If the label is defined, the address of the label in the code and its name locate to the labels array.
  *
- *  @param   p_labs      Pointer to labels array
- *  @param   line        Line of the line_t type
+ *  @param   p_labs      Pointer to the labels array
+ *  @param   line        Line structure of the program code
  *  @param   pos         Number of the line in the code
  *
  *  @return  error code
@@ -170,12 +170,12 @@ int LabelsDestruct (labs_t* p_labs);
 int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
 
 //------------------------------------------------------------------------------
-/*! @brief   Defining labels
+/*! @brief   Defining labels.
  * 
  *  @note    If the label is found in the defined_labels, then the address of this label
  *           locates in the program code, otherwise this label and its position locate in undefined_labels
  *
- *  @param   p_asm       Pointer to assembler
+ *  @param   p_asm       Pointer to the assembler.
  *  @param   name        Name of a label
  *  @param   num_scline  Number of a source code line
  *
@@ -185,41 +185,80 @@ int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
 int LabelDefining (asm_t* p_asm, char* name, size_t num_scline);
 
 //------------------------------------------------------------------------------
-/*! @brief   Defining labels
+/*! @brief   Redefinition of undefined labels.
  * 
- *  @note    If the label is found in the defined_labels, then the address of this label
- *           locates in the program code, otherwise this label and its position locate in undefined_labels
+ *  @note    There is a process of redefinition by an array of undefined labels.
+ *           Each label is searched for among the defined ones, if not found then an error is displayed.
  *
- *  @param   p_asm       Pointer to assembler
- *  @param   name        Name of a label
- *  @param   num_scline  Number of a source code line
- *
- *  @return  error code
+ *  @param   p_asm       Pointer to the assembler
+ * 
+ *  @return  -1 if ok, else the number of the undefined label in the array
  */
 
 int LabelRedefine (asm_t* p_asm);
 
 //------------------------------------------------------------------------------
+/*! @brief   Increase the labels array by 2 times.
+ * 
+ *  @param   p_labs      Pointer to the labels array
+ * 
+ *  @return  error code
+ */
 
 int LabelsExpand (labs_t* p_labs);
 
 //------------------------------------------------------------------------------
+/*! @brief   Delete comments in the line.
+ * 
+ *  @param   line        Pointer to the line structure
+ *  @param   comment     Comment char
+ * 
+ *  @return  position of comment in the line if found, else pointer to line, NULL if comment at the begin of the line
+ */
 
 char* DeleteComments (line_t* line, const char comment);
 
 //------------------------------------------------------------------------------
+/*! @brief   Write command without any operands to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ */
 
 void WriteCommandSingle (asm_t* p_asm, char cmd);
 
 //------------------------------------------------------------------------------
+/*! @brief   Write command with a number operand to the binary code.
+ * 
+ *  @param   p_labs      Pointer to the assembler
+ *  @param   comment     Comment char
+ *  @param   word        C string to be recognized as a number
+ *  @param   line        Line structure of the program code
+ *  @param   err         Error code
+ */
 
 void WriteCommandWithNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err);
 
 //------------------------------------------------------------------------------
+/*! @brief   Write command with register operand to the binary code.
+ * 
+ *  @param   p_labs      Pointer to the assembler
+ *  @param   comment     Comment char
+ *  @param   word        C string to be recognized as a register
+ *  @param   line        Line structure of the program code
+ *  @param   err         Error code
+ */
 
 void WriteCommandWithRegister (asm_t* p_asm, char cmd, char* word, size_t line, int err);
 
 //------------------------------------------------------------------------------
+/*! @brief   Prints a section of code with an error to the console and to the log file.
+ * 
+ *  @param   text        Text structure of the progran code
+ *  @param   line        Number of line with an error
+ *  @param   logname     Name of the log file
+ *  @param   err         Error code
+ */
 
 void printCode (text_t text, size_t line, const char* logname, int err);
 
