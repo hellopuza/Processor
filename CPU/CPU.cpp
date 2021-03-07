@@ -268,6 +268,7 @@ int CPUDestruct(cpu_t* p_cpu)
 
 void printCode(cpu_t* p_cpu, const char* logname, int err)
 {
+    assert(p_cpu   != nullptr);
     assert(logname != nullptr);
 
     FILE* log = fopen(logname, "a");
@@ -330,6 +331,9 @@ void printCode(cpu_t* p_cpu, const char* logname, int err)
 
 void Pop1Number(cpu_t* p_cpu, NUM_TYPE* num)
 {
+    assert(p_cpu != nullptr);
+    assert(num   != nullptr);
+
     *num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
     CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
 }
@@ -338,6 +342,10 @@ void Pop1Number(cpu_t* p_cpu, NUM_TYPE* num)
 
 void Pop2Numbers(cpu_t* p_cpu, NUM_TYPE* num1, NUM_TYPE* num2)
 {
+    assert(p_cpu != nullptr);
+    assert(num1  != nullptr);
+    assert(num2  != nullptr);
+
     *num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
     CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
 
