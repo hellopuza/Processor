@@ -1,11 +1,12 @@
 /*------------------------------------------------------------------------------
     * File:        CPU.cpp                                                     *
-    * Description: ***********************************                         *
+    * Description: Functions to executing binary programs                      *
     * Created:     7 feb 2021                                                  *
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #include "CPU.h"
 

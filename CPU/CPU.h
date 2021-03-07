@@ -1,11 +1,13 @@
 /*------------------------------------------------------------------------------
     * File:        CPU.h                                                       *
-    * Description: ***********************************                         *
+    * Description: Declaration of functions and data types used for executing  *
+                   binary programs                                             *
     * Created:     7 feb 2021                                                  *
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #ifndef CPU_H_INCLUDED
 #define CPU_H_INCLUDED

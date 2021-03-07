@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     * File:        Commands.h                                                  *
-    * Description: ***********************************                         *
+    * Description: Names of commands, registers and their codes                *
     * Created:     7 feb 2021                                                  *
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
