@@ -1,0 +1,14 @@
+###############################################################################
+TIME: 2021-03-07 13:51:04
+
+ERROR: file C:\Users\admin\Documents\Visual Studio 2019\Projects\Processor\Processor\Assembler\Assembler.cpp  line 89  function Assemble
+
+Unidentified command
+////////////////--CODE--////////////////
+     15: factorial 
+     16: 
+=>   17: pushd rax
+     18: push 2
+     19: jb ret
+////////////////////////////////////////
+
