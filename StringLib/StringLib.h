@@ -32,7 +32,13 @@ typedef size_t ptr_t;
 #endif // PTR_T
 
 
-static const char* default_name = __FILE__;
+static const char* string_logname = "string.log";
+
+#define STR_ASSERTOK(cond, err)  if (cond)                                                              \
+                                 {                                                                      \
+                                     printError(string_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                     return err; /**/                                                   \
+                                 }
 
 
 typedef struct line
@@ -45,8 +51,14 @@ typedef struct text_info
 {
    char*   text        = nullptr;
    size_t  size        = 0;
+   
    size_t  num         = 0;
    line_t* lines       = nullptr;
+
+   size_t  sloc        = 0;
+   line_t* sclines     = nullptr;
+
+   size_t* line_numbers = nullptr;
 } text_t;
 
 typedef struct byte_code
@@ -111,6 +123,7 @@ int BCodeConstruct (bcode_t* p_bcode, size_t size);
 
 int fillinBCodeStruct (bcode_t* p_bcode, const char* filename);
 
+int BCodeExpand (bcode_t* p_bcode);
 //------------------------------------------------------------------------------
 /*! @brief   Clean the structure of byte code
  *
@@ -157,12 +170,14 @@ char* GetText (FILE* fp, size_t len);
 /*! @brief   Get number of lines in text
  *
  *  @param   text contains text
- *  @param   len is length of text
+ *  @param   len  length of text
  *
  *  @return  number of lines in text
  */
 
 size_t GetLineNum (char* text, size_t len);
+
+size_t GetSLOC (char* text, size_t len);
 
 //------------------------------------------------------------------------------
 /*! @brief   Get pointers to start of lines and their lengths
@@ -173,7 +188,7 @@ size_t GetLineNum (char* text, size_t len);
  *  @return  array of lines
  */
 
-struct line* GetLine (const char* text, size_t num);
+line_t** GetLine (char* text, size_t num, size_t sloc, size_t** line_numbers);
 
 //------------------------------------------------------------------------------
 /*! @brief   Get number of words in string

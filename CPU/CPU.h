@@ -29,8 +29,19 @@
 #include "../StackLib/Stack.h"
 #undef TYPE
 
-const size_t DEFAULT_STACK_CAPACITY = 8;
 
+static const char* cpu_logname = "cpu.log";
+
+#define CPU_ASSERTOK(cond, err, printcode, p_cpu) if (cond)                                                           \
+                                                  {                                                                   \
+                                                      printError(cpu_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                      if (printcode) printCode(p_cpu, cpu_logname, err);              \
+                                                      exit(err); /**/                                                 \
+                                                  }
+
+
+const size_t DEFAULT_STACK_CAPACITY = 8;
+const double NIL  = 1e-7;
 
 typedef struct CPU
 {
@@ -52,6 +63,18 @@ int Execute (cpu_t* p_cpu);
 //------------------------------------------------------------------------------
 
 int CPUDestruct (cpu_t* p_cpu);
+
+//------------------------------------------------------------------------------
+
+void printCode(cpu_t* p_cpu, const char* logname, int err);
+
+//------------------------------------------------------------------------------
+
+void Pop1Number (cpu_t* p_cpu, NUM_TYPE* num);
+
+//------------------------------------------------------------------------------
+
+void Pop2Numbers (cpu_t* p_cpu, NUM_TYPE* num1, NUM_TYPE* num2);
 
 //------------------------------------------------------------------------------
 

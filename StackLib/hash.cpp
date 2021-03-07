@@ -1,11 +1,13 @@
 /*------------------------------------------------------------------------------
     * File:        hash.cpp                                                    *
-    * Description: Implementations of hash functions                           *
+    * Description: Functions to compute hash message digest of files or memory *
+                   blocks.                                                     *
     * Created:     1 dec 2020                                                  *
     * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #include "hash.h"
 

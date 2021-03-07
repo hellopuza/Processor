@@ -26,8 +26,6 @@ typedef size_t ptr_t;
 const size_t POINTER_SIZE = sizeof(PTR_TYPE);
 const size_t NUMBER_SIZE  = sizeof(NUM_TYPE);
 
-const double NIL  = 1e-7;
-
 const int NUM_FLAG = 0x80;
 const int REG_FLAG = 0x40;
 

@@ -20,18 +20,12 @@ int TextConstruct(text_t* txtstruct, const char* filename)
     if ((fp = fopen(filename, "r")) == NULL)
     {
         printf("\n ERROR. Input file \"%s\" is not found\n", filename);
-        printf(" \"%s\" will be opened instead\n", default_name);
 
-        fp = fopen(default_name, "r");
+        return NOT_OK;
     }
 
     int err = fillinTextStruct(txtstruct, fp);
-
-    if (err)
-    {
-        printf(errstr[err + 1]);
-        return err;
-    }
+    STR_ASSERTOK(err, err);
 
     fclose(fp);
 
@@ -45,10 +39,9 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
     assert(txtstruct != nullptr);
     assert(fp != nullptr);
 
-
     txtstruct->size = CountSize(fp);
     if (txtstruct->size == 0)
-        return NO_SYMB;
+        return STR_NO_SYMB;
 
     txtstruct->text = GetText(fp, txtstruct->size);
     if (txtstruct->text == nullptr)
@@ -56,12 +49,18 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 
     txtstruct->num = GetLineNum(txtstruct->text, txtstruct->size);
     if (txtstruct->num == 0)
-        return NO_LINES;
+        return STR_NO_LINES;
+    
+    txtstruct->sloc = GetSLOC(txtstruct->text, txtstruct->size);
+    if (txtstruct->sloc == 0)
+        return STR_NO_LINES;
 
-    txtstruct->lines = GetLine(txtstruct->text, txtstruct->num);
-    if (txtstruct->lines == nullptr)
+    line_t** lines = GetLine(txtstruct->text, txtstruct->num, txtstruct->sloc, &txtstruct->line_numbers);
+    if (lines == nullptr)
         return NO_MEMORY;
 
+    txtstruct->lines   = lines[0];
+    txtstruct->sclines = lines[1];
 
     return OK;
 }
@@ -78,7 +77,14 @@ int TextDestruct(text_t* txtstruct)
     {
         free(txtstruct->lines);
         txtstruct->lines = nullptr;
-        txtstruct->lines = 0;
+        txtstruct->num   = 0;
+    }
+
+    if (txtstruct->sloc != 0)
+    {
+        free(txtstruct->sclines);
+        txtstruct->sclines = nullptr;
+        txtstruct->sloc    = 0;
     }
 
     if (txtstruct->size != 0)
@@ -98,9 +104,8 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
     assert(p_bcode != nullptr);
     assert(size);
 
-    p_bcode->data = (char*)calloc(size, 1);
-    if (p_bcode->data == nullptr)
-        return NO_MEMORY;
+    p_bcode->data = (char*)calloc(size + 2, 1);
+    STR_ASSERTOK((p_bcode->data == nullptr) , NO_MEMORY);
 
     p_bcode->ptr = 0;
     p_bcode->size = size;
@@ -120,16 +125,14 @@ int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
     {
         printf("\n ERROR. Input file \"%s\" is not found\n", filename);
 
-        return 0;
+        return NOT_OK;
     }
 
     p_bcode->size = CountSize(fp);
-    if (p_bcode->size == 0)
-        return NO_SYMB;
+    STR_ASSERTOK((p_bcode->size == 0) , NO_MEMORY);
 
     p_bcode->data = GetText(fp, p_bcode->size);
-    if (p_bcode->data == nullptr)
-        return NO_MEMORY;
+    STR_ASSERTOK((p_bcode->data == nullptr) , NO_MEMORY);
 
     fclose(fp);
 
@@ -140,15 +143,35 @@ int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
 
 //------------------------------------------------------------------------------
 
+int BCodeExpand(bcode_t* p_bcode)
+{
+    assert(p_bcode != nullptr);
+
+    p_bcode->size*= 2;
+
+    void* temp = calloc(p_bcode->size + 2, 1);
+    if (temp == nullptr)
+        return NO_MEMORY;
+
+    void* oldtemp = p_bcode->data;
+    memcpy(temp, p_bcode->data, p_bcode->size / 2);
+    free(oldtemp);
+
+    p_bcode->data = (char*)temp;
+
+    return OK;
+}
+
+//------------------------------------------------------------------------------
+
 int BCodeDestruct(bcode_t* p_bcode)
 {
     assert(p_bcode != nullptr);
 
-
     if (p_bcode->size != 0)
     {
         free(p_bcode->data);
-        p_bcode->ptr = 0;
+        p_bcode->ptr  = 0;
         p_bcode->size = 0;
     }
 
@@ -211,15 +234,11 @@ size_t GetLineNum(char* text, size_t len)
 
     while (text - start <= len)
     {
-        while (isspace(*text++) && (text - start < len));
-
-        if ((! isspace(*(text - 1))) && (*(text - 1) != '\0'))
-            ++num;
+        ++num;
 
         text = strchr(text, '\n') + 1;
         if ((int)text == 1)
             break;
-        *(text - 1) = '\0';
     }
 
     return num;
@@ -227,27 +246,94 @@ size_t GetLineNum(char* text, size_t len)
 
 //------------------------------------------------------------------------------
 
-struct line* GetLine(const char* text, size_t num)
+size_t GetSLOC(char* text, size_t len)
+{
+    assert(text != nullptr);
+    assert(len);
+
+    char* start = text;
+
+    size_t sloc = 0;
+
+    while (text - start <= len)
+    {
+        while (isspace(*text++) && (text - start < len));
+
+        if ((! isspace(*(text - 1))) && (*(text - 1) != '\0'))
+            ++sloc;
+
+        text = strchr(text, '\n') + 1;
+        if ((int)text == 1)
+            break;
+    }
+
+    return sloc;
+}
+
+//------------------------------------------------------------------------------
+
+line_t** GetLine(char* text, size_t num, size_t sloc, size_t** line_numbers)
 {
     assert(text != nullptr);
     assert(num);
 
-    struct line* Lines = (struct line*)calloc(num + 2, sizeof(struct line));
-    struct line* temp = Lines;
+    line_t* Lines = (line_t*)calloc(num + 2, sizeof(line_t));
+    if (Lines == nullptr)
+        return nullptr;
+
+    line_t* SCLines = (line_t*)calloc(sloc + 2, sizeof(line_t));
+    if (SCLines == nullptr)
+        return nullptr;
+
+    *line_numbers = (size_t*)calloc(sloc + 2, sizeof(size_t));
+    if (*line_numbers == nullptr)
+        return nullptr;
+
+    line_t* temp1 = Lines;
+    line_t* temp2 = SCLines;
+
+    int line_cur   = 0;
+    int scline_cur = 0;
 
     while (num-- > 0)
     {
-        while (isspace(*text++));
-        --text;
+        while (isspace(*text) && (*text != '\n'))
+            ++text;
+        
+        if (*text == '\n')
+        {
+            temp1->str = (char*)"";
+            temp1->len = 0;
 
-        temp->str = (char*)text;
-        temp->len = strlen(text);
-        temp++;
+            text = strchr(text, '\n');
+            if (text == 0) break;
+        }
+        else
+        {
+            temp1->str = (char*)text;
+            temp2->str = (char*)text;
 
-        text = strchr(text, '\0') + 1;
+            text = strchr(text, '\n');
+            if (text == 0) break;
+
+            temp1->len = text - temp1->str;
+            temp2->len = text - temp2->str;
+
+            (*line_numbers)[scline_cur++] = line_cur + 1;
+            
+            ++temp2;
+        }
+
+        text[0] = '\0';
+
+        ++line_cur;
+        ++temp1;
+        ++text;
     }
 
-    return Lines;
+    line_t* p_lines[2] = { Lines, SCLines };
+
+    return p_lines;
 }
 
 //------------------------------------------------------------------------------
@@ -257,7 +343,7 @@ size_t GetWordNum(line_t line)
     assert(line.str != nullptr);
 
     int num = 0;
-    char f = 0;
+    char f  = 0;
     for (int i = 0; i <= line.len; ++i)
     {
         char c = *(line.str + i);
@@ -288,6 +374,8 @@ size_t chrcnt(char* str, char c)
     {
         ++count;
         str = strchr(str + 1, c);
+        if ((int)str == 0)
+            break;
     }
 
     return count;

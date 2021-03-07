@@ -11,9 +11,8 @@ call factorial
 push rbx
 out
 hlt
-
-
-factorial: 
+;;;;;;;;;;;;;;;;;;;;
+factorial:
 
 push rax
 push 2
@@ -34,7 +33,7 @@ ret
 
 ret:
 ret
-
+;;;;;;;;;;;;;;;;;;;;
 less_zero:
 push -666
 pop rbx

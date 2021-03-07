@@ -13,10 +13,14 @@
 
 int CPUConstruct(cpu_t* p_cpu, const char* filename)
 {
-    assert(p_cpu != nullptr);
+    assert(p_cpu    != nullptr);
     assert(filename != nullptr);
 
-    fillinBCodeStruct(&p_cpu->bcode, filename);
+    int err = 0;
+
+    err = fillinBCodeStruct(&p_cpu->bcode, filename);
+    CPU_ASSERTOK(err, err, 0, {});
+
     TEMPLATE(_StackConstruct, NUM_TYPE) (&p_cpu->stkCPU_NUM, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM");
     TEMPLATE(_StackConstruct, PTR_TYPE) (&p_cpu->stkCPU_PTR, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_PTR");
 
@@ -24,8 +28,6 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
     {
         p_cpu->registers[i] = TEMPLATE(NUM_TYPE, POISON);
     }
-    
-    //checking
 
     return OK;
 }
@@ -50,6 +52,8 @@ int Execute(cpu_t* p_cpu)
 
     while (p_cpu->bcode.ptr < p_cpu->bcode.size)
     {
+        char cond = 0;
+
         cmd = p_cpu->bcode.data[p_cpu->bcode.ptr++];
 
         switch (cmd)
@@ -61,10 +65,7 @@ int Execute(cpu_t* p_cpu)
 
         case CMD_PUSH | NUM_FLAG:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < NUMBER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < NUMBER_SIZE), CPU_NO_SPACE_FOR_NUMBER, 1, p_cpu);
 
             num = *(NUM_TYPE*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
@@ -73,125 +74,109 @@ int Execute(cpu_t* p_cpu)
 
         case CMD_PUSH | REG_FLAG:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < 1)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            if (reg > REG_NUM)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-            if (TEMPLATE(isPOISON, NUM_TYPE) (p_cpu->registers[reg - 1]))
-            {
-                // register is empty
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((reg > REG_NUM), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, p_cpu->registers[reg - 1]);
             break;
 
         case CMD_POP:
 
-            TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop1Number(p_cpu, &num);
             break;
 
         case CMD_POP | REG_FLAG:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < 1)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            if (reg > REG_NUM)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((reg > REG_NUM), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            p_cpu->registers[reg - 1] = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop1Number(p_cpu, &num);
+
+            p_cpu->registers[reg - 1] = num;
             break;
 
         case CMD_ADD:
 
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop2Numbers(p_cpu, &num1, &num2);
+            
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 + num1);
             break;
 
         case CMD_SUB:
 
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop2Numbers(p_cpu, &num1, &num2);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 - num1);
             break;
 
         case CMD_MUL:
 
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop2Numbers(p_cpu, &num1, &num2);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 * num1);
             break;
 
         case CMD_DIV:
 
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            if (fabs(num1) < NIL)
-                return DIVISION_BY_ZERO;
+            Pop2Numbers(p_cpu, &num1, &num2);
+            
+            CPU_ASSERTOK((fabs(num1) < NIL), CPU_DIVISION_BY_ZERO, 0, {});
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num2 / num1);
             break;
 
         case CMD_NEG:
 
-            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop1Number(p_cpu, &num);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, -num);
             break;
 
         case CMD_SIN:
 
-            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop1Number(p_cpu, &num);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)sin(num));
             break;
 
         case CMD_COS:
 
-            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            Pop1Number(p_cpu, &num);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)cos(num));
             break;
 
         case CMD_SQRT:
 
-            num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            if (num < 0)
-                return ROOT_OF_A_NEG_NUMBER;
+            Pop1Number(p_cpu, &num);
+
+            CPU_ASSERTOK((num < 0), CPU_ROOT_OF_A_NEG_NUMBER, 0, {});
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, (NUM_TYPE)sqrt(num));
             break;
 
         case CMD_IN:
 
             printf("IN: ");
-            if (scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1)
-                return INCORRECT_INPUT;
+            CPU_ASSERTOK((scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1), CPU_INCORRECT_INPUT, 0, {});
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
             break;
 
         case CMD_IN | REG_FLAG:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < 1)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
+
             printf("IN: ");
-            if (scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1)
-                return INCORRECT_INPUT;
+            CPU_ASSERTOK((scanf(TEMPLATE(NUM_TYPE, PRINT_FORMAT), &num) != 1), CPU_INCORRECT_INPUT, 0, {});
 
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            if (reg > REG_NUM)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((reg > REG_NUM), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
             p_cpu->registers[reg - 1] = num;
             break;
@@ -199,6 +184,8 @@ int Execute(cpu_t* p_cpu)
         case CMD_OUT:
 
             num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (num)), STACK_EMPTY_STACK, 1, p_cpu);
+
             TEMPLATE(StackPush, NUM_TYPE) (&p_cpu->stkCPU_NUM, num);
 
             printf("OUT: " TEMPLATE(NUM_TYPE, PRINT_FORMAT) "\n", num);
@@ -206,136 +193,53 @@ int Execute(cpu_t* p_cpu)
 
         case CMD_JMP:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
 
-            memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            p_cpu->bcode.ptr = *(ptr_t*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             break;
 
         case CMD_JE:
-
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            
-            if (num2 == num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
-            else
-                p_cpu->bcode.ptr += POINTER_SIZE;
-            break;
-
         case CMD_JNE:
-
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-
-            if (num2 != num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
-            else
-                p_cpu->bcode.ptr += POINTER_SIZE;
-            break;
-
         case CMD_JA:
-
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-
-            if (num2 > num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
-            else
-                p_cpu->bcode.ptr += POINTER_SIZE;
-            break;
-
         case CMD_JAE:
-
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-
-            if (num2 >= num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
-            else
-                p_cpu->bcode.ptr += POINTER_SIZE;
-            break;
-
         case CMD_JB:
-
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-
-            if (num2 < num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
-            else
-                p_cpu->bcode.ptr += POINTER_SIZE;
-            break;
-
         case CMD_JBE:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
-
-            num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-            num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
-
-            if (num2 <= num1)
-                memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
+            Pop2Numbers(p_cpu, &num1, &num2);
+            
+            if (cmd == CMD_JE)  cond = (num2 == num1);
+            if (cmd == CMD_JNE) cond = (num2 != num1);
+            if (cmd == CMD_JA)  cond = (num2 >  num1);
+            if (cmd == CMD_JAE) cond = (num2 >= num1);
+            if (cmd == CMD_JB)  cond = (num2 <  num1);
+            if (cmd == CMD_JBE) cond = (num2 <= num1);
+            if (cond)
+                p_cpu->bcode.ptr = *(ptr_t*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             else
                 p_cpu->bcode.ptr += POINTER_SIZE;
             break;
 
         case CMD_CALL:
 
-            if (p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE)
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
 
             TEMPLATE(StackPush, PTR_TYPE) (&p_cpu->stkCPU_PTR, (PTR_TYPE)(p_cpu->bcode.ptr + POINTER_SIZE));
-            memcpy(&p_cpu->bcode.ptr, p_cpu->bcode.data + p_cpu->bcode.ptr, POINTER_SIZE);
+            p_cpu->bcode.ptr = *(ptr_t*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             break;
 
         case CMD_RET:
 
             ptr = TEMPLATE(StackPop, PTR_TYPE) (&p_cpu->stkCPU_PTR);
-
-            if (TEMPLATE(isPOISON, PTR_TYPE) (ptr))
-            {
-                printf("#efee %d eefe#", __LINE__);
-            }
+            CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_NO_RET_ADDRESS, 1, p_cpu);
 
             p_cpu->bcode.ptr = ptr;
             break;
 
         default:
 
-            printf("#efee %d eefe#", __LINE__);
+            CPU_ASSERTOK(1, CPU_UNIDENTIFIED_COMMAND, 1, p_cpu);
+
             return NOT_OK;
         }
     }
@@ -363,4 +267,83 @@ int CPUDestruct(cpu_t* p_cpu)
 
 //------------------------------------------------------------------------------
 
+void printCode(cpu_t* p_cpu, const char* logname, int err)
+{
+    assert(logname != nullptr);
 
+    FILE* log = fopen(logname, "a");
+    assert(log != nullptr);
+
+    fprintf(log, " Address: %08X\n\n", p_cpu->bcode.ptr);
+    printf (     " Address: %08X\n\n", p_cpu->bcode.ptr);
+
+    fprintf(log, "//////////////////////--CODE--//////////////////////" "\n");
+    printf (     "//////////////////////--CODE--//////////////////////" "\n");
+
+    fprintf(log, "     Address ");
+    printf (     "     Address ");
+    for (char i = 0; i < 0x10; ++i)
+    {
+        fprintf(log, "| %X ", i);
+        printf (     "| %X ", i);
+    }
+    fprintf(log, "\n");
+    printf (     "\n");
+
+    size_t line = p_cpu->bcode.ptr - (p_cpu->bcode.ptr % 0x10);
+    size_t last_line = p_cpu->bcode.size - (p_cpu->bcode.size % 0x10);
+
+    for (char i = -0x20; i <= 0x20; i += 0x10)
+    {
+        if ((line + i >= 0) && (line + i <= last_line))
+        {
+            fprintf(log, "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
+            printf (     "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
+
+            for (char b = 0; b < 0x10; ++b)
+            {
+                if (line + i + b == p_cpu->bcode.size) break;
+
+                fprintf(log, "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + b]);
+                printf (     "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + b]);
+            }
+
+            fprintf(log, "\n");
+            printf (     "\n");
+        }
+    }
+
+    for (int i = 0; i < 14 + 4*(p_cpu->bcode.ptr % 0x10); ++i)
+    {
+        fprintf(log, "=");
+        printf (     "=");
+    }
+    fprintf(log, "/\\\n");
+    printf (     "/\\\n");
+
+    fprintf(log, "////////////////////////////////////////////////////" "\n\n");
+    printf (     "////////////////////////////////////////////////////" "\n\n");
+
+    fclose(log);
+}
+
+//------------------------------------------------------------------------------
+
+void Pop1Number(cpu_t* p_cpu, NUM_TYPE* num)
+{
+    *num = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
+}
+
+//------------------------------------------------------------------------------
+
+void Pop2Numbers(cpu_t* p_cpu, NUM_TYPE* num1, NUM_TYPE* num2)
+{
+    *num1 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
+
+    *num2 = TEMPLATE(StackPop, NUM_TYPE) (&p_cpu->stkCPU_NUM);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
+}
+
+//------------------------------------------------------------------------------
