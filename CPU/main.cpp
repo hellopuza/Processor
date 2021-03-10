@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     cpu_t cpu = {};
     CPUConstruct(&cpu, argv[1]);
 
-    Execute(&cpu);
+    Execute(&cpu, argv[1]);
 
     CPUDestruct(&cpu);
 

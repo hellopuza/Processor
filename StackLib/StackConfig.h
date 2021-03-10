@@ -19,11 +19,13 @@
 #include <time.h>
 
 #define CONSOLE_PRINT if(1)
-#define DUMP_PRINT    if(1)
+#define DUMP_PRINT    if(0)
 static const char* stack_logname = "stack.log";
 
+/*
 #define CANARY_PROTECT
 #define HASH_PROTECT
+*/
 
 
 #ifndef PTR_T
@@ -60,8 +62,6 @@ typedef size_t ptr_t;
 #define char_POISON          '\0'
 
 
-typedef size_t error_t;
-
 static const size_t MAX_STACK_NUM = 100;
 static const size_t MAX_CAPACITY  = 100000;
 
@@ -74,7 +74,12 @@ typedef unsigned long long can_t;
 static can_t perfect_canary = (srand(time(NULL)), rand());
 static can_t canaries[MAX_STACK_NUM] = {};
 
+#else
+
+typedef char can_t;
+
 #endif //CANARY_PROTECT
+
 
 #ifndef ERRORS_DEFINED
 #define ERRORS_DEFINED
@@ -86,15 +91,15 @@ enum Errors
     NO_MEMORY                                                       ,
     STACK_CANARY_DIED                                               ,
     STACK_CAPACITY_WRONG_VALUE                                      ,
+    STACK_CONSTRUCTED                                               ,
+    STACK_DESTRUCTED                                                ,
     STACK_EMPTY_STACK                                               ,
     STACK_INCORRECT_HASH                                            ,
+    STACK_NOT_CONSTRUCTED                                           ,
     STACK_NULL_DATA_PTR                                             ,
     STACK_NULL_INPUT_STACK_PTR                                      ,
     STACK_NULL_STACK_PTR                                            ,
     STACK_SIZE_BIGGER_CAPACITY                                      ,
-    STACK_CONSTRUCTED                                               ,
-    STACK_DESTRUCTED                                                ,
-    STACK_NOT_CONSTRUCTED                                           ,
     STACK_TOO_MANY_STACKS                                           ,
     STACK_WRONG_CUR_SIZE                                            ,
     STACK_WRONG_INPUT_CAPACITY_VALUE_BIG                            ,
@@ -108,15 +113,15 @@ static const char* errstr[] =
     "Failed to allocate memory"                                     ,
     "Stack cracked, canary was killed"                              ,
     "Bad size stack capacity"                                       ,
+    "Stack already constructed"                                     ,
+    "Stack already destructed"                                      ,
     "Stack is empty"                                                ,
     "Stack cracked, hash corrupted"                                 ,
+    "Stack did not constructed, operation is impossible"            ,
     "The pointer to the stack is null, data lost"                   ,
     "The input value of the stack pointer turned out to be zero"    ,
     "The pointer to the stack is null, stack lost"                  ,
     "The size of the stack data is larger than the capacity"        ,
-    "Stack already constructed"                                     ,
-    "Stack already destructed"                                      ,
-    "Stack did not constructed, operation is impossible"            ,
     "Too many stacks created, cannot create a new one"              ,
     "Current size of stack data is wrong"                           ,
     "Wrong capacity value: - is too big"                            ,

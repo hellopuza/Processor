@@ -15,6 +15,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
+#include "../TXLib.h"
 
 #include <assert.h>
 
@@ -23,7 +24,11 @@
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
-#define TYPE NUM_TYPE
+#define TYPE NUM_INT_TYPE
+#include "../StackLib/Stack.h"
+#undef TYPE
+
+#define TYPE NUM_FLT_TYPE
 #include "../StackLib/Stack.h"
 #undef TYPE
 
@@ -44,6 +49,8 @@ static const char* cpu_logname = "cpu.log";
 
 const size_t DEFAULT_STACK_CAPACITY = 8;
 const double NIL  = 1e-7;
+const size_t RAM_SIZE   = 2097152; // 2 MB
+const size_t PIXEL_SIZE = 3;
 
 typedef struct CPU
 {
@@ -51,10 +58,14 @@ typedef struct CPU
 
     bcode_t bcode = {};
 
-    TEMPLATE(stack, NUM_TYPE) stkCPU_NUM;
+    char* RAM;
+
+    TEMPLATE(stack, NUM_INT_TYPE) stkCPU_NUM_INT;
+    TEMPLATE(stack, NUM_FLT_TYPE) stkCPU_NUM_FLT;
+
     TEMPLATE(stack, PTR_TYPE) stkCPU_PTR;
 
-    NUM_TYPE registers[REG_NUM] = {};
+    NUM_FLT_TYPE registers[REG_NUM] = {};
 } cpu_t;
 
 
@@ -77,11 +88,12 @@ int CPUConstruct (cpu_t* p_cpu, const char* filename);
  *           the process stops and the code section with the error is output.
  *
  *  @param   p_cpu       Pointer to the CPU
+ *  @param   filename    Name of a binary code file
  *
  *  @return  error code
  */
 
-int Execute (cpu_t* p_cpu);
+int Execute (cpu_t* p_cpu, char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   CPU destructor.
@@ -104,21 +116,38 @@ int CPUDestruct (cpu_t* p_cpu);
 void printCode (cpu_t* p_cpu, const char* logname, int err);
 
 //------------------------------------------------------------------------------
-/*! @brief   Pop one number from stack.
+/*! @brief   Pop one int number from stack.
  * 
  *  @param   num         Pointer to the number
  */
 
-void Pop1Number (cpu_t* p_cpu, NUM_TYPE* num);
+void Pop1IntNumber (cpu_t* p_cpu, NUM_INT_TYPE* num);
 
 //------------------------------------------------------------------------------
-/*! @brief   Pop two numbers from stack.
+/*! @brief   Pop two int numbers from stack.
  * 
  *  @param   num1        Pointer to the first number of stack (top of the stack)
  *  @param   num2        Pointer to the second number of stack
  */
 
-void Pop2Numbers (cpu_t* p_cpu, NUM_TYPE* num1, NUM_TYPE* num2);
+void Pop2IntNumbers (cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
+
+//------------------------------------------------------------------------------
+/*! @brief   Pop one float number from stack.
+ * 
+ *  @param   num         Pointer to the number
+ */
+
+void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num);
+
+//------------------------------------------------------------------------------
+/*! @brief   Pop two float numbers from stack.
+ * 
+ *  @param   num1        Pointer to the first number of stack (top of the stack)
+ *  @param   num2        Pointer to the second number of stack
+ */
+
+void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
 
 //------------------------------------------------------------------------------
 

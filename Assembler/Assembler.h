@@ -135,6 +135,89 @@ char CMDIdentify (const char* word);
 char REGIdentify (const char* word);
 
 //------------------------------------------------------------------------------
+/*! @brief   Delete comments in the line.
+ * 
+ *  @param   line        Pointer to the line structure
+ *  @param   comment     Comment char
+ * 
+ *  @return  position of comment in the line if found, else pointer to line, NULL if comment at the begin of the line
+ */
+
+char* DeleteComments (line_t* line, const char comment);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write an int number to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   word        C string to be recognized as a number
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ *  @param   flag        Additional command flag
+ */
+
+void WriteIntNumber (asm_t* p_asm, char* word, size_t line, int err);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command without any operands to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ *  @param   flag        Additional command flag
+ */
+
+void WriteCommandSingle (asm_t* p_asm, char cmd, char flag);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command with an int number operand to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ *  @param   word        C string to be recognized as a number
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ *  @param   flag        Additional command flag
+ */
+
+void WriteCommandWithIntNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command with a float number operand to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ *  @param   word        C string to be recognized as a number
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ */
+
+void WriteCommandWithFloatNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command with register operand to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ *  @param   word        C string to be recognized as a register
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ *  @param   flag        Additional command flag
+ */
+
+void WriteCommandWithRegister (asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command with pointer operand to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   cmd         Command code
+ *  @param   word        C string to be recognized as a register
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ */
+
+void WriteCommandWithPointer (asm_t* p_asm, char cmd, char* word, size_t line, int err);
+
+//------------------------------------------------------------------------------
 /*! @brief   Labels constructor.
  *
  *  @param   p_labs      Pointer to the labels array
@@ -206,50 +289,6 @@ int LabelRedefine (asm_t* p_asm);
  */
 
 int LabelsExpand (labs_t* p_labs);
-
-//------------------------------------------------------------------------------
-/*! @brief   Delete comments in the line.
- * 
- *  @param   line        Pointer to the line structure
- *  @param   comment     Comment char
- * 
- *  @return  position of comment in the line if found, else pointer to line, NULL if comment at the begin of the line
- */
-
-char* DeleteComments (line_t* line, const char comment);
-
-//------------------------------------------------------------------------------
-/*! @brief   Write command without any operands to the binary code.
- * 
- *  @param   p_asm       Pointer to the assembler
- *  @param   cmd         Command code
- */
-
-void WriteCommandSingle (asm_t* p_asm, char cmd);
-
-//------------------------------------------------------------------------------
-/*! @brief   Write command with a number operand to the binary code.
- * 
- *  @param   p_labs      Pointer to the assembler
- *  @param   comment     Comment char
- *  @param   word        C string to be recognized as a number
- *  @param   line        Line structure of the program code
- *  @param   err         Error code
- */
-
-void WriteCommandWithNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err);
-
-//------------------------------------------------------------------------------
-/*! @brief   Write command with register operand to the binary code.
- * 
- *  @param   p_labs      Pointer to the assembler
- *  @param   comment     Comment char
- *  @param   word        C string to be recognized as a register
- *  @param   line        Line structure of the program code
- *  @param   err         Error code
- */
-
-void WriteCommandWithRegister (asm_t* p_asm, char cmd, char* word, size_t line, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.

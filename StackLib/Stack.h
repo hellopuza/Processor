@@ -32,22 +32,22 @@
 #endif // HASH_PROTECT
 
 
-#define STACK_CHECK(p_stk) if (TEMPLATE(StackCheck, TYPE) (p_stk, __FUNCTION__))                                           \
-                           {                                                                                               \
-                               FILE* log = fopen(stack_logname, "a");                                                      \
-                               assert (log != nullptr);                                                                    \
-                               fprintf(log, "ERROR: file %s  line %d  function %s\n\n", __FILE__, __LINE__, __FUNCTION__); \
-                               printf (     "ERROR: file %s  line %d  function %s\n",   __FILE__, __LINE__, __FUNCTION__); \
-                               fclose(log);                                                                                \
-                               TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__, stack_logname);                             \
-                               exit(p_stk->errCode); /**/                                                                  \
+#define STACK_CHECK(p_stk) if (TEMPLATE(StackCheck, TYPE) (p_stk, __FUNCTION__))                                         \
+                           {                                                                                             \
+                             FILE* log = fopen(stack_logname, "a");                                                      \
+                             assert (log != nullptr);                                                                    \
+                             fprintf(log, "ERROR: file %s  line %d  function %s\n\n", __FILE__, __LINE__, __FUNCTION__); \
+                             printf (     "ERROR: file %s  line %d  function %s\n",   __FILE__, __LINE__, __FUNCTION__); \
+                             fclose(log);                                                                                \
+                             TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__, stack_logname);                             \
+                             exit(p_stk->errCode); /**/                                                                  \
                            }
 
 
-#define STACK_ASSERTOK(cond, err) if (cond)                                                                               \
-                                  {                                                                                       \
-                                      TEMPLATE(printError, TYPE) (stack_logname , __FILE__, __LINE__, __FUNCTION__, err); \
-                                      exit(err); /**/                                                                     \
+#define STACK_ASSERTOK(cond, err) if (cond)                                                                             \
+                                  {                                                                                     \
+                                    TEMPLATE(printError, TYPE) (stack_logname , __FILE__, __LINE__, __FUNCTION__, err); \
+                                    exit(err); /**/                                                                     \
                                   }
 
 
@@ -70,7 +70,9 @@ static char* stack_name = nullptr;
 typedef struct TEMPLATE(Stack, TYPE)
 {
 ///////////////TRY-TO-HACK///////////////
+#ifdef CANARY_PROTECT
     can_t canary1;
+#endif //CANARY_PROTECT
 
     size_t  capacity;
     size_t  size_cur;
@@ -86,7 +88,9 @@ typedef struct TEMPLATE(Stack, TYPE)
     hash_t datahash;
 #endif // HASH_PROTECT
 
+#ifdef CANARY_PROTECT
     can_t canary2;
+#endif //CANARY_PROTECT
 ///////////////TRY-TO-HACK///////////////
 } TEMPLATE(stack, TYPE);
 
@@ -107,7 +111,7 @@ typedef struct TEMPLATE(Stack, TYPE)
  *  @return  error code
  */
 
-static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t capacity, char* stack_name);
+static int TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t capacity, char* stack_name);
 
 //------------------------------------------------------------------------------
 /*! @brief   Stack destructor.
@@ -117,7 +121,7 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
  *  @return  error code
  */
 
-static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
+static int TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pushing a value onto the stack.
@@ -128,7 +132,7 @@ static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
  *  @return  error code
  */
 
-static error_t TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value);
+static int TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value);
 
 //------------------------------------------------------------------------------
 /*! @brief   Popping from stack.
@@ -166,7 +170,7 @@ static int TEMPLATE(isPOISON, TYPE) (TYPE value);
  *  @return  error code
  */
 
-static error_t TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
+static int TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 
 //------------------------------------------------------------------------------
 /*! @brief   Calculates the size of the structure stack without hash and second canary.
@@ -188,7 +192,7 @@ static size_t TEMPLATE(StackSizeForHash, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
  *  @return  error code
  */
 
-static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname = "@some function@", const char* logfile = stack_logname);
+static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname = "@some function@", const char* logfile = stack_logname);
 
 //------------------------------------------------------------------------------
 /*! @brief   Check stack for problems, canaries, hash (if enabled).
@@ -199,7 +203,7 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
  *  @return  error code
  */
 
-static error_t TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname);
+static int TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname);
 
 //------------------------------------------------------------------------------
 /*! @brief   Print information and error summary to log file and to console.
@@ -274,7 +278,7 @@ static int TEMPLATE(CanaryCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 //==============================================================================
 
 
-static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t capacity, char* stack_name)
+static int TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t capacity, char* stack_name)
 {
     STACK_ASSERTOK((p_stk == nullptr),                                                                  STACK_NULL_INPUT_STACK_PTR);
     STACK_ASSERTOK(((p_stk->errCode != STACK_NOT_CONSTRUCTED) && (p_stk->errCode != STACK_DESTRUCTED)), STACK_CONSTRUCTED);
@@ -319,7 +323,7 @@ static error_t TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, si
 
 //------------------------------------------------------------------------------
 
-static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
+static int TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
     STACK_CHECK(p_stk);
 
@@ -349,7 +353,7 @@ static error_t TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
 //------------------------------------------------------------------------------
 
-static error_t TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value)
+static int TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value)
 {
     STACK_CHECK(p_stk);
 
@@ -456,7 +460,7 @@ static int TEMPLATE(isPOISON, TYPE) (TYPE value)
 
 //------------------------------------------------------------------------------
 
-static error_t TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
+static int TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
     assert(p_stk != nullptr);
 
@@ -485,7 +489,10 @@ static size_t TEMPLATE(StackSizeForHash, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
     size_t size = 0;
 
+#ifdef CANARY_PROTECT
     size += sizeof(p_stk->canary1);
+#endif //CANARY_PROTECT
+
     size += sizeof(p_stk->capacity);
     size += sizeof(p_stk->size_cur);
     size += sizeof(p_stk->name);
@@ -498,7 +505,7 @@ static size_t TEMPLATE(StackSizeForHash, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
 //------------------------------------------------------------------------------
 
-static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname, const char* logfile)
+static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname, const char* logfile)
 {
     const size_t linelen = 80;
     char divline[linelen + 1] = "********************************************************************************";
@@ -625,7 +632,7 @@ static error_t TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const ch
 
 //------------------------------------------------------------------------------
 
-static error_t TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname)
+static int TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* funcname)
 {
     if (p_stk == nullptr)
     {
@@ -780,6 +787,8 @@ static can_t TEMPLATE(CanaryChange, TYPE) (can_t canary)
 
 //------------------------------------------------------------------------------
 
+#ifdef CANARY_PROTECT
+
 static void TEMPLATE(CanaryPlacing, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
     assert(p_stk != nullptr);
@@ -791,7 +800,11 @@ static void TEMPLATE(CanaryPlacing, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
     ((can_t*)p_stk->data)[p_stk->capacity * sizeof(TYPE) / sizeof(can_t)] = canaries[p_stk->id];
 }
 
+#endif //CANARY_PROTECT
+
 //------------------------------------------------------------------------------
+
+#ifdef CANARY_PROTECT
 
 static int TEMPLATE(CanaryCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
@@ -809,5 +822,7 @@ static int TEMPLATE(CanaryCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
     return OK;
 }
+
+#endif //CANARY_PROTECT
 
 //------------------------------------------------------------------------------

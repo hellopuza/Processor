@@ -68,6 +68,9 @@ int Assemble(asm_t* p_asm)
     {
         if (p_asm->input.lines[i].len == 0) continue;
 
+        char previous_line[80] = "";
+        strcpy(previous_line, p_asm->input.lines[i].str);
+
         char* pos = DeleteComments(&p_asm->input.lines[i], COMMENT);
         if (pos == NULL) continue;
 
@@ -95,39 +98,63 @@ int Assemble(asm_t* p_asm)
         switch (cmd)
         {
         case CMD_PUSH:
+        case CMD_PUSHQ:
 
             if (isdigit(word[0]) || (word[0] == '-')) // numbers
             {
-                WriteCommandWithNumber(p_asm, cmd, word, i, ASM_WRONG_PUSH_OPERAND_NUMBER);
+                if (cmd == CMD_PUSH)
+                    WriteCommandWithIntNumber(p_asm, cmd, word, i, ASM_WRONG_PUSH_OPERAND_NUMBER, 0x00); else
+                if (cmd == CMD_PUSHQ)
+                    WriteCommandWithFloatNumber(p_asm, cmd, word, i, ASM_WRONG_PUSHQ_OPERAND_NUMBER);
+            }
+            else if (word[0] == '[') // RAM
+            {
+                WriteCommandWithPointer(p_asm, cmd, word, i, ASM_WRONG_PUSH_OPERAND_POINTER);
             }
             else // registers
             {
-                WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_PUSH_OPERAND_REGISTER);
+                WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_PUSH_OPERAND_REGISTER, 0x00);
             }
             break;
 
         case CMD_POP:
+        case CMD_POPQ:
 
             if (word == NULL) // to space
             {
-                WriteCommandSingle(p_asm, cmd);
+                WriteCommandSingle(p_asm, cmd, 0x00);
+            }
+            else if (word[0] == '[') // to RAM
+            {
+                WriteCommandWithPointer(p_asm, cmd, word, i, ASM_WRONG_POP_OPERAND_POINTER);
             }
             else // to register
             {
-                WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_POP_OPERAND_REGISTER);
+                WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_POP_OPERAND_REGISTER, 0x00);
             }
             break;
 
         case CMD_IN:
+        case CMD_INQ:
+        case CMD_OUT:
+        case CMD_OUTQ:
 
             if (word == NULL) // to stack
             {
-                WriteCommandSingle(p_asm, cmd);
+                WriteCommandSingle(p_asm, cmd, 0x00);
             }
             else // to register
             {
-                WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_IN_OPERAND_REGISTER);
+                if ((cmd == CMD_IN) || (cmd == CMD_INQ))
+                    WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_IN_OPERAND_REGISTER, 0x00); else
+                if ((cmd == CMD_OUT) || (cmd == CMD_OUTQ))
+                    WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_OUT_OPERAND_REGISTER, 0x00);
             }
+            break;
+        
+        case CMD_SCREEN:
+
+            WriteCommandWithRegister(p_asm, cmd, word, i, ASM_WRONG_SCREEN_OPERAND_REGISTER, 0x00);
             break;
 
         default:
@@ -135,13 +162,13 @@ int Assemble(asm_t* p_asm)
             {
                 ASM_ASSERTOK((word == NULL), ASM_LABEL_NEED, 1, p_asm->input, i);
 
-                WriteCommandSingle(p_asm, cmd);
+                WriteCommandSingle(p_asm, cmd, 0x00);
 
                 ASM_ASSERTOK((LabelDefining(p_asm, word, i) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
             }
             else if (word == NULL)
             {
-                WriteCommandSingle(p_asm, cmd);
+                WriteCommandSingle(p_asm, cmd, 0x00);
             }
             else
             {
@@ -149,6 +176,8 @@ int Assemble(asm_t* p_asm)
             }
             break;
         }
+
+        strcpy(p_asm->input.lines[i].str, previous_line);
     }
 
     int pos = LabelRedefine(p_asm);
@@ -198,6 +227,161 @@ char REGIdentify(const char* word)
             return reg_names[i].code;
 
     return NOT_OK;
+}
+
+//------------------------------------------------------------------------------
+
+char* DeleteComments(line_t* line, const char comment)
+{
+    assert(line != nullptr);
+
+    char* pos = strchr(line->str, comment);
+    if (pos == NULL)
+        return line->str;
+
+    else if (line->str[0] == comment)
+        return NULL;
+
+    else
+    {
+        *pos = '\0';
+        line->len = strlen(line->str);
+    }
+    
+    return pos;
+}
+
+//------------------------------------------------------------------------------
+
+void WriteIntNumber (asm_t* p_asm, char* word, size_t line, int err)
+{
+    assert(p_asm != nullptr);
+    assert(word  != nullptr);
+
+    ASM_ASSERTOK((strchr(word, '.') != NULL), err, 1, p_asm->input, line);
+    
+    char* end = 0;
+    NUM_INT_TYPE number = (NUM_INT_TYPE)strtod(word, &end);
+    ASM_ASSERTOK((end[0] != '\0'), err, 1, p_asm->input, line);
+
+    if (p_asm->bcode.ptr == p_asm->bcode.size - NUMBER_INT_SIZE)
+    {
+        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
+    }
+
+    memcpy(p_asm->bcode.data + p_asm->bcode.ptr, &number, NUMBER_INT_SIZE);
+    p_asm->bcode.ptr += NUMBER_INT_SIZE;
+}
+
+//------------------------------------------------------------------------------
+
+void WriteCommandSingle(asm_t* p_asm, char cmd, char flag)
+{
+    assert(p_asm != nullptr);
+
+    if (p_asm->bcode.ptr == p_asm->bcode.size - 1)
+    {
+        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
+    }
+
+    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | flag;
+}
+
+//------------------------------------------------------------------------------
+
+void WriteCommandWithIntNumber(asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag)
+{
+    assert(p_asm != nullptr);
+    assert(word  != nullptr);
+
+    WriteCommandSingle(p_asm, cmd, NUM_FLAG | flag);
+
+    WriteIntNumber(p_asm, word, line, err);
+}
+
+//------------------------------------------------------------------------------
+
+void WriteCommandWithFloatNumber(asm_t* p_asm, char cmd, char* word, size_t line, int err)
+{
+    assert(p_asm != nullptr);
+    assert(word  != nullptr);
+
+    char* end = 0;
+    NUM_FLT_TYPE number = (NUM_FLT_TYPE)strtod(word, &end);
+    ASM_ASSERTOK((end[0] != '\0'), err, 1, p_asm->input, line);
+
+    if (p_asm->bcode.ptr == p_asm->bcode.size - NUMBER_FLT_SIZE - 1)
+    {
+        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
+    }
+
+    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | NUM_FLAG;
+    memcpy(p_asm->bcode.data + p_asm->bcode.ptr, &number, NUMBER_FLT_SIZE);
+    p_asm->bcode.ptr += NUMBER_FLT_SIZE;
+}
+
+//------------------------------------------------------------------------------
+
+void WriteCommandWithRegister(asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag)
+{
+    assert(p_asm != nullptr);
+    assert(word  != nullptr);
+
+    char reg = REGIdentify(word);
+    ASM_ASSERTOK((reg == NOT_OK), err, 1, p_asm->input, line);
+
+    if (p_asm->bcode.ptr == p_asm->bcode.size - 1)
+    {
+        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
+    }
+
+    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | REG_FLAG | flag;
+    p_asm->bcode.data[p_asm->bcode.ptr++] = reg;
+}
+
+//------------------------------------------------------------------------------
+
+void WriteCommandWithPointer(asm_t* p_asm, char cmd, char* word, size_t line, int err)
+{
+    assert(p_asm != nullptr);
+    assert(word  != nullptr);
+
+    char* start = word;
+    word = strchr(word, ']');
+    ASM_ASSERTOK((word == NULL), err, 1, p_asm->input, line);
+
+    *word = '\0';
+    word = start + 1;
+
+    char plus_symb  = (strchr(word, '+') != NULL);
+    char minus_symb = (strchr(word, '-') != NULL);
+
+    ASM_ASSERTOK((plus_symb && minus_symb), err, 1, p_asm->input, line);
+
+    if ((! plus_symb) && (! minus_symb))
+    {
+        if (isdigit(word[0]))
+        {
+            WriteCommandWithIntNumber(p_asm, cmd, word, line, err, PTR_FLAG);
+        }
+        else
+        {
+            WriteCommandWithRegister(p_asm, cmd, word, line, err, PTR_FLAG);
+        }
+    }
+    else
+    {
+        if (plus_symb) word = strtok(word, "+");
+        else           word = strtok(word, "-");
+
+        WriteCommandWithRegister(p_asm, cmd, word, line, err, PTR_FLAG | NUM_FLAG);
+
+        word = strtok(NULL, "\0");
+
+        if (minus_symb) *(--word) = '-';
+
+        WriteIntNumber(p_asm, word, line, err);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -390,82 +574,6 @@ int LabelsExpand(labs_t* p_labs)
     }
 
     return OK;
-}
-
-//------------------------------------------------------------------------------
-
-char* DeleteComments(line_t* line, const char comment)
-{
-    assert(line != nullptr);
-
-    char* pos = strchr(line->str, comment);
-    if (pos == NULL)
-        return line->str;
-
-    else if (line->str[0] == comment)
-        return NULL;
-
-    else
-    {
-        *pos = '\0';
-        line->len = strlen(line->str);
-    }
-    
-    return pos;
-}
-
-//------------------------------------------------------------------------------
-
-void WriteCommandSingle(asm_t* p_asm, char cmd)
-{
-    assert(p_asm != nullptr);
-
-    if (p_asm->bcode.ptr == p_asm->bcode.size - 1)
-    {
-        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
-    }
-
-    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd;
-}
-
-//------------------------------------------------------------------------------
-
-void WriteCommandWithNumber(asm_t* p_asm, char cmd, char* word, size_t line, int err)
-{
-    assert(p_asm != nullptr);
-    assert(word  != nullptr);
-
-    char* end = 0;
-    NUM_TYPE number = (NUM_TYPE)strtod(word, &end);
-    ASM_ASSERTOK((end[0] != '\0'), err, 1, p_asm->input, line);
-
-    if (p_asm->bcode.ptr == p_asm->bcode.size - NUMBER_SIZE - 1)
-    {
-        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
-    }
-
-    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | NUM_FLAG;
-    memcpy(p_asm->bcode.data + p_asm->bcode.ptr, &number, NUMBER_SIZE);
-    p_asm->bcode.ptr += NUMBER_SIZE;
-}
-
-//------------------------------------------------------------------------------
-
-void WriteCommandWithRegister(asm_t* p_asm, char cmd, char* word, size_t line, int err)
-{
-    assert(p_asm != nullptr);
-    assert(word  != nullptr);
-
-    char reg = REGIdentify(word);
-    ASM_ASSERTOK((reg == NOT_OK), err, 1, p_asm->input, line);
-
-    if (p_asm->bcode.ptr == p_asm->bcode.size - 1)
-    {
-        ASM_ASSERTOK((BCodeExpand(&p_asm->bcode) == NO_MEMORY), NO_MEMORY, 0, {}, 0);
-    }
-
-    p_asm->bcode.data[p_asm->bcode.ptr++] = cmd | REG_FLAG;
-    p_asm->bcode.data[p_asm->bcode.ptr++] = reg;
 }
 
 //------------------------------------------------------------------------------

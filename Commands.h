@@ -21,15 +21,18 @@ typedef size_t ptr_t;
 #endif // PTR_T
 
 
-#define NUM_TYPE int
+#define NUM_INT_TYPE int
+#define NUM_FLT_TYPE double
+
 #define PTR_TYPE ptr_t
 
-const size_t POINTER_SIZE = sizeof(PTR_TYPE);
-const size_t NUMBER_SIZE  = sizeof(NUM_TYPE);
+const size_t POINTER_SIZE     = sizeof(PTR_TYPE);
+const size_t NUMBER_INT_SIZE  = sizeof(NUM_INT_TYPE);
+const size_t NUMBER_FLT_SIZE  = sizeof(NUM_FLT_TYPE);
 
-const int PTR_FLAG = 0xC0;
 const int NUM_FLAG = 0x80;
 const int REG_FLAG = 0x40;
+const int PTR_FLAG = 0x20;
 
 const int PROCESS_HALT = -666;
 
@@ -39,29 +42,40 @@ const int PROCESS_HALT = -666;
 
 enum Commands
 {
-    CMD_HLT   = 0x00,
-    CMD_PUSH  = 0x01,
-    CMD_POP   = 0x02,
-    CMD_ADD   = 0x03,
-    CMD_SUB   = 0x04,
-    CMD_MUL   = 0x05,
-    CMD_DIV   = 0x06,
-    CMD_NEG   = 0x07,
-    CMD_SIN   = 0x08,
-    CMD_COS   = 0x09,
-    CMD_SQRT  = 0x0A,
-    CMD_IN    = 0x0B,
-    CMD_OUT   = 0x0C,
-    CMD_JMP   = 0x0D,
-    CMD_JE    = 0x0E,
-    CMD_JNE   = 0x0F,
-    CMD_JA    = 0x10,
-    CMD_JAE   = 0x11,
-    CMD_JB    = 0x12,
-    CMD_JBE   = 0x13,
-    CMD_CALL  = 0x14,
-    CMD_RET   = 0x15,
-    CMD_SCR   = 0x16,
+    CMD_HLT      = 0x00,
+    CMD_PUSH     = 0x01,
+    CMD_POP      = 0x02,
+    CMD_IN       = 0x03,
+    CMD_OUT      = 0x04,
+    CMD_ADD      = 0x05,
+    CMD_SUB      = 0x06,
+    CMD_MUL      = 0x07,
+    CMD_DIV      = 0x08,
+    CMD_NEG      = 0x09,
+    CMD_PUSHQ    = 0x0A,
+    CMD_POPQ     = 0x0B,
+    CMD_INQ      = 0x0C,
+    CMD_OUTQ     = 0x0D,
+    CMD_ADDQ     = 0x0E,
+    CMD_SUBQ     = 0x0F,
+    CMD_MULQ     = 0x10,
+    CMD_DIVQ     = 0x11,
+    CMD_NEGQ     = 0x12,
+    CMD_SIN      = 0x13,
+    CMD_COS      = 0x14,
+    CMD_SQRT     = 0x15,
+    CMD_JMP      = 0x16,
+    CMD_JE       = 0x17,
+    CMD_JNE      = 0x18,
+    CMD_JA       = 0x19,
+    CMD_JAE      = 0x1A,
+    CMD_JB       = 0x1B,
+    CMD_JBE      = 0x1C,
+    CMD_CALL     = 0x1D,
+    CMD_RET      = 0x1E,
+    CMD_SCREEN   = 0x1F,
+    CMD_FLT2INT  = 0x20,
+    CMD_INT2FLT  = 0x21,
 };
 
 struct command
@@ -72,28 +86,40 @@ struct command
 
 static command cmd_names[] =
 {
-    { CMD_ADD  ,  "add"  },
-    { CMD_CALL ,  "call" },
-    { CMD_COS  ,  "cos"  },
-    { CMD_DIV  ,  "div"  },
-    { CMD_HLT  ,  "hlt"  },
-    { CMD_IN   ,  "in"   },
-    { CMD_JA   ,  "ja"   },
-    { CMD_JAE  ,  "jae"  },
-    { CMD_JB   ,  "jb"   },
-    { CMD_JBE  ,  "jbe"  },
-    { CMD_JE   ,  "je"   },
-    { CMD_JMP  ,  "jmp"  },
-    { CMD_JNE  ,  "jne"  },
-    { CMD_MUL  ,  "mul"  },
-    { CMD_NEG  ,  "neg"  },
-    { CMD_OUT  ,  "out"  },
-    { CMD_POP  ,  "pop"  },
-    { CMD_PUSH ,  "push" },
-    { CMD_RET  ,  "ret"  },
-    { CMD_SIN  ,  "sin"  },
-    { CMD_SQRT ,  "sqrt" },
-    { CMD_SUB  ,  "sub"  },
+    { CMD_ADD      ,  "add"     },
+    { CMD_ADDQ     ,  "addq"    },
+    { CMD_CALL     ,  "call"    },
+    { CMD_COS      ,  "cos"     },
+    { CMD_DIV      ,  "div"     },
+    { CMD_DIVQ     ,  "divq"    },
+    { CMD_FLT2INT  ,  "flt2int" },
+    { CMD_HLT      ,  "hlt"     },
+    { CMD_IN       ,  "in"      },
+    { CMD_INQ      ,  "inq"     },
+    { CMD_INT2FLT  ,  "int2flt" },
+    { CMD_JA       ,  "ja"      },
+    { CMD_JAE      ,  "jae"     },
+    { CMD_JB       ,  "jb"      },
+    { CMD_JBE      ,  "jbe"     },
+    { CMD_JE       ,  "je"      },
+    { CMD_JMP      ,  "jmp"     },
+    { CMD_JNE      ,  "jne"     },
+    { CMD_MUL      ,  "mul"     },
+    { CMD_MULQ     ,  "mulq"    },
+    { CMD_NEG      ,  "neg"     },
+    { CMD_NEGQ     ,  "negq"    },
+    { CMD_OUT      ,  "out"     },
+    { CMD_OUTQ     ,  "outq"    },
+    { CMD_POP      ,  "pop"     },
+    { CMD_POPQ     ,  "popq"    },
+    { CMD_PUSH     ,  "push"    },
+    { CMD_PUSHQ    ,  "pushq"   },
+    { CMD_RET      ,  "ret"     },
+    { CMD_SCREEN   ,  "screen"  },
+    { CMD_SIN      ,  "sin"     },
+    { CMD_SQRT     ,  "sqrt"    },
+    { CMD_SUB      ,  "sub"     },
+    { CMD_SUBQ     ,  "subq"    },
 };
 
 const int CMD_NUM = sizeof(cmd_names)/sizeof(cmd_names[0]);
@@ -104,15 +130,21 @@ const int CMD_NUM = sizeof(cmd_names)/sizeof(cmd_names[0]);
 
 enum Registers
 {
-    REG_EAX = 0x01,
-    REG_EBX = 0x02,
-    REG_ECX = 0x03,
-    REG_EDX = 0x04,
+    REG_EAX  = 0x01,
+    REG_EBX  = 0x02,
+    REG_ECX  = 0x03,
+    REG_EDX  = 0x04,
 
-    REG_RAX = 0x05,
-    REG_RBX = 0x06,
-    REG_RCX = 0x07,
-    REG_RDX = 0x08,
+    REG_RAX  = 0x05,
+    REG_RBX  = 0x06,
+    REG_RCX  = 0x07,
+    REG_RDX  = 0x08,
+
+    REG_RBP  = 0x09,
+    REG_RSP  = 0x0A,
+
+    REG_SCRX = 0x0B,
+    REG_SCRY = 0x0C,
 };
 
 struct reg
@@ -123,15 +155,21 @@ struct reg
 
 static command reg_names[] =
 {
-    { REG_EAX  ,  "eax" },//1
-    { REG_EBX  ,  "ebx" },//2
-    { REG_ECX  ,  "ecx" },//3
-    { REG_EDX  ,  "edx" },//4
+    { REG_EAX   ,  "eax"  },//1
+    { REG_EBX   ,  "ebx"  },//2
+    { REG_ECX   ,  "ecx"  },//3
+    { REG_EDX   ,  "edx"  },//4
 
-    { REG_RAX  ,  "rax" },//5
-    { REG_RBX  ,  "rbx" },//6
-    { REG_RCX  ,  "rcx" },//7
-    { REG_RDX  ,  "rdx" },//8
+    { REG_RAX   ,  "rax"  },//5
+    { REG_RBX   ,  "rbx"  },//6
+    { REG_RCX   ,  "rcx"  },//7
+    { REG_RDX   ,  "rdx"  },//8
+
+    { REG_RBP   ,  "rbp"  },//9
+    { REG_RSP   ,  "rsp"  },//10
+
+    { REG_SCRX  ,  "scrx" },//11
+    { REG_SCRY  ,  "scry" },//12
 };
 
 const int REG_NUM = sizeof(reg_names) / sizeof(reg_names[0]);

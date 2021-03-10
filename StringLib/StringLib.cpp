@@ -251,9 +251,8 @@ line_t* GetLine(char* text, size_t num)
 
         char* start = text;
         text = strchr(text, '\n');
-        if (text == 0) break;
 
-        *text = '\0';
+        if (text != 0) *text = '\0';
 
         temp1->str = (char*)start;
         temp1->len = strlen(start);
@@ -277,7 +276,7 @@ size_t GetWordNum(line_t line)
     {
         char c = *(line.str + i);
 
-        if (isAlpha(c) || isdigit(c))
+        if (isgraph(c))
             f = 1;
         else
             if ((f == 1) && (isspace(c) || (c == '\0')))
