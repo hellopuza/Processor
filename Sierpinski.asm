@@ -83,20 +83,20 @@ rbp_after_loop:
 
 i_loop:
 
-	push  4
+	push  3
 	call  random
 	pop   eax
 
 	pushq eax
-	pushq 1
+	pushq 0
 	je    first_point
 
 	pushq eax
-	pushq 2
+	pushq 1
 	je    second_point
 
 	pushq eax
-	pushq 3
+	pushq 2
 	je    third_point
 
 	jmp   i_after_loop
