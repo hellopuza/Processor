@@ -11,7 +11,7 @@ pop scrx       ; window width  size
 push   2
 pop    [0]     ; limit
 
-push   300
+push   100
 pop    [4]     ; max iterations
 
 pushq  1.3
@@ -190,21 +190,13 @@ mem_out:
 	
 	push  0
 	pop   [rbp]
-	push  0
-	pop   [rbp+1]
-	push  0
-	pop   [rbp+2]
 
 	jmp   inc_rbp
 
 set_white:
 	
-	push  255
+	push  16777215   ;; white rgb
 	pop   [rbp]
-	push  255
-	pop   [rbp+1]
-	push  255
-	pop   [rbp+2]
 
 inc_rbp:
 
