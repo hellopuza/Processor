@@ -22,7 +22,7 @@ int TextConstruct(text_t* txtstruct, const char* filename)
     {
         printf("\n ERROR. Input file \"%s\" is not found\n", filename);
 
-        return NOT_OK;
+        return STR_NOT_OK;
     }
 
     int err = fillinTextStruct(txtstruct, fp);
@@ -30,7 +30,7 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
     fclose(fp);
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 
     txtstruct->text = GetText(fp, txtstruct->size);
     if (txtstruct->text == nullptr)
-        return NO_MEMORY;
+        return STR_NO_MEMORY;
 
     txtstruct->num = GetLineNum(txtstruct->text, txtstruct->size);
     if (txtstruct->num == 0)
@@ -54,9 +54,9 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 
     txtstruct->lines = GetLine(txtstruct->text, txtstruct->num);
     if (txtstruct->lines == nullptr)
-        return NO_MEMORY;
+        return STR_NO_MEMORY;
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ int TextDestruct(text_t* txtstruct)
         txtstruct->size = 0;
     }
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -92,12 +92,12 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
     assert(size);
 
     p_bcode->data = (char*)calloc(size + 2, 1);
-    STR_ASSERTOK((p_bcode->data == nullptr) , NO_MEMORY);
+    STR_ASSERTOK((p_bcode->data == nullptr) , STR_NO_MEMORY);
 
     p_bcode->ptr = 0;
     p_bcode->size = size;
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -112,20 +112,20 @@ int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
     {
         printf("\n ERROR. Input file \"%s\" is not found\n", filename);
 
-        return NOT_OK;
+        return STR_NOT_OK;
     }
 
     p_bcode->size = CountSize(fp);
-    STR_ASSERTOK((p_bcode->size == 0) , NO_MEMORY);
+    STR_ASSERTOK((p_bcode->size == 0) , STR_NO_MEMORY);
 
     p_bcode->data = GetText(fp, p_bcode->size);
-    STR_ASSERTOK((p_bcode->data == nullptr) , NO_MEMORY);
+    STR_ASSERTOK((p_bcode->data == nullptr) , STR_NO_MEMORY);
 
     fclose(fp);
 
     p_bcode->ptr = 0;
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ int BCodeExpand(bcode_t* p_bcode)
 
     void* temp = calloc(p_bcode->size + 2, 1);
     if (temp == nullptr)
-        return NO_MEMORY;
+        return STR_NO_MEMORY;
 
     void* oldtemp = p_bcode->data;
     memcpy(temp, p_bcode->data, p_bcode->size / 2);
@@ -146,7 +146,7 @@ int BCodeExpand(bcode_t* p_bcode)
 
     p_bcode->data = (char*)temp;
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ int BCodeDestruct(bcode_t* p_bcode)
         p_bcode->size = 0;
     }
 
-    return OK;
+    return STR_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -416,6 +416,32 @@ void Print(char* text, size_t len, const char* filename)
         fputc(text[i], fp);
 
     fclose(fp);
+}
+
+//------------------------------------------------------------------------------
+
+void StrPrintError(const char* logname, const char* file, int line, const char* function, int err)
+{
+    assert(function != nullptr);
+    assert(logname != nullptr);
+    assert(file != nullptr);
+
+    FILE* log = fopen(logname, "a");
+    assert(log != nullptr);
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    fprintf(log, "###############################################################################\n");
+    fprintf(log, "TIME: %d-%02d-%02d %02d:%02d:%02d\n\n",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(log, "ERROR: file %s  line %d  function %s\n\n", file, line, function);
+    fprintf(log, "%s\n", str_errstr[err + 1]);
+
+    printf (     "ERROR: file %s  line %d  function %s\n",   file, line, function);
+    printf (     "%s\n\n", str_errstr[err + 1]);
+
+    fclose(log);
 }
 
 //------------------------------------------------------------------------------

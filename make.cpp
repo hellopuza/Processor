@@ -4,7 +4,7 @@
 int main()
 {
     int err = system("cd ../Debug/ && "
-                     "Assembler.exe ../Processor/prog.code ../Processor/Circle.asm");
+                     "Assembler.exe ../Processor/prog.code ../Processor/Sierpinski.asm");
     /*
     */
     

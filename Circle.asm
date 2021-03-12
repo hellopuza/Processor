@@ -2,13 +2,13 @@
 ;;;; Circle Assembler ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-push   500
-push   500
+push   800
+push   800
 
 pop    scry    ; window height size
 pop    scrx    ; window width  size
 
-push   240
+push   400
 pop    [0]     ; rad
 
 push   scrx
@@ -28,14 +28,14 @@ pop    rbp     ; video memory pointer
 ;;;; double loop ;;;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-push   -1
+push   0
 pop    rbx     ; y coord
 
 jmp    y_after_loop
 
 y_loop:
 
-	push  -1
+	push  0
 	pop   rax     ; x coord
 
 	jmp   x_after_loop
@@ -116,25 +116,25 @@ inc_rbp:
 	add
 	pop   rbp
 
-;;;;;;;;;;;;;;;;;;;
-x_after_loop:
-
 	push  1
 	push  rax
 	add
 	pop   rax
 
+;;;;;;;;;;;;;;;;;;;
+x_after_loop:
+
 	pushq scrx
 	pushq rax
 	jb    x_loop
-
-;;;;;;;;;;;;;;;;;;;
-y_after_loop:
 
 	push  1
 	push  rbx
 	add
 	pop   rbx
+
+;;;;;;;;;;;;;;;;;;;
+y_after_loop:
 
 	pushq scry
 	pushq rbx

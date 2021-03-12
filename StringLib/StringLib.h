@@ -15,13 +15,56 @@
 //#define NDEBUG
 
 
-#include "../Errors.h"
 #include <sys\stat.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <time.h>
+
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   StringLib errors                                            *
+*///----------------------------------------------------------------------------
+//==============================================================================
+
+
+enum StringErrors
+{
+    STR_NOT_OK = -1                                                    ,
+    STR_OK = 0                                                         ,
+    STR_NO_MEMORY                                                      ,
+
+    STR_NO_LINES                                                       ,
+    STR_NO_SYMB                                                        ,
+};
+
+static const char* str_errstr[] =
+{
+    "ERROR"                                                            ,
+    "OK"                                                               ,
+    "Failed to allocate memory"                                        ,
+
+    "There are no lines with letters in text!"                         ,
+    "The file has no any symbols!"                                     ,
+};
+
+static const char* string_logname = "string.log";
+
+#define STR_ASSERTOK(cond, err)  if (cond)                                                                 \
+                                 {                                                                         \
+                                     StrPrintError(string_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                     return err; /**/                                                      \
+                                 }
+
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   StringLib constants and types                               *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
 
 #ifndef PTR_T
@@ -31,16 +74,6 @@ typedef size_t ptr_t;
 #include <limits.h>
 #define PTR_MAX UINT_MAX
 #endif // PTR_T
-
-
-static const char* string_logname = "string.log";
-
-#define STR_ASSERTOK(cond, err)  if (cond)                                                              \
-                                 {                                                                      \
-                                     printError(string_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                     return err; /**/                                                   \
-                                 }
-
 
 typedef struct line
 {
@@ -64,6 +97,12 @@ typedef struct bin_code
     ptr_t  ptr  = 0;
 } bcode_t;
 
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   StringLib implementations                                   *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
 //------------------------------------------------------------------------------
 /*! @brief   Text structure constructor.
@@ -284,6 +323,18 @@ void Print (char* text, size_t len, const char* filename);
  */
 
 int isAlpha (const unsigned char c);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints an error wih description to the console and to the log file.
+ * 
+ *  @param   logname     Name of the log file
+ *  @param   file        Name of the program file
+ *  @param   line        Number of line with an error
+ *  @param   function    Name of the function with an error
+ *  @param   err         Error code
+ */
+
+void StrPrintError(const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
 

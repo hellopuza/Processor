@@ -81,14 +81,12 @@ typedef char can_t;
 #endif //CANARY_PROTECT
 
 
-#ifndef ERRORS_DEFINED
-#define ERRORS_DEFINED
-
-enum Errors
+enum StackErrors
 {
-    NOT_OK = -1                                                     ,
-    OK = 0                                                          ,
-    NO_MEMORY                                                       ,
+    STACK_NOT_OK = -1                                               ,
+    STACK_OK = 0                                                    ,
+    STACK_NO_MEMORY                                                 ,
+
     STACK_CANARY_DIED                                               ,
     STACK_CAPACITY_WRONG_VALUE                                      ,
     STACK_CONSTRUCTED                                               ,
@@ -106,11 +104,12 @@ enum Errors
     STACK_WRONG_INPUT_CAPACITY_VALUE_NIL                            ,
 };
 
-static const char* errstr[] =
+static const char* stk_errstr[] =
 {
     "ERROR"                                                         ,
     "OK"                                                            ,
     "Failed to allocate memory"                                     ,
+
     "Stack cracked, canary was killed"                              ,
     "Bad size stack capacity"                                       ,
     "Stack already constructed"                                     ,
@@ -128,6 +127,5 @@ static const char* errstr[] =
     "Wrong capacity value: - is nil"                                ,
 };
 
-#endif // ERRORS_DEFINED
 
 #endif // STACK_CONFIG_H_DEFINED

@@ -54,14 +54,14 @@ popq   [32]    ; real right border
 ;;;; double loop ;;;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-push   -1
+push   0
 pop    rbx     ; y coord
 
 jmp    y_after_loop
 
 y_loop:
 
-	push  -1
+	push  0
 	pop   rax     ; x coord
 
 	jmp   x_after_loop
@@ -159,13 +159,13 @@ i_loop:
 	mulq
 	popq  [72]    ; w new
 
-;;;;;;;;;;;;;;;;;;;
-i_after_loop:
-
 	push  1
 	push  rcx
 	add
 	pop   rcx
+
+;;;;;;;;;;;;;;;;;;;
+i_after_loop:
 
 	push  [4]
 	int2flt
@@ -213,25 +213,25 @@ inc_rbp:
 	add
 	pop   rbp
 
-;;;;;;;;;;;;;;;;;;;
-x_after_loop:
-
 	push  1
 	push  rax
 	add
 	pop   rax
 
+;;;;;;;;;;;;;;;;;;;
+x_after_loop:
+
 	pushq scrx
 	pushq rax
 	jb    x_loop
-
-;;;;;;;;;;;;;;;;;;;
-y_after_loop:
 
 	push  1
 	push  rbx
 	add
 	pop   rbx
+
+;;;;;;;;;;;;;;;;;;;
+y_after_loop:
 
 	pushq scry
 	pushq rbx

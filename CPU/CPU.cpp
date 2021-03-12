@@ -16,13 +16,13 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 {
     assert(filename != nullptr);
 
-    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, {}, 0);
-    CPU_ASSERTOK(((p_cpu->state != CPU_NOT_CONSTRUCTED) && (p_cpu->state != CPU_DESTRUCTED)), CPU_CONSTRUCTED, 0, {}, 0);
+    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
+    CPU_ASSERTOK(((p_cpu->state != CPU_NOT_CONSTRUCTED) && (p_cpu->state != CPU_DESTRUCTED)), CPU_CONSTRUCTED, 0, p_cpu);
 
     int err = 0;
 
     err = fillinBCodeStruct(&p_cpu->bcode, filename);
-    CPU_ASSERTOK(err, err, 0, {});
+    CPU_ASSERTOK(err, err, 0, p_cpu);
 
     TEMPLATE(_StackConstruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM_INT");
     TEMPLATE(_StackConstruct, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM_FLT");
@@ -35,11 +35,11 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
     }
 
     p_cpu->RAM = (char*)calloc(RAM_SIZE, 1);
-    CPU_ASSERTOK((p_cpu->RAM == nullptr), NO_MEMORY, 0, {}, 0);
+    CPU_ASSERTOK((p_cpu->RAM == nullptr), CPU_NO_MEMORY, 0, p_cpu);
 
     p_cpu->state = CPU_CONSTRUCTED;
 
-    return OK;
+    return CPU_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -276,14 +276,14 @@ int Execute(cpu_t* p_cpu, char* filename)
         case CMD_IN:
 
             printf("IN: ");
-            CPU_ASSERTOK((scanf(TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT), &num_int1) != 1), CPU_INCORRECT_INPUT, 0, {});
+            CPU_ASSERTOK((scanf(TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT), &num_int1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
             TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, num_int1);
             break;
 
         case CMD_INQ:
 
             printf("IN: ");
-            CPU_ASSERTOK((scanf(TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT), &num_flt1) != 1), CPU_INCORRECT_INPUT, 0, {});
+            CPU_ASSERTOK((scanf(TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT), &num_flt1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
             TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, num_flt1);
             break;
 
@@ -299,12 +299,12 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             if (cmd == (CMD_IN | REG_FLAG))
             {
-                CPU_ASSERTOK((scanf(TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT), &num_int1) != 1), CPU_INCORRECT_INPUT, 0, {});
+                CPU_ASSERTOK((scanf(TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT), &num_int1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
                 p_cpu->registers[reg - 1] = num_int1;
             }
             else if (cmd == (CMD_INQ | REG_FLAG))
             {
-                CPU_ASSERTOK((scanf(TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT), &num_flt1) != 1), CPU_INCORRECT_INPUT, 0, {});
+                CPU_ASSERTOK((scanf(TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT), &num_flt1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
                 p_cpu->registers[reg - 1] = num_flt1;
             }
             break;
@@ -399,6 +399,24 @@ int Execute(cpu_t* p_cpu, char* filename)
             TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, -num_flt1);
             break;
 
+        case CMD_AND:
+
+            Pop2IntNumbers(p_cpu, &num_int1, &num_int2);
+            TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, num_int1 & num_int2);
+            break;
+
+        case CMD_OR:
+
+            Pop2IntNumbers(p_cpu, &num_int1, &num_int2);
+            TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, num_int1 | num_int2);
+            break;
+
+        case CMD_XOR:
+
+            Pop2IntNumbers(p_cpu, &num_int1, &num_int2);
+            TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, num_int1 ^ num_int2);
+            break;
+
         case CMD_SIN:
 
             Pop1FloatNumber(p_cpu, &num_flt1);
@@ -435,8 +453,8 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
             Pop2FloatNumbers(p_cpu, &num_flt1, &num_flt2);
             
-            if (cmd == CMD_JE ) cond = (num_flt1 == num_flt2); else
-            if (cmd == CMD_JNE) cond = (num_flt1 != num_flt2); else
+            if (cmd == CMD_JE ) cond = (fabs(num_flt1 - num_flt2) <  NIL); else
+            if (cmd == CMD_JNE) cond = (fabs(num_flt1 - num_flt2) >= NIL); else
             if (cmd == CMD_JA ) cond = (num_flt1 >  num_flt2); else
             if (cmd == CMD_JAE) cond = (num_flt1 >= num_flt2); else
             if (cmd == CMD_JB ) cond = (num_flt1 <  num_flt2); else
@@ -492,7 +510,7 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             width  = (int)(p_cpu->registers[REG_SCRX - 1]);
             height = (int)(p_cpu->registers[REG_SCRY - 1]);
-            CPU_ASSERTOK(((width <= 0) || (height <= 0)), CPU_INCORRECT_WINDOW_SIZES, 0, {});
+            CPU_ASSERTOK(((width <= 0) || (height <= 0)), CPU_INCORRECT_WINDOW_SIZES, 0, p_cpu);
             CPU_ASSERTOK((ptr + width * height * PIXEL_SIZE > RAM_SIZE), CPU_NO_VIDEO_MEMORY, 1, p_cpu);
 
             txCreateWindow(width, height);
@@ -512,11 +530,11 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK(1, CPU_UNIDENTIFIED_COMMAND, 1, p_cpu);
 
-            return NOT_OK;
+            return CPU_NOT_OK;
         }
     }
 
-    return OK;
+    return CPU_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -540,12 +558,12 @@ int CPUDestruct(cpu_t* p_cpu)
 
     p_cpu->state = CPU_DESTRUCTED;
 
-    return OK;
+    return CPU_OK;
 }
 
 //------------------------------------------------------------------------------
 
-void printCode(cpu_t* p_cpu, const char* logname, int err)
+void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
 {
     assert(p_cpu   != nullptr);
     assert(logname != nullptr);
@@ -659,3 +677,31 @@ void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
     *num2 = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
     CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
 }
+
+//------------------------------------------------------------------------------
+
+void CPUPrintError(const char* logname, const char* file, int line, const char* function, int err)
+{
+    assert(function != nullptr);
+    assert(logname != nullptr);
+    assert(file != nullptr);
+
+    FILE* log = fopen(logname, "a");
+    assert(log != nullptr);
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    fprintf(log, "###############################################################################\n");
+    fprintf(log, "TIME: %d-%02d-%02d %02d:%02d:%02d\n\n",
+            tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+    fprintf(log, "ERROR: file %s  line %d  function %s\n\n", file, line, function);
+    fprintf(log, "%s\n", cpu_errstr[err + 1]);
+
+    printf (     "ERROR: file %s  line %d  function %s\n",   file, line, function);
+    printf (     "%s\n\n", cpu_errstr[err + 1]);
+
+    fclose(log);
+}
+
+//------------------------------------------------------------------------------

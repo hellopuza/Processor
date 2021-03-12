@@ -287,7 +287,7 @@ static int TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t
     STACK_ASSERTOK((stack_id == MAX_STACK_NUM),                                                         STACK_TOO_MANY_STACKS);
 
     void* temp = calloc(capacity * sizeof(TYPE) + 2 * sizeof(can_t), sizeof(char));
-    STACK_ASSERTOK((temp == nullptr), NO_MEMORY);
+    STACK_ASSERTOK((temp == nullptr), STACK_NO_MEMORY);
 
     p_stk->data = (TYPE*)((char*)temp + sizeof(can_t));
 
@@ -297,7 +297,7 @@ static int TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t
 
     TEMPLATE(StackPoison, TYPE) (p_stk);
 
-    p_stk->errCode = OK;
+    p_stk->errCode = STACK_OK;
 
     p_stk->id = stack_id;
     stack_id++;
@@ -318,7 +318,7 @@ static int TEMPLATE(_StackConstruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk, size_t
 
     DUMP_PRINT{ TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__); }
 
-    return OK;
+    return STACK_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -348,7 +348,7 @@ static int TEMPLATE(StackDestruct, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
     p_stk->data    = nullptr;
     p_stk->errCode = STACK_DESTRUCTED;
 
-    return OK;
+    return STACK_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -359,9 +359,9 @@ static int TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value)
 
     if (p_stk->size_cur == p_stk->capacity - 1)
     {
-        if (TEMPLATE(StackExpand, TYPE) (p_stk) == NO_MEMORY)
+        if (TEMPLATE(StackExpand, TYPE) (p_stk) == STACK_NO_MEMORY)
         {
-            p_stk->errCode = NO_MEMORY;
+            p_stk->errCode = STACK_NO_MEMORY;
 
             DUMP_PRINT{ TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__); }
 
@@ -370,7 +370,7 @@ static int TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value)
             p_stk->stackhash = hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk));
 #endif // HASH_PROTECT
 
-            exit(NO_MEMORY);
+            exit(STACK_NO_MEMORY);
         }
     }
 
@@ -391,7 +391,7 @@ static int TEMPLATE(StackPush, TYPE) (TEMPLATE(stack, TYPE)* p_stk, TYPE value)
 
     DUMP_PRINT{ TEMPLATE(StackDump, TYPE) (p_stk, __FUNCTION__); }
 
-    return OK;
+    return STACK_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -468,7 +468,7 @@ static int TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
     void* temp = calloc(p_stk->capacity * sizeof(TYPE) + 2 * sizeof(can_t), sizeof(char));
     if (temp == nullptr)
-        return NO_MEMORY;
+        return STACK_NO_MEMORY;
 
     void* oldtemp = (char*)p_stk->data - sizeof(can_t);
     memcpy(temp, (char*)p_stk->data - sizeof(can_t), p_stk->capacity * sizeof(TYPE) / 2 + 2 * sizeof(can_t));
@@ -478,7 +478,7 @@ static int TEMPLATE(StackExpand, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 
     TEMPLATE(StackPoison, TYPE) (p_stk);
 
-    return OK;
+    return STACK_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -512,7 +512,7 @@ static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* 
 
     FILE* fp = fopen(logfile, "a");
     if (fp == nullptr)
-        return NOT_OK;
+        return STACK_NOT_OK;
 
     if (funcname != nullptr)
         fprintf(fp, "This dump was called from a function %s\n", funcname);
@@ -544,12 +544,12 @@ static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* 
     if (p_stk == nullptr)
     {
         fprintf(fp, "\nStack (ERROR) [0x%p] \"unidentified stack\"\n", p_stk);
-        fprintf(fp, "%s\n", errstr[STACK_NULL_STACK_PTR + 1]);
+        fprintf(fp, "%s\n", stk_errstr[STACK_NULL_STACK_PTR + 1]);
 
         fprintf(fp, "%s\n", divline);
         fclose(fp);
 
-        return OK;
+        return STACK_OK;
     }
 
     if ( (p_stk->errCode == STACK_NOT_CONSTRUCTED)      ||
@@ -564,15 +564,15 @@ static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* 
         fprintf(fp, "%s\n", divline);
         fclose(fp);
 
-        return OK;
+        return STACK_OK;
     }
 
-    char* StkState = (char*)errstr[OK + 1];
+    char* StkState = (char*)stk_errstr[STACK_OK + 1];
 
     if (p_stk->errCode)
     {
         if ((p_stk->errCode == STACK_CANARY_DIED) || (p_stk->errCode == STACK_INCORRECT_HASH))
-            StkState = (char*)errstr[NOT_OK + 1];
+            StkState = (char*)stk_errstr[STACK_NOT_OK + 1];
 
         TEMPLATE(ErrorPrint, TYPE) (p_stk, fp);
     }
@@ -594,7 +594,7 @@ static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* 
         fprintf(fp, "\tStack hash         = " HASH_PRINT_FORMAT "\n",   p_stk->stackhash);
         fprintf(fp, "\tData hash          = " HASH_PRINT_FORMAT "\n\n", p_stk->datahash);
 
-        if ((p_stk->errCode != OK) && (p_stk->errCode != STACK_EMPTY_STACK) && (p_stk->errCode != NO_MEMORY))
+        if ((p_stk->errCode != STACK_OK) && (p_stk->errCode != STACK_EMPTY_STACK) && (p_stk->errCode != STACK_NO_MEMORY))
         {
             fprintf(fp, "\tTrue stack hash    = " HASH_PRINT_FORMAT "\n",   hash(p_stk, TEMPLATE(StackSizeForHash, TYPE) (p_stk)));
             fprintf(fp, "\tTrue data hash     = " HASH_PRINT_FORMAT "\n\n", hash(p_stk->data, p_stk->capacity * sizeof(TYPE)));
@@ -627,7 +627,7 @@ static int TEMPLATE(StackDump, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char* 
     fprintf(fp, "%s\n", divline);
     fclose(fp);
 
-    return OK;
+    return STACK_OK;
 }
 
 //------------------------------------------------------------------------------
@@ -675,7 +675,7 @@ static int TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char*
     {
         p_stk->errCode = STACK_EMPTY_STACK;
 
-        return OK;
+        return STACK_OK;
     }
 
     if ((p_stk->capacity == 0) || (p_stk->capacity > MAX_CAPACITY))
@@ -708,8 +708,8 @@ static int TEMPLATE(StackCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk, const char*
 
     else
     {
-        p_stk->errCode = OK;
-        return OK;
+        p_stk->errCode = STACK_OK;
+        return STACK_OK;
     }
 }
 
@@ -721,14 +721,14 @@ static void TEMPLATE(ErrorPrint, TYPE) (TEMPLATE(stack, TYPE)* p_stk, FILE* fp)
 
     if (p_stk == nullptr)
     {
-        CONSOLE_PRINT{ printf("%s\n", errstr[STACK_NULL_STACK_PTR + 1]); }
+        CONSOLE_PRINT{ printf("%s\n", stk_errstr[STACK_NULL_STACK_PTR + 1]); }
     }
 
-    else if (p_stk->errCode != OK)
+    else if (p_stk->errCode != STACK_OK)
     {
-        CONSOLE_PRINT{ printf("%s\n", errstr[p_stk->errCode + 1]); }
+        CONSOLE_PRINT{ printf("%s\n", stk_errstr[p_stk->errCode + 1]); }
 
-        fprintf(fp, "\n%s\n", errstr[p_stk->errCode + 1]);
+        fprintf(fp, "\n%s\n", stk_errstr[p_stk->errCode + 1]);
     }
 }
 
@@ -770,10 +770,10 @@ static void TEMPLATE(printError, TYPE) (const char* logname, const char* file, i
 #endif
 
     fprintf(log, "ERROR: file %s  line %d  function %s\n\n", file, line, function);
-    fprintf(log, "%s\n", errstr[err + 1]);
+    fprintf(log, "%s\n", stk_errstr[err + 1]);
 
     printf (     "ERROR: file %s  line %d  function %s\n",   file, line, function);
-    printf (     "%s\n\n", errstr[err + 1]);
+    printf (     "%s\n\n", stk_errstr[err + 1]);
 
     fclose(log);
 }
@@ -809,18 +809,18 @@ static void TEMPLATE(CanaryPlacing, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 static int TEMPLATE(CanaryCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 {
     if (p_stk->canary1 != canaries[p_stk->id])
-        return NOT_OK;
+        return STACK_NOT_OK;
 
     if (p_stk->canary2 != canaries[p_stk->id])
-        return NOT_OK;
+        return STACK_NOT_OK;
 
     if (((can_t*)p_stk->data)[-1] != canaries[p_stk->id])
-        return NOT_OK;
+        return STACK_NOT_OK;
 
     if (((can_t*)p_stk->data)[p_stk->capacity * sizeof(TYPE) / sizeof(can_t)] != canaries[p_stk->id])
-        return NOT_OK;
+        return STACK_NOT_OK;
 
-    return OK;
+    return STACK_OK;
 }
 
 #endif //CANARY_PROTECT

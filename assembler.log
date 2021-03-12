@@ -1,14 +1,42 @@
 ###############################################################################
-TIME: 2021-03-07 13:51:04
+TIME: 2021-03-09 22:27:08
 
-ERROR: file C:\Users\admin\Documents\Visual Studio 2019\Projects\Processor\Processor\Assembler\Assembler.cpp  line 89  function Assemble
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 184  function Assemble
 
-Unidentified command
+Label definition not found
 ////////////////--CODE--////////////////
-     15: factorial 
-     16: 
-=>   17: pushd rax
-     18: push 2
-     19: jb ret
+    173: push rcx
+    174: int2flt
+=>  175: jae mem_out:
+    176: 
+    177: pushq [56]
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-11 19:09:52
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 261  function WriteIntNumber
+
+Wrong push operand number. Operand can only be an int number
+////////////////--CODE--////////////////
+      3: ;;;;;;;;;;;;;;;;;;;;;;;;;;
+      4: 
+=>    5: push   800.1
+      6: push   800
+      7: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-12 21:55:11
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 184  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     65: pushq [32]
+     66: pushq rbp
+=>   67: jb    rbp_loop
+     68: 
+     69: ;;;;;;;;;;;;;;;;;;;
 ////////////////////////////////////////
 

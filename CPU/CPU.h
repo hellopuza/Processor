@@ -20,7 +20,6 @@
 #include <assert.h>
 
 #include "../Template.h"
-#include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
@@ -37,20 +36,89 @@
 #undef TYPE
 
 
-static const char* cpu_logname = "cpu.log";
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   CPU errors                                                  *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
-#define CPU_ASSERTOK(cond, err, printcode, p_cpu) if (cond)                                                         \
-                                                  {                                                                 \
-                                                    printError(cpu_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                    if (printcode) printCode(p_cpu, cpu_logname, err);              \
-                                                    exit(err); /**/                                                 \
+
+enum CPUErrors
+{
+    CPU_NOT_OK = -1                                                    ,
+    CPU_OK = 0                                                         ,
+    CPU_NO_MEMORY                                                      ,
+
+    CPU_CONSTRUCTED                                                    ,
+    CPU_DESTRUCTED                                                     ,
+    CPU_DIVISION_BY_ZERO                                               ,
+    CPU_EMPTY_REGISTER                                                 ,
+    CPU_INCORRECT_INPUT                                                ,
+    CPU_INCORRECT_WINDOW_SIZES                                         ,
+    CPU_NO_RET_ADDRESS                                                 ,
+    CPU_NO_SPACE_FOR_NUMBER_INT                                        ,
+    CPU_NO_SPACE_FOR_NUMBER_FLT                                        ,
+    CPU_NO_SPACE_FOR_POINTER                                           ,
+    CPU_NO_SPACE_FOR_REGISTER                                          ,
+    CPU_NOT_CONSTRUCTED                                                ,
+    CPU_NO_VIDEO_MEMORY                                                ,
+    CPU_NULL_INPUT_CPU_PTR                                             ,
+    CPU_ROOT_OF_A_NEG_NUMBER                                           ,
+    CPU_UNIDENTIFIED_COMMAND                                           ,
+    CPU_UNIDENTIFIED_REGISTER                                          ,
+    CPU_WRONG_ADDR                                                     ,
+};
+
+static const char* cpu_errstr[] =
+{
+    "ERROR"                                                            ,
+    "OK"                                                               ,
+    "Failed to allocate memory"                                        ,
+
+    "CPU already constructed"                                          ,
+    "CPU already destructed"                                           ,
+    "Division by zero"                                                 ,
+    "Register is empty"                                                ,
+    "Incorrect input"                                                  ,
+    "Incorrect window sizes received"                                  ,
+    "Function return address not found"                                ,
+    "Not enough space to determine the int number"                     ,
+    "Not enough space to determine the float number"                   ,
+    "Not enough space to determine the pointer"                        ,
+    "Not enough space to determine the register"                       ,
+    "CPU did not constructed, operation is impossible"                 ,
+    "No video memory"                                                  ,
+    "The input value of the CPU pointer turned out to be zero"         ,
+    "Root of a negative number"                                        ,
+    "Unidentified command"                                             ,
+    "Unidentified register"                                            ,
+    "Memory access violation"                                          ,
+};
+
+#define CPU_ASSERTOK(cond, err, printcode, p_cpu) if (cond)                                                                                \
+                                                  {                                                                                        \
+                                                    CPUPrintError(cpu_logname, __FILE__, __LINE__, __FUNCTION__, err);                     \
+                                                    if (printcode) CPUPrintCode(p_cpu, cpu_logname, err);                                  \
+                                                    TEMPLATE(StackDump, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, __FUNCTION__, cpu_logname); \
+                                                    TEMPLATE(StackDump, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, __FUNCTION__, cpu_logname); \
+                                                    TEMPLATE(StackDump, PTR_TYPE    ) (&p_cpu->stkCPU_PTR    , __FUNCTION__, cpu_logname); \
+                                                    exit(err); /**/                                                                        \
                                                   }
 
 
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   CPU constants and types                                     *
+*///----------------------------------------------------------------------------
+//==============================================================================
+
+
+static const char* cpu_logname = "cpu.log";
+
 const size_t DEFAULT_STACK_CAPACITY = 8;
-const double NIL  = 1e-7;
-const size_t RAM_SIZE   = 2097152; // 2 MB
-const size_t PIXEL_SIZE = 3;
+const double NIL                    = 1e-7;
+const size_t RAM_SIZE               = 2097152; // 2 MB
+const size_t PIXEL_SIZE             = 3;
 
 typedef struct CPU
 {
@@ -68,6 +136,12 @@ typedef struct CPU
     NUM_FLT_TYPE registers[REG_NUM] = {};
 } cpu_t;
 
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   CPU implementations                                         *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
 //------------------------------------------------------------------------------
 /*! @brief   CPU constructor.
@@ -113,7 +187,7 @@ int CPUDestruct (cpu_t* p_cpu);
  *  @param   err         Error code
  */
 
-void printCode (cpu_t* p_cpu, const char* logname, int err);
+void CPUPrintCode (cpu_t* p_cpu, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop one int number from stack.
@@ -148,6 +222,18 @@ void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num);
  */
 
 void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints an error wih description to the console and to the log file.
+ * 
+ *  @param   logname     Name of the log file
+ *  @param   file        Name of the program file
+ *  @param   line        Number of line with an error
+ *  @param   function    Name of the function with an error
+ *  @param   err         Error code
+ */
+
+void CPUPrintError (const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
 

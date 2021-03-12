@@ -16,21 +16,91 @@
 //#define NDEBUG
 
 
+#include <time.h>
 #include <assert.h>
-#include "../Errors.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
 
-static const char* assembler_logname = "assembler.log";
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   Assembler errors                                            *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
-#define ASM_ASSERTOK(cond, err, printcode, p_asm, i) if (cond)                                                               \
-                                                     {                                                                       \
-                                                       printError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                       if (printcode) printCode(p_asm, i, assembler_logname, err);           \
-                                                       exit(err); /**/                                                       \
+
+enum AssemblerErrors
+{
+    ASM_NOT_OK = -1                                                    ,
+    ASM_OK = 0                                                         ,
+    ASM_NO_MEMORY                                                      ,
+
+    ASM_CONSTRUCTED                                                    ,
+    ASM_DESTRUCTED                                                     ,
+    ASM_NOT_CONSTRUCTED                                                ,
+    ASM_EXTRA_WORD                                                     ,
+    ASM_INCORRECT_LABEL_INPUT                                          ,
+    ASM_LABEL_DEFINITION_NOT_FOUND                                     ,
+    ASM_LABEL_NEED                                                     ,
+    ASM_LABEL_REDIFINITION                                             ,
+    ASM_NULL_INPUT_ASSEMBLER_PTR                                       ,
+    ASM_TOO_MANY_WORDS_IN_LINE                                         ,
+    ASM_UNIDENTIFIED_COMMAND                                           ,
+    ASM_WRONG_IN_OPERAND_REGISTER                                      ,
+    ASM_WRONG_OUT_OPERAND_REGISTER                                     ,
+    ASM_WRONG_POP_OPERAND_POINTER                                      ,
+    ASM_WRONG_POP_OPERAND_REGISTER                                     ,
+    ASM_WRONG_PUSH_OPERAND_NUMBER                                      ,
+    ASM_WRONG_PUSH_OPERAND_POINTER                                     ,
+    ASM_WRONG_PUSH_OPERAND_REGISTER                                    ,
+    ASM_WRONG_PUSHQ_OPERAND_NUMBER                                     ,
+    ASM_WRONG_SCREEN_OPERAND_REGISTER                                  ,
+};
+
+static const char* asm_errstr[] =
+{
+    "ERROR"                                                            ,
+    "OK"                                                               ,
+    "Failed to allocate memory"                                        ,
+
+    "Assembler already constructed"                                    ,
+    "Assembler already destructed"                                     ,
+    "Assembler did not constructed, operation is impossible"           ,
+    "Extra word found"                                                 ,
+    "Incorrect label input"                                            ,
+    "Label definition not found"                                       ,
+    "A label is needed here"                                           ,
+    "Label redifinition"                                               ,
+    "The input value of the assembler pointer turned out to be zero"   ,
+    "Too many words in line"                                           ,
+    "Unidentified command"                                             ,
+    "Wrong in operand register"                                        ,
+    "Wrong out operand register"                                       ,
+    "Wrong pop operand pointer"                                        ,
+    "Wrong pop operand register"                                       ,
+    "Wrong push operand number. Operand can only be an int number"     ,
+    "Wrong push operand pointer"                                       ,
+    "Wrong push operand register"                                      ,
+    "Wrong pushq operand number. Operand can only be a float number"   ,
+    "Wrong screen operand. Operand can only be a register"             ,
+};
+
+#define ASM_ASSERTOK(cond, err, printcode, p_asm, i) if (cond)                                                                  \
+                                                     {                                                                          \
+                                                       AsmPrintError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                       if (printcode) AsmPrintCode(p_asm, i, assembler_logname, err);           \
+                                                       exit(err); /**/                                                          \
                                                      }
 
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   Assembler constants and types                               *
+*///----------------------------------------------------------------------------
+//==============================================================================
+
+
+static const char* assembler_logname = "assembler.log";
 
 const size_t DEFAULT_BCODE_SIZE = 1024;
 const size_t DEFAULT_LABEL_NUM  = 8;
@@ -66,6 +136,12 @@ typedef struct assembler
     labs_t undefined_labels = {};
 } asm_t;
 
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   Assembler implementations                                   *
+*///----------------------------------------------------------------------------
+//==============================================================================
 
 //------------------------------------------------------------------------------
 /*! @brief   Assmebler constructor.
@@ -299,7 +375,19 @@ int LabelsExpand (labs_t* p_labs);
  *  @param   err         Error code
  */
 
-void printCode (text_t text, size_t line, const char* logname, int err);
+void AsmPrintCode (text_t text, size_t line, const char* logname, int err);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints an error wih description to the console and to the log file.
+ * 
+ *  @param   logname     Name of the log file
+ *  @param   file        Name of the program file
+ *  @param   line        Number of line with an error
+ *  @param   function    Name of the function with an error
+ *  @param   err         Error code
+ */
+
+void AsmPrintError (const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
 
