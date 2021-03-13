@@ -44,9 +44,37 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 
 //------------------------------------------------------------------------------
 
+int CPUDestruct(cpu_t* p_cpu)
+{
+    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state == CPU_DESTRUCTED), CPU_DESTRUCTED, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED, 0, p_cpu);
+
+    BCodeDestruct(&p_cpu->bcode);
+    TEMPLATE(StackDestruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
+    TEMPLATE(StackDestruct, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
+
+    TEMPLATE(StackDestruct, PTR_TYPE) (&p_cpu->stkCPU_PTR);
+
+    for (int i = 0; i < REG_NUM; ++i)
+    {
+        p_cpu->registers[i] = TEMPLATE(NUM_FLT_TYPE, POISON);
+    }
+
+    free(p_cpu->RAM);
+
+    p_cpu->state = CPU_DESTRUCTED;
+
+    return CPU_OK;
+}
+
+//------------------------------------------------------------------------------
+
 int Execute(cpu_t* p_cpu, char* filename)
 {
-    assert(p_cpu != nullptr);
+    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED, 0, p_cpu);
+
     assert(filename != nullptr);
     assert(p_cpu->bcode.size != 0);
 
@@ -533,30 +561,6 @@ int Execute(cpu_t* p_cpu, char* filename)
             return CPU_NOT_OK;
         }
     }
-
-    return CPU_OK;
-}
-
-//------------------------------------------------------------------------------
-
-int CPUDestruct(cpu_t* p_cpu)
-{
-    assert(p_cpu != nullptr);
-
-    BCodeDestruct(&p_cpu->bcode);
-    TEMPLATE(StackDestruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
-    TEMPLATE(StackDestruct, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
-
-    TEMPLATE(StackDestruct, PTR_TYPE) (&p_cpu->stkCPU_PTR);
-
-    for (int i = 0; i < REG_NUM; ++i)
-    {
-        p_cpu->registers[i] = TEMPLATE(NUM_FLT_TYPE, POISON);
-    }
-
-    free(p_cpu->RAM);
-
-    p_cpu->state = CPU_DESTRUCTED;
 
     return CPU_OK;
 }

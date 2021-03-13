@@ -155,6 +155,16 @@ typedef struct CPU
 int CPUConstruct (cpu_t* p_cpu, const char* filename);
 
 //------------------------------------------------------------------------------
+/*! @brief   CPU destructor.
+ *
+ *  @param   p_cpu       Pointer to the CPU
+ *
+ *  @return  error code
+ */
+
+int CPUDestruct (cpu_t* p_cpu);
+
+//------------------------------------------------------------------------------
 /*! @brief   Execution process.
  *
  *  @note    The program text is a binary code. The processor goes through the code,
@@ -168,16 +178,6 @@ int CPUConstruct (cpu_t* p_cpu, const char* filename);
  */
 
 int Execute (cpu_t* p_cpu, char* filename);
-
-//------------------------------------------------------------------------------
-/*! @brief   CPU destructor.
- *
- *  @param   p_cpu       Pointer to the CPU
- *
- *  @return  error code
- */
-
-int CPUDestruct (cpu_t* p_cpu);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.

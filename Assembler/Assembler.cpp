@@ -43,8 +43,8 @@ int AsmConstruct(asm_t* p_asm, const char* filename)
 int AsmDestruct(asm_t* p_asm)
 {
     ASM_ASSERTOK((p_asm == nullptr), ASM_NULL_INPUT_ASSEMBLER_PTR, 0, {}, 0);
-    ASM_ASSERTOK((p_asm->state != ASM_CONSTRUCTED), ASM_NOT_CONSTRUCTED, 0, {}, 0);
     ASM_ASSERTOK((p_asm->state == ASM_DESTRUCTED), ASM_DESTRUCTED, 0, {}, 0);
+    ASM_ASSERTOK((p_asm->state != ASM_CONSTRUCTED), ASM_NOT_CONSTRUCTED, 0, {}, 0);
 
     TextDestruct (&p_asm->input);
     BCodeDestruct(&p_asm->bcode);
@@ -191,6 +191,8 @@ int Assemble(asm_t* p_asm)
 int AsmWrite(asm_t* p_asm, const char* filename)
 {
     ASM_ASSERTOK((p_asm == nullptr), ASM_NULL_INPUT_ASSEMBLER_PTR, 0, {}, 0);
+    ASM_ASSERTOK((p_asm->state != ASM_CONSTRUCTED), ASM_NOT_CONSTRUCTED, 0, {}, 0);
+
     assert(filename != nullptr);
 
     FILE* fp = nullptr;
