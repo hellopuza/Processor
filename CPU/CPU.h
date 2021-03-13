@@ -122,7 +122,8 @@ const size_t PIXEL_SIZE             = 3;
 
 typedef struct CPU
 {
-    int state = CPU_NOT_CONSTRUCTED;
+    int state  = CPU_NOT_CONSTRUCTED;
+    int scrnum = 0;
 
     bcode_t bcode = {};
 

@@ -12,6 +12,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
+#ifndef TYPE
+#error Stack.h: You have to define stack TYPE before including this file.
+#endif // TYPE
+
 
 #if defined(_WIN32)
 #include <windows.h>

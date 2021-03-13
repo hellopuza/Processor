@@ -188,15 +188,19 @@ int Assemble(asm_t* p_asm)
 
 //------------------------------------------------------------------------------
 
-int AsmWrite(asm_t* p_asm, const char* filename)
+int AsmWrite(asm_t* p_asm, char* filename)
 {
     ASM_ASSERTOK((p_asm == nullptr), ASM_NULL_INPUT_ASSEMBLER_PTR, 0, {}, 0);
     ASM_ASSERTOK((p_asm->state != ASM_CONSTRUCTED), ASM_NOT_CONSTRUCTED, 0, {}, 0);
 
     assert(filename != nullptr);
 
+    char* name = GetTrueFileName(filename);
+    strcpy(name, filename);
+    strcat(name, CODE_TYPE);
+
     FILE* fp = nullptr;
-    fp = fopen(filename, "wb");
+    fp = fopen(name, "wb");
 
     fwrite(p_asm->bcode.data, 1, p_asm->bcode.ptr, fp);
 

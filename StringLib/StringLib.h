@@ -184,10 +184,20 @@ int BCodeDestruct (bcode_t* p_bcode);
  *  @param   argc        Number of command line arguments
  *  @param   argv        Arguments array
  *
- *  @return  name of a file
+ *  @return  name of the file, else argv[0]
  */
 
 char* GetFileName (int argc, char** argv);
+
+//------------------------------------------------------------------------------
+/*! @brief   Get true name of a file (without path to the file and type).
+ *
+ *  @param   filename    name of the file
+ *
+ *  @return  true name of the file
+ */
+
+char* GetTrueFileName (char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Get a size of the file.
@@ -334,7 +344,7 @@ int isAlpha (const unsigned char c);
  *  @param   err         Error code
  */
 
-void StrPrintError(const char* logname, const char* file, int line, const char* function, int err);
+void StrPrintError (const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
 

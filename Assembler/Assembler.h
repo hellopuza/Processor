@@ -101,6 +101,7 @@ static const char* asm_errstr[] =
 
 
 static const char* assembler_logname = "assembler.log";
+static const char* CODE_TYPE         = ".code";
 
 const size_t DEFAULT_BCODE_SIZE = 1024;
 const size_t DEFAULT_LABEL_NUM  = 8;
@@ -108,7 +109,7 @@ const size_t MAX_WORDS_IN_LINE  = 2;
 
 static const char* DELIMETERS = " \t\r\0";
 
-static const char COMMENT = ';';
+static const char  COMMENT   = ';';
 
 
 typedef struct label
@@ -188,7 +189,7 @@ int Assemble (asm_t* p_asm);
  *  @return  error code
  */
 
-int AsmWrite (asm_t* p_asm, const char* filename);
+int AsmWrite (asm_t* p_asm, char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Command identifier.

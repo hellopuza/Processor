@@ -1,11 +1,12 @@
 /*------------------------------------------------------------------------------
-    * File:        main.cpp                                                    *
-    * Description: ***********************************                         *
-    * Created:     7 feb 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
+    * File:        CPU.h                                                       *
+    * Description: Program for executing binary programs                       *
+    * Created:     7 feb 2021                                                  *
+    * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
-*///----------------------------------------------------------------------------
+    * GitHub:      https://github.com/hellopuza                                *
+    *///------------------------------------------------------------------------
 
 #include "CPU.h"
 
@@ -18,7 +19,7 @@ int main(int argc, char* argv[])
         printf("wrong input parameters");
         return 0;
     }
-
+    
     cpu_t cpu = {};
     CPUConstruct(&cpu, argv[1]);
 

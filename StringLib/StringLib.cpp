@@ -177,7 +177,28 @@ char* GetFileName(int argc, char** argv)
         return argv[1];
     }
 
-    return (char*)"";
+    return argv[0];
+}
+
+//------------------------------------------------------------------------------
+
+char* GetTrueFileName(char* filename)
+{
+    assert(filename != nullptr);
+
+    int ptr_end = strlen(filename) - 1;
+
+    for (int i = 0; i < strlen(filename); ++i)
+    {
+        if (filename[ptr_end - i] == '.')
+            filename[ptr_end - i] = '\0';
+        else
+        if ((filename[ptr_end - i] == '/') ||
+            (filename[ptr_end - i] == '\\'))
+            return filename + ptr_end - i + 1;
+    }
+
+    return filename;
 }
 
 //------------------------------------------------------------------------------

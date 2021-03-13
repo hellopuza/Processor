@@ -85,6 +85,7 @@ int Execute(cpu_t* p_cpu, char* filename)
 
     int width  = 0;
     int height = 0;
+    char pictname[20] = "";
 
     PTR_TYPE ptr = TEMPLATE(PTR_TYPE, POISON);
 
@@ -97,6 +98,7 @@ int Execute(cpu_t* p_cpu, char* filename)
     while (p_cpu->bcode.ptr < p_cpu->bcode.size)
     {
         char cond = 0;
+        char scrnumstr[5]    = "";
 
         cmd = p_cpu->bcode.data[p_cpu->bcode.ptr++];
 
@@ -541,7 +543,11 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK(((width <= 0) || (height <= 0)), CPU_INCORRECT_WINDOW_SIZES, 0, p_cpu);
             CPU_ASSERTOK((ptr + width * height * PIXEL_SIZE > RAM_SIZE), CPU_NO_VIDEO_MEMORY, 1, p_cpu);
 
-            txCreateWindow(width, height);
+            if (p_cpu->scrnum == 0)
+            {
+                txCreateWindow(width, height);
+                filename = GetTrueFileName(filename);
+            }
 
             for (int y = 0; y < height; ++y)
             for (int x = 0; x < width;  ++x)
@@ -551,7 +557,15 @@ int Execute(cpu_t* p_cpu, char* filename)
                                      p_cpu->RAM[ptr + (y * width + x) * PIXEL_SIZE + 2] ));
             }
 
-            txSaveImage("picture.bmp");
+            strcpy(pictname, filename);
+            sprintf(scrnumstr, "%d", p_cpu->scrnum);
+            strcat(pictname, "(");
+            strcat(pictname, scrnumstr);
+            strcat(pictname, ")");
+            strcat(pictname, ".bmp");
+            txSaveImage(pictname);
+
+            ++p_cpu->scrnum;
             break;
 
         default:
