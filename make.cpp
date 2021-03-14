@@ -4,10 +4,10 @@
 int main()
 {
     int err = system("cd ../Debug/ && "
-                     "Assembler.exe ../Processor/Sierpinski.asm");
-    
+                     "Assembler.exe ../Processor/factorial.asm");
+
     if (!err) system("cd ../Debug/ && "
-                     "CPU.exe Sierpinski.code");
+                     "CPU.exe factorial.code");
     
     /*
     */

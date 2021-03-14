@@ -26,7 +26,7 @@ pop    [16]    ; third point x coord
 push   220
 pop    [20]    ; third point y coord
 
-push   20000
+push   50000
 pop    [24]    ; max iterations
 
 push   1
@@ -216,5 +216,4 @@ screen_out:
 	pop    rbp     ; video memory pointer
 
 	screen rbp
-
 hlt

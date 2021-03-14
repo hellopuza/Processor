@@ -195,7 +195,8 @@ int AsmWrite(asm_t* p_asm, char* filename)
 
     assert(filename != nullptr);
 
-    char* name = GetTrueFileName(filename);
+    char name[30] = "";
+    filename = GetTrueFileName(filename);
     strcpy(name, filename);
     strcat(name, CODE_TYPE);
 

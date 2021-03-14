@@ -85,7 +85,7 @@ int Execute(cpu_t* p_cpu, char* filename)
 
     int width  = 0;
     int height = 0;
-    char pictname[20] = "";
+    char pictname[30] = "";
 
     PTR_TYPE ptr = TEMPLATE(PTR_TYPE, POISON);
 

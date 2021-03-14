@@ -2,13 +2,13 @@
 ;;;; Circle Assembler ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-push   800
-push   800
+push   300
+push   300
 
 pop    scry    ; window height size
 pop    scrx    ; window width  size
 
-push   400
+push   140
 pop    [0]     ; rad
 
 push   scrx
