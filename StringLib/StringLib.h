@@ -68,12 +68,15 @@ static const char* string_logname = "string.log";
 
 
 #ifndef PTR_T
-#define PTR_T
-typedef size_t ptr_t;
 
-#include <limits.h>
-#define PTR_MAX UINT_MAX
+    #define PTR_T
+    typedef size_t ptr_t;
+
+    #include <limits.h>
+    #define PTR_MAX UINT_MAX
+
 #endif // PTR_T
+
 
 typedef struct line
 {
@@ -105,7 +108,7 @@ typedef struct bin_code
 //==============================================================================
 
 //------------------------------------------------------------------------------
-/*! @brief   Text structure constructor.
+/*! @brief   Text structure constructor from file.
  *
  *  @param   txtstruct   Pointer to the text structure
  *  @param   filename    Name of the text file
@@ -116,7 +119,29 @@ typedef struct bin_code
 int TextConstruct (text_t* txtstruct, const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Fill the structure of text
+/*! @brief   Text structure constructor with number of lines and their lengths.
+ *
+ *  @param   txtstruct   Pointer to the text structure
+ *  @param   num         Number of lines
+ *  @param   len         Lengths of lines
+ *
+ *  @return  error code
+ */
+
+int TextConstruct (text_t* txtstruct, size_t num, size_t len);
+
+//------------------------------------------------------------------------------
+/*! @brief   Increase the number of text structure lines by 2 times.
+ * 
+ *  @param   txtstruct   Pointer to the text structure
+ * 
+ *  @return  error code
+ */
+
+int TextExpand (text_t* txtstruct);
+
+//------------------------------------------------------------------------------
+/*! @brief   Fill the structure of text from file.
  *
  *  @param   txtstruct   Pointer to the text structure
  *  @param   fp          Pointer to the text file
@@ -137,7 +162,7 @@ int fillinTextStruct (text_t* txtstruct, FILE* fp);
 int TextDestruct (text_t* txtstruct);
 
 //------------------------------------------------------------------------------
-/*! @brief   Binary code structure constructor.
+/*! @brief   Binary code structure constructor with size.
  *
  *  @param   p_bcode     Pointer to the binary code structure
  *  @param   size        Size of the data
@@ -148,7 +173,7 @@ int TextDestruct (text_t* txtstruct);
 int BCodeConstruct (bcode_t* p_bcode, size_t size);
 
 //------------------------------------------------------------------------------
-/*! @brief   Fill the binary code structure.
+/*! @brief   Fill the binary code structure from file.
  *
  *  @param   p_bcode     Pointer to the binary code structure
  *  @param   filename    Name of the input file
@@ -156,7 +181,7 @@ int BCodeConstruct (bcode_t* p_bcode, size_t size);
  *  @return  error code
  */
 
-int fillinBCodeStruct (bcode_t* p_bcode, const char* filename);
+int BCodeConstruct (bcode_t* p_bcode, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the binary code data size by 2 times.
@@ -314,10 +339,10 @@ int StrCompare (line_t line1, line_t line2, int dir);
 void Write (line_t* Lines, size_t num, const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Write lines to the file.
+/*! @brief   Write text to the file.
  *
  *  @param   text        C string
- *  @param   num         Number of lines
+ *  @param   len         Length of the text
  *  @param   filename    Name of the file
  */
 

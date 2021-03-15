@@ -18,24 +18,47 @@
 #include <math.h>
 #include <time.h>
 
-#define CONSOLE_PRINT if(1)
-#define DUMP_PRINT    if(0)
-static const char* stack_logname = "stack.log";
 
-/*
-#define CANARY_PROTECT
-#define HASH_PROTECT
-*/
+#define CONSOLE_PRINT if(1)
+
+
+#ifdef  NO_DUMP
+
+    #define DUMP_PRINT    if(0)
+
+#else
+
+    #define DUMP_PRINT    if(1)
+
+#endif // NO_DUMP
+
+
+#ifndef NO_CANARY
+
+    #define CANARY_PROTECT
+
+#endif // NO_CANARY
+
+
+#ifndef NO_HASH
+
+    #define HASH_PROTECT
+
+#endif // NO_HASH
 
 
 #ifndef PTR_T
-#define PTR_T
-typedef size_t ptr_t;
 
-#include <limits.h>
-#define PTR_MAX UINT_MAX
+    #define PTR_T
+    typedef size_t ptr_t;
+
+    #include <limits.h>
+    #define PTR_MAX UINT_MAX
+
 #endif // PTR_T
 
+
+static const char* stack_logname = "stack.log";
 
 #define double_PRINT_FORMAT  "%lf"
 #define double_PRINT_TYPE    "double"

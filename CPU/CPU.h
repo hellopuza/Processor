@@ -23,6 +23,11 @@
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
+
+#define NO_DUMP
+#define NO_CANARY
+#define NO_HASH
+
 #define TYPE NUM_INT_TYPE
 #include "../StackLib/Stack.h"
 #undef TYPE
@@ -34,6 +39,10 @@
 #define TYPE PTR_TYPE
 #include "../StackLib/Stack.h"
 #undef TYPE
+
+#undef NO_HASH
+#undef NO_CANARY
+#undef NO_DUMP
 
 
 //==============================================================================

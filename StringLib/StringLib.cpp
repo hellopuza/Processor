@@ -35,6 +35,61 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
 //------------------------------------------------------------------------------
 
+int TextConstruct (text_t* txtstruct, size_t num, size_t len)
+{
+    assert(txtstruct != nullptr);
+    assert(num);
+    assert(len);
+
+    txtstruct->num = num;
+    txtstruct->lines = (line_t*)calloc(num, sizeof(line_t));
+    STR_ASSERTOK((txtstruct->lines == nullptr) , STR_NO_MEMORY);
+
+    for (int i = 0; i < txtstruct->num; ++i)
+    {
+        txtstruct->lines[i].len = len;
+        txtstruct->lines[i].str = (char*)calloc(len, 1);
+        STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
+    }
+
+    return STR_OK;
+}
+
+//------------------------------------------------------------------------------
+
+int TextExpand(text_t* txtstruct)
+{
+    assert(txtstruct != nullptr);
+
+    line_t* temp = (line_t*)calloc(txtstruct->num * 2 + 2, 1);
+    if (temp == nullptr)
+        return STR_NO_MEMORY;
+
+    void* oldtemp = txtstruct->lines;
+
+    for (int i = 0; i < txtstruct->num; ++i)
+    {
+        temp[i].len = txtstruct->lines[i].len;
+        temp[i].str = txtstruct->lines[i].str;
+    }
+
+    for (int i = txtstruct->num; i < txtstruct->num * 2; ++i)
+    {
+        temp[i].len = txtstruct->lines[0].len;
+        txtstruct->lines[i].str = (char*)calloc(txtstruct->lines[0].len, 1);
+        STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
+    }
+
+    free(oldtemp);
+
+    txtstruct->lines = temp;
+    txtstruct->num *= 2;
+
+    return STR_OK;
+}
+
+//------------------------------------------------------------------------------
+
 int fillinTextStruct(text_t* txtstruct, FILE* fp)
 {
     assert(txtstruct != nullptr);
@@ -102,7 +157,7 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
 
 //------------------------------------------------------------------------------
 
-int fillinBCodeStruct(bcode_t* p_bcode, const char* filename)
+int BCodeConstruct(bcode_t* p_bcode, const char* filename)
 {
     assert(p_bcode  != nullptr);
     assert(filename != nullptr);
@@ -134,7 +189,7 @@ int BCodeExpand(bcode_t* p_bcode)
 {
     assert(p_bcode != nullptr);
 
-    p_bcode->size*= 2;
+    p_bcode->size *= 2;
 
     void* temp = calloc(p_bcode->size + 2, 1);
     if (temp == nullptr)

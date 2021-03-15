@@ -14,7 +14,7 @@
 
 #ifndef TYPE
 #error Stack.h: You have to define stack TYPE before including this file.
-#endif // TYPE
+#else
 
 
 #if defined(_WIN32)
@@ -830,3 +830,5 @@ static int TEMPLATE(CanaryCheck, TYPE) (TEMPLATE(stack, TYPE)* p_stk)
 #endif //CANARY_PROTECT
 
 //------------------------------------------------------------------------------
+
+#endif // TYPE
