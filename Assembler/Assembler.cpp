@@ -263,7 +263,7 @@ char* DeleteComments(line_t* line, const char comment)
 void WriteIntNumber (asm_t* p_asm, char* word, size_t line, int err)
 {
     assert(p_asm != nullptr);
-    assert(word  != nullptr);
+    ASM_ASSERTOK((word == nullptr), err, 1, p_asm->input, line);
 
     ASM_ASSERTOK((strchr(word, '.') != NULL), err, 1, p_asm->input, line);
     
@@ -299,7 +299,7 @@ void WriteCommandSingle(asm_t* p_asm, char cmd, char flag)
 void WriteCommandWithIntNumber(asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag)
 {
     assert(p_asm != nullptr);
-    assert(word  != nullptr);
+    ASM_ASSERTOK((word == nullptr), err, 1, p_asm->input, line);
 
     WriteCommandSingle(p_asm, cmd, NUM_FLAG | flag);
 
@@ -311,7 +311,7 @@ void WriteCommandWithIntNumber(asm_t* p_asm, char cmd, char* word, size_t line, 
 void WriteCommandWithFloatNumber(asm_t* p_asm, char cmd, char* word, size_t line, int err)
 {
     assert(p_asm != nullptr);
-    assert(word  != nullptr);
+    ASM_ASSERTOK((word == nullptr), err, 1, p_asm->input, line);
 
     char* end = 0;
     NUM_FLT_TYPE number = (NUM_FLT_TYPE)strtod(word, &end);
@@ -332,7 +332,7 @@ void WriteCommandWithFloatNumber(asm_t* p_asm, char cmd, char* word, size_t line
 void WriteCommandWithRegister(asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag)
 {
     assert(p_asm != nullptr);
-    assert(word  != nullptr);
+    ASM_ASSERTOK((word == nullptr), err, 1, p_asm->input, line);
 
     char reg = REGIdentify(word);
     ASM_ASSERTOK((reg == ASM_NOT_OK), err, 1, p_asm->input, line);
@@ -351,7 +351,7 @@ void WriteCommandWithRegister(asm_t* p_asm, char cmd, char* word, size_t line, i
 void WriteCommandWithPointer(asm_t* p_asm, char cmd, char* word, size_t line, int err)
 {
     assert(p_asm != nullptr);
-    assert(word  != nullptr);
+    ASM_ASSERTOK((word == nullptr), err, 1, p_asm->input, line);
 
     char* start = word;
     word = strchr(word, ']');

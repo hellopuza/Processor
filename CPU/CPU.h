@@ -181,16 +181,6 @@ int CPUDestruct (cpu_t* p_cpu);
 int Execute (cpu_t* p_cpu, char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Prints a section of code with an error to the console and to the log file.
- * 
- *  @param   p_cpu       Pointer to the CPU
- *  @param   logname     Name of the log file
- *  @param   err         Error code
- */
-
-void CPUPrintCode (cpu_t* p_cpu, const char* logname, int err);
-
-//------------------------------------------------------------------------------
 /*! @brief   Pop one int number from stack.
  * 
  *  @param   num         Pointer to the number
@@ -223,6 +213,16 @@ void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num);
  */
 
 void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints a section of code with an error to the console and to the log file.
+ * 
+ *  @param   p_cpu       Pointer to the CPU
+ *  @param   logname     Name of the log file
+ *  @param   err         Error code
+ */
+
+void CPUPrintCode (cpu_t* p_cpu, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

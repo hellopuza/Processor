@@ -21,7 +21,7 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 
     int err = 0;
 
-    err = fillinBCodeStruct(&p_cpu->bcode, filename);
+    err = BCodeConstruct(&p_cpu->bcode, filename);
     CPU_ASSERTOK(err, err, 0, p_cpu);
 
     TEMPLATE(_StackConstruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM_INT");
@@ -166,7 +166,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -185,7 +185,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -259,7 +259,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
             CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -283,7 +283,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
             CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -531,7 +531,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -577,6 +577,58 @@ int Execute(cpu_t* p_cpu, char* filename)
     }
 
     return CPU_OK;
+}
+
+//------------------------------------------------------------------------------
+
+void Pop1IntNumber(cpu_t* p_cpu, NUM_INT_TYPE* num)
+{
+    assert(p_cpu != nullptr);
+    assert(num   != nullptr);
+
+    *num = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
+}
+
+//------------------------------------------------------------------------------
+
+void Pop2IntNumbers(cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2)
+{
+    assert(p_cpu != nullptr);
+    assert(num1  != nullptr);
+    assert(num2  != nullptr);
+
+    *num1 = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
+
+    *num2 = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
+}
+
+//------------------------------------------------------------------------------
+
+void Pop1FloatNumber(cpu_t* p_cpu, NUM_FLT_TYPE* num)
+{
+    assert(p_cpu != nullptr);
+    assert(num   != nullptr);
+
+    *num = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
+}
+
+//------------------------------------------------------------------------------
+
+void Pop2FloatNumbers(cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
+{
+    assert(p_cpu != nullptr);
+    assert(num1  != nullptr);
+    assert(num2  != nullptr);
+
+    *num1 = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
+
+    *num2 = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
+    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
 }
 
 //------------------------------------------------------------------------------
@@ -642,58 +694,6 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
     printf (     "////////////////////////////////////////////////////" "\n\n");
 
     fclose(log);
-}
-
-//------------------------------------------------------------------------------
-
-void Pop1IntNumber (cpu_t* p_cpu, NUM_INT_TYPE* num)
-{
-    assert(p_cpu != nullptr);
-    assert(num   != nullptr);
-
-    *num = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
-}
-
-//------------------------------------------------------------------------------
-
-void Pop2IntNumbers (cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2)
-{
-    assert(p_cpu != nullptr);
-    assert(num1  != nullptr);
-    assert(num2  != nullptr);
-
-    *num1 = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
-
-    *num2 = TEMPLATE(StackPop, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_INT_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
-}
-
-//------------------------------------------------------------------------------
-
-void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num)
-{
-    assert(p_cpu != nullptr);
-    assert(num   != nullptr);
-
-    *num = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num)), STACK_EMPTY_STACK, 1, p_cpu);
-}
-
-//------------------------------------------------------------------------------
-
-void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
-{
-    assert(p_cpu != nullptr);
-    assert(num1  != nullptr);
-    assert(num2  != nullptr);
-
-    *num1 = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num1)), STACK_EMPTY_STACK, 1, p_cpu);
-
-    *num2 = TEMPLATE(StackPop, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
-    CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (*num2)), STACK_EMPTY_STACK, 1, p_cpu);
 }
 
 //------------------------------------------------------------------------------

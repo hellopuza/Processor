@@ -85,12 +85,12 @@ static const char* asm_errstr[] =
     "Wrong screen operand. Operand can only be a register"             ,
 };
 
-#define ASM_ASSERTOK(cond, err, printcode, p_asm, i) if (cond)                                                                  \
-                                                     {                                                                          \
-                                                       AsmPrintError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                       if (printcode) AsmPrintCode(p_asm, i, assembler_logname, err);           \
-                                                       exit(err); /**/                                                          \
-                                                     }
+#define ASM_ASSERTOK(cond, err, printcode, text, i) if (cond)                                                                  \
+                                                    {                                                                          \
+                                                      AsmPrintError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                      if (printcode) AsmPrintCode(text, i, assembler_logname, err);            \
+                                                      exit(err); /**/                                                          \
+                                                    }
 
 
 //==============================================================================
@@ -181,10 +181,10 @@ int AsmDestruct (asm_t* p_asm);
 int Assemble (asm_t* p_asm);
 
 //------------------------------------------------------------------------------
-/*! @brief   Write binary program text to file.
+/*! @brief   Write binary program text to the file.
  *
  *  @param   p_asm       Pointer to the assembler
- *  @param   filename    File name for the program binary
+ *  @param   filename    File name for the binary program
  *
  *  @return  error code
  */

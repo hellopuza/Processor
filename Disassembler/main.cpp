@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     * File:        main.cpp                                                    *
-    * Description: Program for executing binary programs                       *
+    * Description: Program for disassembling bibary programs.                  *
     * Created:     7 feb 2021                                                  *
     * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
@@ -8,7 +8,7 @@
     * GitHub:      https://github.com/hellopuza                                *
     *///------------------------------------------------------------------------
 
-#include "CPU.h"
+#include "Disassembler.h"
 
 //------------------------------------------------------------------------------
 
@@ -20,12 +20,14 @@ int main(int argc, char* argv[])
         return 0;
     }
     
-    cpu_t cpu = {};
-    CPUConstruct(&cpu, argv[1]);
+    dsm_t disasm = {};
+    DsmConstruct(&disasm, argv[1]);
 
-    Execute(&cpu, argv[1]);
+    Disassemble(&disasm);
 
-    CPUDestruct(&cpu);
+    DsmWrite(&disasm, argv[1]);
+    
+    DsmDestruct(&disasm);
 
     return 0;
 }

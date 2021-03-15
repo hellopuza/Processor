@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------------
-    * File:        Assembler.h                                                 *
+    * File:        main.cpp                                                    *
     * Description: Program for parsing programs on the assembler language.     *
     * Created:     7 feb 2021                                                  *
     * Copyright:   (C) 2021 MIPT                                               *
