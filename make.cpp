@@ -4,12 +4,14 @@
 int main()
 {
     int err = system("cd ../Debug/ && "
-                     "Assembler.exe ../Processor/factorial.asm");
+                     "Assembler.exe ../Processor/Circle.asm");
 
     if (!err) system("cd ../Debug/ && "
-                     "CPU.exe factorial.code");
+                     "CPU.exe Circle.code");
     
     /*
+    if (!err) system("cd ../Debug/ && "
+                     "Disassembler.exe Circle.code");
     */
     
     return 0;
