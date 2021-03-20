@@ -36,9 +36,14 @@ enum DisassemblerErrors
 
     DSM_CONSTRUCTED                                                    ,
     DSM_DESTRUCTED                                                     ,
+    DSM_NO_SPACE_FOR_NUMBER_INT                                        ,
+    DSM_NO_SPACE_FOR_NUMBER_FLT                                        ,
+    DSM_NO_SPACE_FOR_POINTER                                           ,
+    DSM_NO_SPACE_FOR_REGISTER                                          ,
     DSM_NOT_CONSTRUCTED                                                ,
     DSM_NULL_INPUT_DISASSEMBLER_PTR                                    ,
     DSM_UNIDENTIFIED_COMMAND                                           ,
+    DSM_UNIDENTIFIED_REGISTER                                          ,
 };
 
 static const char* asm_errstr[] =
@@ -49,9 +54,14 @@ static const char* asm_errstr[] =
 
     "Disassembler already constructed"                                 ,
     "Disassembler already destructed"                                  ,
+    "Not enough space to determine the int number"                     ,
+    "Not enough space to determine the float number"                   ,
+    "Not enough space to determine the pointer"                        ,
+    "Not enough space to determine the register"                       ,
     "Disassembler did not constructed, operation is impossible"        ,
     "The input value of the disassembler pointer turned out to be zero",
     "Unidentified command"                                             ,
+    "Unidentified register"                                            ,
 };
 
 #define DSM_ASSERTOK(cond, err, printcode, p_dsm) if (cond)                                                                     \
@@ -71,18 +81,37 @@ static const char* asm_errstr[] =
 
 static const char* disassembler_logname = "disassembler.log";
 static const char* CODE_TYPE            = "_dis.asm";
+static const char* LABEL                = "L";
 
+const size_t DEFAULT_LABEL_NUM = 8;
 const size_t DEFAULT_LINES_NUM = 32;
-const size_t MAX_CHARS_IN_LINE = 64;
+const size_t MAX_CHARS_IN_LINE = 128;
+const size_t SECOND_WORD_PLACE = 8;
+const size_t COMMENT_PLACE     = 32;
 
-static const char  COMMENT   = ';';
+static const char COMMENT = ';';
+
+
+typedef struct label
+{
+    size_t code;
+    size_t addr;
+} label_t;
+
+typedef struct labels
+{
+    label_t* data;
+    size_t   num = DEFAULT_LABEL_NUM;
+    size_t   pos = 0;
+} labs_t;
 
 typedef struct disassembler
 {
     int state = DSM_NOT_CONSTRUCTED;
 
-    text_t   output = {};
-    bcode_t  bcode  = {};
+    text_t  output = {};
+    bcode_t bcode  = {};
+    labs_t  labels = {};
 } dsm_t;
 
 
@@ -116,7 +145,11 @@ int DsmDestruct (dsm_t* p_dsm);
 //------------------------------------------------------------------------------
 /*! @brief   Disassembly process.
  *
- *  @note    """""""
+ *  @note    The program text is a binary code. The disassembler goes through the code
+ *           and translating commands with their operands to the asm file. Also it
+ *           writes section of code on the left like comment, for each command.
+ *           If an error is found, the process stops and the code section with the error
+ *           is output.
  *
  *  @param   p_dsm       Pointer to the disassembler
  *
@@ -124,6 +157,52 @@ int DsmDestruct (dsm_t* p_dsm);
  */
 
 int Disassemble (dsm_t* p_dsm);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write command to the text line.
+ *
+ *  @param   text        Pointer to the text
+ *  @param   cmd         Command code
+ *  @param   line        Line number
+ *  @param   endpos      End position in the line
+ *
+ *  @return  error code
+ */
+
+int writeCMD (text_t* text, char cmd, size_t line, size_t endpos);
+
+//------------------------------------------------------------------------------
+/*! @brief   Write operands to the text line.
+ *
+ *  @param   text        Pointer to the text
+ *  @param   cmd         Command code
+ *  @param   reg         Register code
+ *  @param   num_int     Int number
+ *  @param   num_flt     Float number
+ *  @param   num_ptr     Pointer number
+ *  @param   line        Line number
+ *  @param   ptr         Pointer to the binary code
+ *  @param   startpos    Start position in the line
+ *  @param   endpos      End position in the line
+ *
+ *  @return  error code
+ */
+
+int writeOperands (text_t* text, char cmd, char reg, NUM_INT_TYPE num_int, NUM_FLT_TYPE num_flt, ptr_t num_ptr, size_t lab_num, size_t line, size_t startpos, size_t endpos);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints a section of code with command and operands to the text line like comment.
+ *
+ *  @param   text        Pointer to the text
+ *  @param   bcode       Pointer to the binary code
+ *  @param   line        Line number
+ *  @param   pos         Start position in the line
+ *  @param   ptr         Pointer to the binary code
+ *  @param   size        Section of the code size
+ *  @param   comment     Comment character
+ */
+
+void writeCode (text_t* text, bcode_t* bcode, size_t line, size_t pos, ptr_t ptr, size_t size, const char comment);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write disassembled program text to the file.
@@ -135,6 +214,50 @@ int Disassemble (dsm_t* p_dsm);
  */
 
 int DsmWrite (dsm_t* p_dsm, char* filename);
+
+//------------------------------------------------------------------------------
+/*! @brief   Labels constructor.
+ *
+ *  @param   p_labs      Pointer to the labels array
+ *  @param   num         Number of labels to be constructed
+ *
+ *  @return  error code
+ */
+
+int LabelsConstruct (labs_t* p_labs, size_t num);
+
+//------------------------------------------------------------------------------
+/*! @brief   Labels destructor.
+ *
+ *  @param   p_labs      Pointer to the labels array
+ *
+ *  @return  error code
+ */
+
+int LabelsDestruct (labs_t* p_labs);
+
+//------------------------------------------------------------------------------
+/*! @brief   Increase the labels array by 2 times.
+ * 
+ *  @param   p_labs      Pointer to the labels array
+ * 
+ *  @return  error code
+ */
+
+int LabelsExpand (labs_t* p_labs);
+
+//------------------------------------------------------------------------------
+/*! @brief   Compare two labels by their addresses.
+ *
+ *  @param   p1          Pointer to the first label
+ *  @param   p2          Pointer to the second label
+ *
+ *  @return  positive integer if first label address bigger then second
+ *  @return  0 if first label address the same as second
+ *  @return  negative integer if first label address smaller then second
+ */
+
+int labcmp (const void* p1, const void* p2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.

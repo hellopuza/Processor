@@ -1,42 +1,351 @@
 ###############################################################################
-TIME: 2021-03-09 22:27:08
+TIME: 2021-03-19 22:56:48
 
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 184  function Assemble
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
 
-Label definition not found
+Unidentified command
 ////////////////--CODE--////////////////
-    173: push rcx
-    174: int2flt
-=>  175: jae mem_out:
-    176: 
-    177: pushq [56]
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
 ////////////////////////////////////////
 
 ###############################################################################
-TIME: 2021-03-11 19:09:52
+TIME: 2021-03-19 23:02:17
 
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 261  function WriteIntNumber
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
 
-Wrong push operand number. Operand can only be an int number
+Unidentified command
 ////////////////--CODE--////////////////
-      3: ;;;;;;;;;;;;;;;;;;;;;;;;;;
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-19 23:03:41
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
+
+Unidentified command
+////////////////--CODE--////////////////
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-19 23:10:51
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
+
+Unidentified command
+////////////////--CODE--////////////////
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-19 23:13:25
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
+
+Unidentified command
+////////////////--CODE--////////////////
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-19 23:15:01
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 88  function Assemble
+
+Unidentified command
+////////////////--CODE--////////////////
+      5: main 
+      6: 
+=>    7: push   300
+      8: push   300
+      9: 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-19 23:20:56
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 342  function WriteCommandWithRegister
+
+Wrong pop operand register
+////////////////--CODE--////////////////
+     25: 
+     26: push   12
+=>   27: pop    rbp
+     28: 
+     29: ;;;;;;;;;;;;;;;;;;;;;
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:03:07
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:05:32
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:22:06
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:23:20
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:28:04
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:29:31
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 185  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:35:39
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 190  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:38:15
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:39:28
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 198  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:41:56
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       ; 00000039: 81 00 00 00 00  	pop    rbx                     ; 0000003E: 42 06 
+     22: pop    rbx                     ; 0000003E: 42 06  	jmp    L0                      ; 00000040: 19 F5 00 00 00 
+=>   23: jmp    L0                      ; 00000040: 19 F5 00 00 00  
+     24: 
+     25: L5:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:42:29
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 78  function Assemble
+
+Too many words in line
+////////////////--CODE--////////////////
+      3: main:
       4: 
-=>    5: push   800.1
-      6: push   800
-      7: 
+=>    5: push   300                     
+ 00000000: 81 2C 01 00 00 
+      6: push   300                     ; 00000005: 81 2C 01 00 00 
+      7: pop    scry                    ; 0000000A: 42 0C 
 ////////////////////////////////////////
 
 ###############################################################################
-TIME: 2021-03-12 21:55:11
+TIME: 2021-03-21 01:42:58
 
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 184  function Assemble
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
 
 Label definition not found
 ////////////////--CODE--////////////////
-     65: pushq [32]
-     66: pushq rbp
-=>   67: jb    rbp_loop
-     68: 
-     69: ;;;;;;;;;;;;;;;;;;;
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:45:53
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:46:22
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 93  function Assemble
+
+Incorrect label input
+////////////////--CODE--////////////////
+     23: jmp    L0                      
+     24: 
+=>   25: L5::
+     26: 
+     27: push   0                       ; 00000045: 81 00 00 00 00 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:47:24
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     34: pop    rbx       
+     35: 
+=>   36: jmp    y_after_loop
+     37: 
+     38: y_loop:
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:49:08
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 194  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:52:13
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 190  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5 
+////////////////////////////////////////
+
+###############################################################################
+TIME: 2021-03-21 01:53:44
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\Assembler\Assembler.cpp  line 190  function Assemble
+
+Label definition not found
+////////////////--CODE--////////////////
+     21: push   0                       
+     22: pop    rbx                     
+=>   23: jmp    L0                      
+     24: 
+     25: L5 
 ////////////////////////////////////////
 

@@ -109,14 +109,14 @@ const size_t MAX_WORDS_IN_LINE  = 2;
 
 static const char* DELIMETERS = " \t\r\0";
 
-static const char  COMMENT   = ';';
+static const char COMMENT = ';';
 
 
 typedef struct label
 {
-    char*  name;
-    size_t ptr;
-    size_t line;
+    char   name[128] = "";
+    ptr_t  ptr       = 0;
+    size_t line      = 0;
 } label_t;
 
 typedef struct labels
@@ -130,8 +130,8 @@ typedef struct assembler
 {
     int state = ASM_NOT_CONSTRUCTED;
 
-    text_t   input = {};
-    bcode_t  bcode = {};
+    text_t  input = {};
+    bcode_t bcode = {};
     
     labs_t defined_labels   = {};
     labs_t undefined_labels = {};
@@ -283,6 +283,17 @@ void WriteCommandWithFloatNumber (asm_t* p_asm, char cmd, char* word, size_t lin
 void WriteCommandWithRegister (asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag);
 
 //------------------------------------------------------------------------------
+/*! @brief   Write register operand to the binary code.
+ * 
+ *  @param   p_asm       Pointer to the assembler
+ *  @param   word        C string to be recognized as a register
+ *  @param   line        Number of line in the program text
+ *  @param   err         Error code
+ */
+
+void WriteRegister (asm_t* p_asm, char* word, size_t line, int err);
+
+//------------------------------------------------------------------------------
 /*! @brief   Write command with pointer operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
@@ -337,12 +348,12 @@ int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
  *
  *  @param   p_asm       Pointer to the assembler.
  *  @param   name        Name of a label
- *  @param   num_scline  Number of a source code line
+ *  @param   line        Number of the line in the code
  *
  *  @return  error code
  */
 
-int LabelDefining (asm_t* p_asm, char* name, size_t num_scline);
+int LabelDefining (asm_t* p_asm, char* name, size_t line);
 
 //------------------------------------------------------------------------------
 /*! @brief   Redefinition of undefined labels.

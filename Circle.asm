@@ -2,43 +2,45 @@
 ;;;; Circle Assembler ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-push   300
-push   300
+main:
 
-pop    scry    ; window height size
-pop    scrx    ; window width  size
+	push   300
+	push   300
 
-push   140
-pop    [0]     ; rad
+	pop    scry      ; window height size
+	pop    scrx      ; window width  size
 
-push   scrx
-push   2
-div
-pop    [4]     ; center x coord
+	push   140
+	pop    [0]       ; rad
 
-push   scry
-push   2
-div
-pop    [8]     ; center y coord
+	push   scrx
+	push   2
+	div
+	pop    [4]       ; center x coord
 
-push   12
-pop    rbp     ; video memory pointer
+	push   scry
+	push   2
+	div
+	pop    [8]       ; center y coord
+
+	push   12
+	pop    rbp       ; video memory pointer
 
 ;;;;;;;;;;;;;;;;;;;;;
 ;;;; double loop ;;;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-push   0
-pop    rbx     ; y coord
+	push   0
+	pop    rbx       ; y coord
 
-jmp    y_after_loop
+	jmp    y_after_loop
 
 y_loop:
 
-	push  0
-	pop   rax     ; x coord
+	push   0
+	pop    rax       ; x coord
 
-	jmp   x_after_loop
+	jmp    x_after_loop
 
 ;;;;;;;;;;;;;;;;;;;
 ;;;; main loop ;;;;
@@ -46,107 +48,103 @@ y_loop:
 
 x_loop:
 
-	push  rax
-	push  [4]
+	push   rax
+	push   [4]
 	sub
-	pop   eax
-	push  eax
-	push  eax
+	pop    eax
+	push   eax
+	push   eax
 	mul
 
-	push  rbx
-	push  [8]
+	push   rbx
+	push   [8]
 	sub
-	pop   eax
-	push  eax
-	push  eax
+	pop    eax
+	push   eax
+	push   eax
 	mul
 
 	add
 	int2flt
 	sqrt
-	popq  eax
-	pushq eax
-	push  [0]
+	popq   eax
+	pushq  eax
+	push   [0]
 	int2flt
-	jb    set_white
+	jb     set_white
 	
 
-	pushq scry
-	pushq rbx
+	pushq  scry
+	pushq  rbx
 	subq
-	pushq scrx
+	pushq  scrx
 	divq
-	pushq 256
+	pushq  256
 	mulq
 	flt2int
-	pop   [rbp]   ; red
+	pop    [rbp]     ; red
 	
-	pushq rax
-	pushq scrx
+	pushq  rax
+	pushq  scrx
 	divq
-	pushq 256
+	pushq  256
 	mulq
 	flt2int
-	pop   [rbp+1] ; green
+	pop    [rbp+1]   ; green
 
-	pushq eax
-	pushq scry
+	pushq  eax
+	pushq  scry
 	divq
-	pushq 256
+	pushq  256
 	mulq
 	flt2int
-	pop   [rbp+2] ; blue
+	pop    [rbp+2]   ; blue
 
-	jmp   inc_rbp
+	jmp    inc_rbp
 
 set_white:
 	
-	push  255
-	pop   [rbp]
-	push  255
-	pop   [rbp+1]
-	push  255
-	pop   [rbp+2]
+	push   16777215  ; white rgb
+	pop    [rbp]
 
 inc_rbp:
 
-	push  3
-	push  rbp
+	push   3
+	push   rbp
 	add
-	pop   rbp
+	pop    rbp
 
-	push  1
-	push  rax
+	push   1
+	push   rax
 	add
-	pop   rax
+	pop    rax
 
 ;;;;;;;;;;;;;;;;;;;
 x_after_loop:
 
-	pushq scrx
-	pushq rax
-	jb    x_loop
+	pushq  scrx
+	pushq  rax
+	jb     x_loop
 
-	push  1
-	push  rbx
+	push   1
+	push   rbx
 	add
-	pop   rbx
+	pop    rbx
 
 ;;;;;;;;;;;;;;;;;;;
 y_after_loop:
 
-	pushq scry
-	pushq rbx
-	jb    y_loop
+	pushq  scry
+	pushq  rbx
+	jb     y_loop
 
 ;;;;;;;;;;;;;;;;
 ;;;; SCREEN ;;;;
 ;;;;;;;;;;;;;;;;
 
-push   12
-pop    rbp     ; video memory pointer
+	push   12
+	pop    rbp       ; video memory pointer
 
-screen rbp
+	screen rbp
 
-hlt
+	hlt

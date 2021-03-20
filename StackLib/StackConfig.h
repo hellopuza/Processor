@@ -19,16 +19,16 @@
 #include <time.h>
 
 
-#define CONSOLE_PRINT if(1)
+#define CONSOLE_PRINT  if(1)
 
 
 #ifdef  NO_DUMP
 
-    #define DUMP_PRINT    if(0)
+    #define DUMP_PRINT if(0)
 
 #else
 
-    #define DUMP_PRINT    if(1)
+    #define DUMP_PRINT if(1)
 
 #endif // NO_DUMP
 
@@ -51,6 +51,8 @@
 
     #define PTR_T
     typedef size_t ptr_t;
+
+    #define POINTER_PRINT_FORMAT "%u"
 
     #include <limits.h>
     #define PTR_MAX UINT_MAX
@@ -91,15 +93,15 @@ static const size_t MAX_CAPACITY  = 100000;
 
 #ifdef CANARY_PROTECT
 
-typedef unsigned long long can_t;
-#define CAN_PRINT_FORMAT "%llu"
+    typedef unsigned long long can_t;
+    #define CAN_PRINT_FORMAT "%llu"
 
-static can_t perfect_canary = (srand(time(NULL)), rand());
-static can_t canaries[MAX_STACK_NUM] = {};
+    static can_t perfect_canary = (srand(time(NULL)), rand());
+    static can_t canaries[MAX_STACK_NUM] = {};
 
 #else
 
-typedef char can_t;
+    typedef char can_t;
 
 #endif //CANARY_PROTECT
 

@@ -13,12 +13,12 @@
 //#define NDEBUG
 
 #ifndef TYPE
-#error Stack.h: You have to define stack TYPE before including this file.
+    #error Stack.h: You have to define stack TYPE before including this file.
 #else
 
 
 #if defined(_WIN32)
-#include <windows.h>
+    #include <windows.h>
 #endif
 
 #include "StackConfig.h"
@@ -56,15 +56,16 @@
 
 
 #ifndef STACK_ID
-static int stack_id = 0;
-#define STACK_ID
+    static int stack_id = 0;
+    #define STACK_ID
 #endif // STACK_ID
 
 
 #ifndef STACK_NAME
-static char* stack_name = nullptr;
-#define STACK_NAME
+    static char* stack_name = nullptr;
+    #define STACK_NAME
 #endif // STACK_NAME
+
 
 #define StackConstruct(NAME, capacity, STK_TYPE)                              \
         TEMPLATE(stack, STK_TYPE) NAME;                                       \

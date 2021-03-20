@@ -11,18 +11,27 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
+#include <string.h>
+#include <stdio.h>
 
 #ifndef PTR_T
-#define PTR_T
-typedef size_t ptr_t;
 
-#include <limits.h>
-#define PTR_MAX UINT_MAX
+    #define PTR_T
+    typedef size_t ptr_t;
+
+    #define POINTER_PRINT_FORMAT "%u"
+
+    #include <limits.h>
+    #define PTR_MAX UINT_MAX
+
 #endif // PTR_T
 
 
 #define NUM_INT_TYPE int
 #define NUM_FLT_TYPE double
+
+#define INT_PRINT_FORMAT "%d"
+#define FLT_PRINT_FORMAT "%lf"
 
 #define PTR_TYPE ptr_t
 
@@ -40,7 +49,7 @@ const int PROCESS_HALT = -666;
                    Commands codes                                              *
 *///----------------------------------------------------------------------------
 
-enum Commands
+enum CommandsCodes
 {
     CMD_HLT      = 0x00,
     CMD_PUSH     = 0x01,
@@ -134,7 +143,7 @@ const int CMD_NUM = sizeof(cmd_names)/sizeof(cmd_names[0]);
                    Register codes                                              *
 *///----------------------------------------------------------------------------
 
-enum Registers
+enum RegistersCodes
 {
     REG_EAX  = 0x01,
     REG_EBX  = 0x02,
@@ -161,21 +170,18 @@ struct reg
 
 static command reg_names[] =
 {
-    { REG_EAX   ,  "eax"  },//1
-    { REG_EBX   ,  "ebx"  },//2
-    { REG_ECX   ,  "ecx"  },//3
-    { REG_EDX   ,  "edx"  },//4
-
-    { REG_RAX   ,  "rax"  },//5
-    { REG_RBX   ,  "rbx"  },//6
-    { REG_RCX   ,  "rcx"  },//7
-    { REG_RDX   ,  "rdx"  },//8
-
-    { REG_RBP   ,  "rbp"  },//9
-    { REG_RSP   ,  "rsp"  },//10
-
-    { REG_SCRX  ,  "scrx" },//11
-    { REG_SCRY  ,  "scry" },//12
+    { REG_EAX   ,  "eax"  },
+    { REG_EBX   ,  "ebx"  },
+    { REG_ECX   ,  "ecx"  },
+    { REG_EDX   ,  "edx"  },
+    { REG_RAX   ,  "rax"  },
+    { REG_RBP   ,  "rbp"  },
+    { REG_RBX   ,  "rbx"  },
+    { REG_RCX   ,  "rcx"  },
+    { REG_RDX   ,  "rdx"  },
+    { REG_RSP   ,  "rsp"  },
+    { REG_SCRX  ,  "scrx" },
+    { REG_SCRY  ,  "scry" },
 };
 
 const int REG_NUM = sizeof(reg_names) / sizeof(reg_names[0]);
@@ -192,6 +198,32 @@ static int isJUMP(char code)
              (code == CMD_JB  ) ||
              (code == CMD_JBE ) ||
              (code == CMD_CALL)   );
+}
+
+//------------------------------------------------------------------------------
+
+static int CompareCMD_Names(const void* p1, const void* p2)
+{
+    assert(p1 != nullptr);
+    assert(p2 != nullptr);
+    assert(p1 != p2);
+
+    // printf("CompareCMD_Names: s1(%p): %s, s2(%p): %s\n", p1, ((struct command*)p1)->word, p2, ((struct command*)p2)->word);
+
+    return strcmp(((struct command*)p1)->word, ((struct command*)p2)->word);
+}
+
+//------------------------------------------------------------------------------
+
+static int CompareREG_Names(const void* p1, const void* p2)
+{
+    assert(p1 != nullptr);
+    assert(p2 != nullptr);
+    assert(p1 != p2);
+
+    // printf("CompareREG_Names: s1(%p): %s, s2(%p): %s\n", p1, ((struct reg*)p1)->word, p2, ((struct reg*)p2)->word);
+
+    return strcmp(((struct reg*)p1)->word, ((struct reg*)p2)->word);
 }
 
 //------------------------------------------------------------------------------

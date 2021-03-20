@@ -46,9 +46,9 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 
 int CPUDestruct(cpu_t* p_cpu)
 {
-    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
-    CPU_ASSERTOK((p_cpu->state == CPU_DESTRUCTED), CPU_DESTRUCTED, 0, p_cpu);
-    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu == nullptr),                CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state == CPU_DESTRUCTED),  CPU_DESTRUCTED,         0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED,    0, p_cpu);
 
     BCodeDestruct(&p_cpu->bcode);
     TEMPLATE(StackDestruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
@@ -72,15 +72,14 @@ int CPUDestruct(cpu_t* p_cpu)
 
 int Execute(cpu_t* p_cpu, char* filename)
 {
-    CPU_ASSERTOK((p_cpu == nullptr), CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
-    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu == nullptr),                CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
+    CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED,    0, p_cpu);
 
     assert(filename != nullptr);
     assert(p_cpu->bcode.size != 0);
 
     p_cpu->bcode.ptr = 0;
 
-    unsigned char cmd = 0;
     char reg = 0;
 
     int width  = 0;
@@ -100,7 +99,7 @@ int Execute(cpu_t* p_cpu, char* filename)
         char cond = 0;
         char scrnumstr[5]    = "";
 
-        cmd = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+        unsigned char cmd = p_cpu->bcode.data[p_cpu->bcode.ptr++];
 
         switch (cmd)
         {
@@ -523,7 +522,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, (NUM_FLT_TYPE)num_int1);
             break;
 
-        case CMD_SCREEN | REG_FLAG:
+        case CMD_SCREEN:
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
@@ -646,8 +645,8 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
     fprintf(log, " Address: %08X\n\n", p_cpu->bcode.ptr);
     printf (     " Address: %08X\n\n", p_cpu->bcode.ptr);
 
-    fprintf(log, "//////////////////////--CODE--//////////////////////" "\n");
-    printf (     "//////////////////////--CODE--//////////////////////" "\n");
+    fprintf(log, "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
+    printf (     "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
 
     fprintf(log, "     Address ");
     printf (     "     Address ");
@@ -690,8 +689,8 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
     fprintf(log, "/\\\n");
     printf (     "/\\\n");
 
-    fprintf(log, "////////////////////////////////////////////////////" "\n\n");
-    printf (     "////////////////////////////////////////////////////" "\n\n");
+    fprintf(log, "////////////////////////////////////////////////////////////////////////////" "\n\n");
+    printf (     "////////////////////////////////////////////////////////////////////////////" "\n\n");
 
     fclose(log);
 }

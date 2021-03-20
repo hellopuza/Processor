@@ -9,9 +9,9 @@ int main()
     if (!err) system("cd ../Debug/ && "
                      "CPU.exe Circle.code");
     
-    /*
     if (!err) system("cd ../Debug/ && "
                      "Disassembler.exe Circle.code");
+    /*
     */
     
     return 0;

@@ -35,7 +35,7 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
 //------------------------------------------------------------------------------
 
-int TextConstruct (text_t* txtstruct, size_t num, size_t len)
+int TextConstruct(text_t* txtstruct, size_t num, size_t len)
 {
     assert(txtstruct != nullptr);
     assert(num);
@@ -57,33 +57,29 @@ int TextConstruct (text_t* txtstruct, size_t num, size_t len)
 
 //------------------------------------------------------------------------------
 
-int TextExpand(text_t* txtstruct)
+int TextExpand(text_t* txtstruct, size_t len)
 {
     assert(txtstruct != nullptr);
 
-    line_t* temp = (line_t*)calloc(txtstruct->num * 2 + 2, 1);
+    txtstruct->num *= 2;
+
+    void* temp = calloc(txtstruct->num + 2, sizeof(line_t));
     if (temp == nullptr)
         return STR_NO_MEMORY;
 
     void* oldtemp = txtstruct->lines;
 
-    for (int i = 0; i < txtstruct->num; ++i)
-    {
-        temp[i].len = txtstruct->lines[i].len;
-        temp[i].str = txtstruct->lines[i].str;
-    }
-
-    for (int i = txtstruct->num; i < txtstruct->num * 2; ++i)
-    {
-        temp[i].len = txtstruct->lines[0].len;
-        txtstruct->lines[i].str = (char*)calloc(txtstruct->lines[0].len, 1);
-        STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
-    }
-
+    memcpy(temp, txtstruct->lines, txtstruct->num * sizeof(line_t) / 2);
     free(oldtemp);
 
-    txtstruct->lines = temp;
-    txtstruct->num *= 2;
+    txtstruct->lines = (line_t*)temp;
+
+    for (int i = txtstruct->num / 2; i < txtstruct->num; ++i)
+    {
+        txtstruct->lines[i].len = len;
+        txtstruct->lines[i].str = (char*)calloc(len, 1);
+        STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
+    }
 
     return STR_OK;
 }
@@ -119,11 +115,10 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 int TextDestruct(text_t* txtstruct)
 {
     assert(txtstruct != nullptr);
-    assert(txtstruct->lines != nullptr);
-    assert(txtstruct->text  != nullptr);
 
     if (txtstruct->num != 0)
     {
+        assert(txtstruct->lines != nullptr);
         free(txtstruct->lines);
         txtstruct->lines = nullptr;
         txtstruct->num   = 0;
@@ -131,6 +126,7 @@ int TextDestruct(text_t* txtstruct)
 
     if (txtstruct->size != 0)
     {
+        assert(txtstruct->text  != nullptr);
         free(txtstruct->text);
         txtstruct->text = nullptr;
         txtstruct->size = 0;
@@ -387,6 +383,17 @@ size_t chrcnt(char* str, char c)
 
 //------------------------------------------------------------------------------
 
+int CompareLines(const void* p1, const void* p2)
+{
+    assert(p1 != nullptr);
+    assert(p2 != nullptr);
+    assert(p1 != p2);
+
+    return strcmp(((line_t*)p1)->str, ((line_t*)p2)->str);
+}
+
+//------------------------------------------------------------------------------
+
 int CompareFromLeft(const void* p1, const void* p2)
 {
     assert(p1 != nullptr);
@@ -472,7 +479,7 @@ void Write(line_t* lines, size_t num, const char* filename)
 
     FILE* fp = fopen(filename, "w");
 
-    for(int i = 0; i < num; ++i)
+    for (int i = 0; i < num; ++i)
         fprintf(fp, "%s\n", lines[i].str);
 
     fclose(fp);

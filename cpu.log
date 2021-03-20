@@ -1,107 +1,340 @@
 ###############################################################################
-TIME: 2021-03-10 18:28:26
+TIME: 2021-03-14 18:38:53
 
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 389  function Execute
-
-Division by zero
- Address: 00000088
-
-//////////////////////--CODE--//////////////////////
-     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     00000060 41  06  A1  08  00  00  00  06  42  01  41  01  41  01  07  05  
-     00000070 21  15  4B  01  4A  01  A1  00  00  00  00  21  1B  C7  00  00  
-=>   00000080 00  4A  0C  4A  06  0F  4A  0B  11  8A  00  00  00  00  00  00  
-     00000090 70  40  10  20  62  09  4A  05  4A  0B  11  8A  00  00  00  00  
-     000000A0 00  00  70  40  10  20  E2  09  01  00  00  00  4A  01  4A  0C  
-==============================================/\
-////////////////////////////////////////////////////
-
-###############################################################################
-TIME: 2021-03-10 18:30:44
-
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 108  function Execute
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 537  function Execute
 
 Register is empty
- Address: 00000019
-
-//////////////////////--CODE--//////////////////////
-     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     00000000 81  F4  01  00  00  81  F4  01  00  00  42  0C  42  0B  81  F0  
-=>   00000010 00  00  00  A2  00  00  00  00  41  0B  81  02  00  00  00  08  
-     00000020 A2  04  00  00  00  41  0C  81  02  00  00  00  08  A2  08  00  
-     00000030 00  00  81  0C  00  00  00  42  09  81  FF  FF  FF  FF  42  06  
-==================================================/\
-////////////////////////////////////////////////////
-
-###############################################################################
-TIME: 2021-03-10 18:32:13
-
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 501  function Execute
-
-Incorrect window sizes received
-###############################################################################
-TIME: 2021-03-10 18:33:53
-
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 498  function Execute
-
-No video memory
  Address: 0000011C
 
 //////////////////////--CODE--//////////////////////
      Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     000000F0 00  00  00  41  05  05  42  05  4A  0B  4A  05  1B  51  00  00  
-     00000100 00  81  01  00  00  00  41  06  05  42  06  4A  0C  4A  06  1B  
-=>   00000110 45  00  00  00  81  0C  00  00  00  42  09  5F  09  00  
+     000000F0 00  00  00  41  05  05  42  05  4D  0B  4D  05  1E  51  00  00  
+     00000100 00  81  01  00  00  00  41  06  05  42  06  4D  0C  4D  06  1E  
+=>   00000110 45  00  00  00  81  FF  FF  FF  FF  42  09  64  09  00  
 ==============================================================/\
 ////////////////////////////////////////////////////
 
+This dump was called from a function Execute
+TIME: 2021-03-14 18:38:53.635
+
+Stack (OK) [0x004FFBC4] "stkCPU_NUM_INT", id (0)
+	{
+	Type of data is int
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x00B7E5D1]
+		{
+		 [0]: 2147483647 (POISON)
+		 [1]: 2147483647 (POISON)
+		 [2]: 2147483647 (POISON)
+		 [3]: 2147483647 (POISON)
+		 [4]: 2147483647 (POISON)
+		 [5]: 2147483647 (POISON)
+		 [6]: 2147483647 (POISON)
+		 [7]: 2147483647 (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:38:53.636
+
+Stack (OK) [0x004FFBDC] "stkCPU_NUM_FLT", id (1)
+	{
+	Type of data is double
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x00BA4981]
+		{
+		 [0]: -nan(ind) (POISON)
+		 [1]: -nan(ind) (POISON)
+		 [2]: -nan(ind) (POISON)
+		 [3]: -nan(ind) (POISON)
+		 [4]: -nan(ind) (POISON)
+		 [5]: -nan(ind) (POISON)
+		 [6]: -nan(ind) (POISON)
+		 [7]: -nan(ind) (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:38:53.637
+
+Stack (OK) [0x004FFBF4] "stkCPU_PTR", id (2)
+	{
+	Type of data is ptr_t
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x00B7E671]
+		{
+		 [0]: 0xFFFFFFFF (POISON)
+		 [1]: 0xFFFFFFFF (POISON)
+		 [2]: 0xFFFFFFFF (POISON)
+		 [3]: 0xFFFFFFFF (POISON)
+		 [4]: 0xFFFFFFFF (POISON)
+		 [5]: 0xFFFFFFFF (POISON)
+		 [6]: 0xFFFFFFFF (POISON)
+		 [7]: 0xFFFFFFFF (POISON)
+		}
+	}
+********************************************************************************
 ###############################################################################
-TIME: 2021-03-10 18:35:58
+TIME: 2021-03-14 18:39:48
 
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 499  function Execute
-
-No video memory
- Address: 0000011C
-
-//////////////////////--CODE--//////////////////////
-     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     000000F0 00  00  00  41  05  05  42  05  4A  0B  4A  05  1B  51  00  00  
-     00000100 00  81  01  00  00  00  41  06  05  42  06  4A  0C  4A  06  1B  
-=>   00000110 45  00  00  00  81  0C  00  00  00  42  09  5F  09  00  
-==============================================================/\
-////////////////////////////////////////////////////
-
-###############################################################################
-TIME: 2021-03-10 18:37:34
-
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 501  function Execute
-
-No video memory
- Address: 0000011C
-
-//////////////////////--CODE--//////////////////////
-     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     000000F0 00  00  00  41  05  05  42  05  4A  0B  4A  05  1B  51  00  00  
-     00000100 00  81  01  00  00  00  41  06  05  42  06  4A  0C  4A  06  1B  
-=>   00000110 45  00  00  00  81  0C  00  00  00  42  09  5F  09  00  
-==============================================================/\
-////////////////////////////////////////////////////
-
-###############################################################################
-TIME: 2021-03-12 22:07:43
-
-ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 107  function Execute
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 537  function Execute
 
 Register is empty
- Address: 00000186
+ Address: 0000011C
 
 //////////////////////--CODE--//////////////////////
      Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
-     00000160 81  03  00  00  00  07  42  09  E1  09  24  00  00  00  81  FF  
-     00000170 00  00  00  0B  E2  09  24  00  00  00  21  41  07  81  01  00  
-=>   00000180 00  00  05  42  07  41  01  04  AD  18  00  00  00  4D  07  1E  
-     00000190 B7  00  00  00  19  CA  01  00  00  42  01  81  6D  4E  C6  41  
-     000001A0 A1  1C  00  00  00  07  81  39  30  00  00  05  A2  1C  00  00  
-======================================/\
+     000000F0 00  00  00  41  05  05  42  05  4D  0B  4D  05  1E  51  00  00  
+     00000100 00  81  01  00  00  00  41  06  05  42  06  4D  0C  4D  06  1E  
+=>   00000110 45  00  00  00  81  FF  FF  FF  FF  42  09  64  09  00  
+==============================================================/\
 ////////////////////////////////////////////////////
 
+This dump was called from a function Execute
+TIME: 2021-03-14 18:39:48.986
+
+Stack (OK) [0x00DCFD0C] "stkCPU_NUM_INT", id (0)
+	{
+	Type of data is int
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x01388CE1]
+		{
+		 [0]: 2147483647 (POISON)
+		 [1]: 2147483647 (POISON)
+		 [2]: 2147483647 (POISON)
+		 [3]: 2147483647 (POISON)
+		 [4]: 2147483647 (POISON)
+		 [5]: 2147483647 (POISON)
+		 [6]: 2147483647 (POISON)
+		 [7]: 2147483647 (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:39:48.987
+
+Stack (OK) [0x00DCFD24] "stkCPU_NUM_FLT", id (1)
+	{
+	Type of data is double
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x01377271]
+		{
+		 [0]: -nan(ind) (POISON)
+		 [1]: -nan(ind) (POISON)
+		 [2]: -nan(ind) (POISON)
+		 [3]: -nan(ind) (POISON)
+		 [4]: -nan(ind) (POISON)
+		 [5]: -nan(ind) (POISON)
+		 [6]: -nan(ind) (POISON)
+		 [7]: -nan(ind) (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:39:48.988
+
+Stack (OK) [0x00DCFD3C] "stkCPU_PTR", id (2)
+	{
+	Type of data is ptr_t
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x01388A61]
+		{
+		 [0]: 0xFFFFFFFF (POISON)
+		 [1]: 0xFFFFFFFF (POISON)
+		 [2]: 0xFFFFFFFF (POISON)
+		 [3]: 0xFFFFFFFF (POISON)
+		 [4]: 0xFFFFFFFF (POISON)
+		 [5]: 0xFFFFFFFF (POISON)
+		 [6]: 0xFFFFFFFF (POISON)
+		 [7]: 0xFFFFFFFF (POISON)
+		}
+	}
+********************************************************************************
+###############################################################################
+TIME: 2021-03-14 18:44:46
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 538  function Execute
+
+Memory access violation
+ Address: 0000011C
+
+//////////////////////--CODE--//////////////////////
+     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
+     000000F0 00  00  00  41  05  05  42  05  4D  0B  4D  05  1E  51  00  00  
+     00000100 00  81  01  00  00  00  41  06  05  42  06  4D  0C  4D  06  1E  
+=>   00000110 45  00  00  00  81  FE  FF  FF  FF  42  09  64  09  00  
+==============================================================/\
+////////////////////////////////////////////////////
+
+This dump was called from a function Execute
+TIME: 2021-03-14 18:44:46.746
+
+Stack (OK) [0x00DDF664] "stkCPU_NUM_INT", id (0)
+	{
+	Type of data is int
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x012D8539]
+		{
+		 [0]: 2147483647 (POISON)
+		 [1]: 2147483647 (POISON)
+		 [2]: 2147483647 (POISON)
+		 [3]: 2147483647 (POISON)
+		 [4]: 2147483647 (POISON)
+		 [5]: 2147483647 (POISON)
+		 [6]: 2147483647 (POISON)
+		 [7]: 2147483647 (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:44:46.747
+
+Stack (OK) [0x00DDF67C] "stkCPU_NUM_FLT", id (1)
+	{
+	Type of data is double
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x012C7031]
+		{
+		 [0]: -nan(ind) (POISON)
+		 [1]: -nan(ind) (POISON)
+		 [2]: -nan(ind) (POISON)
+		 [3]: -nan(ind) (POISON)
+		 [4]: -nan(ind) (POISON)
+		 [5]: -nan(ind) (POISON)
+		 [6]: -nan(ind) (POISON)
+		 [7]: -nan(ind) (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:44:46.748
+
+Stack (OK) [0x00DDF694] "stkCPU_PTR", id (2)
+	{
+	Type of data is ptr_t
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x012D8589]
+		{
+		 [0]: 0xFFFFFFFF (POISON)
+		 [1]: 0xFFFFFFFF (POISON)
+		 [2]: 0xFFFFFFFF (POISON)
+		 [3]: 0xFFFFFFFF (POISON)
+		 [4]: 0xFFFFFFFF (POISON)
+		 [5]: 0xFFFFFFFF (POISON)
+		 [6]: 0xFFFFFFFF (POISON)
+		 [7]: 0xFFFFFFFF (POISON)
+		}
+	}
+********************************************************************************
+###############################################################################
+TIME: 2021-03-14 18:49:33
+
+ERROR: file C:\Users\admin\Documents\.Programming\C\.Projects\Processor\Processor\CPU\CPU.cpp  line 536  function Execute
+
+Memory access violation
+ Address: 0000011C
+
+//////////////////////--CODE--//////////////////////
+     Address | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | A | B | C | D | E | F 
+     000000F0 00  00  00  41  05  05  42  05  4D  0B  4D  05  1E  51  00  00  
+     00000100 00  81  01  00  00  00  41  06  05  42  06  4D  0C  4D  06  1E  
+=>   00000110 45  00  00  00  81  FE  FF  FF  FF  42  09  64  09  00  
+==============================================================/\
+////////////////////////////////////////////////////
+
+This dump was called from a function Execute
+TIME: 2021-03-14 18:49:33.324
+
+Stack (OK) [0x010FF700] "stkCPU_NUM_INT", id (0)
+	{
+	Type of data is int
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x011A8521]
+		{
+		 [0]: 2147483647 (POISON)
+		 [1]: 2147483647 (POISON)
+		 [2]: 2147483647 (POISON)
+		 [3]: 2147483647 (POISON)
+		 [4]: 2147483647 (POISON)
+		 [5]: 2147483647 (POISON)
+		 [6]: 2147483647 (POISON)
+		 [7]: 2147483647 (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:49:33.325
+
+Stack (OK) [0x010FF718] "stkCPU_NUM_FLT", id (1)
+	{
+	Type of data is double
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x011964E9]
+		{
+		 [0]: -nan(ind) (POISON)
+		 [1]: -nan(ind) (POISON)
+		 [2]: -nan(ind) (POISON)
+		 [3]: -nan(ind) (POISON)
+		 [4]: -nan(ind) (POISON)
+		 [5]: -nan(ind) (POISON)
+		 [6]: -nan(ind) (POISON)
+		 [7]: -nan(ind) (POISON)
+		}
+	}
+********************************************************************************
+This dump was called from a function Execute
+TIME: 2021-03-14 18:49:33.326
+
+Stack (OK) [0x010FF730] "stkCPU_PTR", id (2)
+	{
+	Type of data is ptr_t
+
+	Capacity           = 8
+	Current size       = 0
+
+	Data [0x011A88E1]
+		{
+		 [0]: 0xFFFFFFFF (POISON)
+		 [1]: 0xFFFFFFFF (POISON)
+		 [2]: 0xFFFFFFFF (POISON)
+		 [3]: 0xFFFFFFFF (POISON)
+		 [4]: 0xFFFFFFFF (POISON)
+		 [5]: 0xFFFFFFFF (POISON)
+		 [6]: 0xFFFFFFFF (POISON)
+		 [7]: 0xFFFFFFFF (POISON)
+		}
+	}
+********************************************************************************

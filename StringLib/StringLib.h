@@ -72,13 +72,15 @@ static const char* string_logname = "string.log";
     #define PTR_T
     typedef size_t ptr_t;
 
+    #define POINTER_PRINT_FORMAT "%u"
+
     #include <limits.h>
     #define PTR_MAX UINT_MAX
 
 #endif // PTR_T
 
 
-typedef struct line
+typedef struct Line
 {
     char*  str = nullptr;
     size_t len = 0;
@@ -134,11 +136,12 @@ int TextConstruct (text_t* txtstruct, size_t num, size_t len);
 /*! @brief   Increase the number of text structure lines by 2 times.
  * 
  *  @param   txtstruct   Pointer to the text structure
+ *  @param   len         Length of each line
  * 
  *  @return  error code
  */
 
-int TextExpand (text_t* txtstruct);
+int TextExpand (text_t* txtstruct, size_t len);
 
 //------------------------------------------------------------------------------
 /*! @brief   Fill the structure of text from file.
@@ -287,6 +290,19 @@ size_t GetWordNum(line_t line);
  */
 
 size_t chrcnt (char* str, char c);
+
+//------------------------------------------------------------------------------
+/*! @brief   Compare two lines from left alphabetically using standart strcmp.
+ *
+ *  @param   p1          Pointer to the first line
+ *  @param   p2          Pointer to the second line
+ *
+ *  @return  positive integer if first line bigger then second
+ *  @return  0 if first line the same as second
+ *  @return  negative integer if first line smaller then second
+ */
+
+int CompareLines (const void *p1, const void *p2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Compare two lines from left alphabetically.
