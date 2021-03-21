@@ -239,7 +239,7 @@ int writeOperands(Text* text, char cmd_code, char reg_code, NUM_INT_TYPE num_int
     {
         char num_word[25] = "";
         if (cmd_code == CMD_PUSHQ) sprintf(num_word, FLT_PRINT_FORMAT, num_flt);
-        else                  sprintf(num_word, INT_PRINT_FORMAT, num_int);
+        else                       sprintf(num_word, INT_PRINT_FORMAT, num_int);
 
         strcpy(text->lines[line].str + startpos + len, num_word);
         len += strlen(num_word);
