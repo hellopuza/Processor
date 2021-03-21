@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------------
 
-int CPUConstruct(cpu_t* p_cpu, const char* filename)
+int CPUConstruct(CPU* p_cpu, const char* filename)
 {
     assert(filename != nullptr);
 
@@ -21,7 +21,7 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 
     int err = 0;
 
-    err = BCodeConstruct(&p_cpu->bcode, filename);
+    err = BinCodeConstruct(&p_cpu->bcode, filename);
     CPU_ASSERTOK(err, err, 0, p_cpu);
 
     TEMPLATE(_StackConstruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, DEFAULT_STACK_CAPACITY, (char*)"stkCPU_NUM_INT");
@@ -44,13 +44,13 @@ int CPUConstruct(cpu_t* p_cpu, const char* filename)
 
 //------------------------------------------------------------------------------
 
-int CPUDestruct(cpu_t* p_cpu)
+int CPUDestruct(CPU* p_cpu)
 {
     CPU_ASSERTOK((p_cpu == nullptr),                CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
     CPU_ASSERTOK((p_cpu->state == CPU_DESTRUCTED),  CPU_DESTRUCTED,         0, p_cpu);
     CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED,    0, p_cpu);
 
-    BCodeDestruct(&p_cpu->bcode);
+    BinCodeDestruct(&p_cpu->bcode);
     TEMPLATE(StackDestruct, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT);
     TEMPLATE(StackDestruct, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT);
 
@@ -70,7 +70,7 @@ int CPUDestruct(cpu_t* p_cpu)
 
 //------------------------------------------------------------------------------
 
-int Execute(cpu_t* p_cpu, char* filename)
+int Execute(CPU* p_cpu, char* filename)
 {
     CPU_ASSERTOK((p_cpu == nullptr),                CPU_NULL_INPUT_CPU_PTR, 0, p_cpu);
     CPU_ASSERTOK((p_cpu->state != CPU_CONSTRUCTED), CPU_NOT_CONSTRUCTED,    0, p_cpu);
@@ -80,7 +80,7 @@ int Execute(cpu_t* p_cpu, char* filename)
 
     p_cpu->bcode.ptr = 0;
 
-    char reg = 0;
+    char reg_code = 0;
 
     int width  = 0;
     int height = 0;
@@ -99,9 +99,9 @@ int Execute(cpu_t* p_cpu, char* filename)
         char cond = 0;
         char scrnumstr[5]    = "";
 
-        unsigned char cmd = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+        unsigned char cmd_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
 
-        switch (cmd)
+        switch (cmd_code)
         {
         case CMD_HLT:
             
@@ -131,14 +131,15 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
-            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg_code - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            if (cmd == (CMD_PUSH | REG_FLAG))
-                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, (NUM_INT_TYPE)p_cpu->registers[reg - 1]); else
-            if (cmd == (CMD_PUSHQ | REG_FLAG))
-                TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, (NUM_FLT_TYPE)p_cpu->registers[reg - 1]);
+            if (cmd_code == (CMD_PUSH | REG_FLAG))
+                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, (NUM_INT_TYPE)p_cpu->registers[reg_code - 1]);
+            else
+            if (cmd_code == (CMD_PUSHQ | REG_FLAG))
+                TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, (NUM_FLT_TYPE)p_cpu->registers[reg_code - 1]);
             break;
 
         case CMD_PUSH  | PTR_FLAG | NUM_FLAG:
@@ -150,9 +151,10 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
             p_cpu->bcode.ptr += POINTER_SIZE;
 
-            if (cmd == (CMD_PUSH | PTR_FLAG | NUM_FLAG))
-                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr)); else
-            if (cmd == (CMD_PUSHQ | PTR_FLAG | NUM_FLAG))
+            if (cmd_code == (CMD_PUSH | PTR_FLAG | NUM_FLAG))
+                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr));
+            else
+            if (cmd_code == (CMD_PUSHQ | PTR_FLAG | NUM_FLAG))
                 TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr));
             break;
 
@@ -161,17 +163,18 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
-            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg_code - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg_code - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
-            if (cmd == (CMD_PUSH | PTR_FLAG | REG_FLAG))
-                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr)); else
-            if (cmd == (CMD_PUSHQ | PTR_FLAG | REG_FLAG))
+            if (cmd_code == (CMD_PUSH | PTR_FLAG | REG_FLAG))
+                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr));
+            else
+            if (cmd_code == (CMD_PUSHQ | PTR_FLAG | REG_FLAG))
                 TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr));
             break;
 
@@ -180,11 +183,11 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1 + NUMBER_INT_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
-            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg_code - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg_code - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -192,9 +195,10 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
             p_cpu->bcode.ptr += NUMBER_INT_SIZE;
 
-            if (cmd == (CMD_PUSH | PTR_FLAG | NUM_FLAG | REG_FLAG))
-                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr)); else
-            if (cmd == (CMD_PUSHQ | PTR_FLAG | NUM_FLAG | REG_FLAG))
+            if (cmd_code == (CMD_PUSH | PTR_FLAG | NUM_FLAG | REG_FLAG))
+                TEMPLATE(StackPush, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, *(NUM_INT_TYPE*)(p_cpu->RAM + ptr));
+            else
+            if (cmd_code == (CMD_PUSHQ | PTR_FLAG | NUM_FLAG | REG_FLAG))
                 TEMPLATE(StackPush, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr));
 
             break;
@@ -214,18 +218,18 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK((reg > REG_NUM), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK((reg_code > REG_NUM), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            if (cmd == (CMD_POP | REG_FLAG))
+            if (cmd_code == (CMD_POP | REG_FLAG))
             {
                 Pop1IntNumber(p_cpu, &num_int1);
-                p_cpu->registers[reg - 1] = num_int1;
+                p_cpu->registers[reg_code - 1] = num_int1;
             }
-            else if (cmd == (CMD_POPQ | REG_FLAG))
+            else if (cmd_code == (CMD_POPQ | REG_FLAG))
             {
                 Pop1FloatNumber(p_cpu, &num_flt1);
-                p_cpu->registers[reg - 1] = num_flt1;
+                p_cpu->registers[reg_code - 1] = num_flt1;
             }
             break;
 
@@ -238,12 +242,12 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
             p_cpu->bcode.ptr += POINTER_SIZE;
 
-            if (cmd == (CMD_POP | PTR_FLAG | NUM_FLAG))
+            if (cmd_code == (CMD_POP | PTR_FLAG | NUM_FLAG))
             {
                 Pop1IntNumber(p_cpu, &num_int1);
                 *(NUM_INT_TYPE*)(p_cpu->RAM + ptr) = num_int1;
             }
-            else if (cmd == (CMD_POPQ | PTR_FLAG | NUM_FLAG))
+            else if (cmd_code == (CMD_POPQ | PTR_FLAG | NUM_FLAG))
             {
                 Pop1FloatNumber(p_cpu, &num_flt1);
                 *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr) = num_flt1;
@@ -255,19 +259,19 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg_code - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
-            if (cmd == (CMD_POP | PTR_FLAG | REG_FLAG))
+            if (cmd_code == (CMD_POP | PTR_FLAG | REG_FLAG))
             {
                 Pop1IntNumber(p_cpu, &num_int1);
                 *(NUM_INT_TYPE*)(p_cpu->RAM + ptr) = num_int1;
             }
-            else if (cmd == (CMD_POPQ | PTR_FLAG | REG_FLAG))
+            else if (cmd_code == (CMD_POPQ | PTR_FLAG | REG_FLAG))
             {
                 Pop1FloatNumber(p_cpu, &num_flt1);
                 *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr) = num_flt1;
@@ -279,10 +283,10 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1 + NUMBER_INT_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg_code - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -290,12 +294,12 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
             p_cpu->bcode.ptr += NUMBER_INT_SIZE;
 
-            if (cmd == (CMD_POP | PTR_FLAG | REG_FLAG | NUM_FLAG))
+            if (cmd_code == (CMD_POP | PTR_FLAG | REG_FLAG | NUM_FLAG))
             {
                 Pop1IntNumber(p_cpu, &num_int1);
                 *(NUM_INT_TYPE*)(p_cpu->RAM + ptr) = num_int1;
             }
-            else if (cmd == (CMD_POPQ | PTR_FLAG | REG_FLAG | NUM_FLAG))
+            else if (cmd_code == (CMD_POPQ | PTR_FLAG | REG_FLAG | NUM_FLAG))
             {
                 Pop1FloatNumber(p_cpu, &num_flt1);
                 *(NUM_FLT_TYPE*)(p_cpu->RAM + ptr) = num_flt1;
@@ -321,20 +325,20 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
             printf("IN: ");
 
-            if (cmd == (CMD_IN | REG_FLAG))
+            if (cmd_code == (CMD_IN | REG_FLAG))
             {
                 CPU_ASSERTOK((scanf(TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT), &num_int1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
-                p_cpu->registers[reg - 1] = num_int1;
+                p_cpu->registers[reg_code - 1] = num_int1;
             }
-            else if (cmd == (CMD_INQ | REG_FLAG))
+            else if (cmd_code == (CMD_INQ | REG_FLAG))
             {
                 CPU_ASSERTOK((scanf(TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT), &num_flt1) != 1), CPU_INCORRECT_INPUT, 0, p_cpu);
-                p_cpu->registers[reg - 1] = num_flt1;
+                p_cpu->registers[reg_code - 1] = num_flt1;
             }
             break;
 
@@ -357,13 +361,14 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
 
-            if (cmd == (CMD_OUT | REG_FLAG))
-                printf("OUT: " TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT) "\n", p_cpu->registers[reg - 1]); else
-            if (cmd == (CMD_OUTQ | REG_FLAG))
-                printf("OUT: " TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT) "\n", p_cpu->registers[reg - 1]);
+            if (cmd_code == (CMD_OUT | REG_FLAG))
+                printf("OUT: " TEMPLATE(NUM_INT_TYPE, PRINT_FORMAT) "\n", p_cpu->registers[reg_code - 1]);
+            else
+            if (cmd_code == (CMD_OUTQ | REG_FLAG))
+                printf("OUT: " TEMPLATE(NUM_FLT_TYPE, PRINT_FORMAT) "\n", p_cpu->registers[reg_code - 1]);
             break;
 
         case CMD_ADD:
@@ -482,12 +487,12 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < POINTER_SIZE), CPU_NO_SPACE_FOR_POINTER, 1, p_cpu);
             Pop2FloatNumbers(p_cpu, &num_flt1, &num_flt2);
             
-            if (cmd == CMD_JE ) cond = (fabs(num_flt1 - num_flt2) <  NIL); else
-            if (cmd == CMD_JNE) cond = (fabs(num_flt1 - num_flt2) >= NIL); else
-            if (cmd == CMD_JA ) cond = (num_flt1 >  num_flt2); else
-            if (cmd == CMD_JAE) cond = (num_flt1 >= num_flt2); else
-            if (cmd == CMD_JB ) cond = (num_flt1 <  num_flt2); else
-            if (cmd == CMD_JBE) cond = (num_flt1 <= num_flt2);
+            if (cmd_code == CMD_JE ) cond = (fabs(num_flt1 - num_flt2) <  NIL); else
+            if (cmd_code == CMD_JNE) cond = (fabs(num_flt1 - num_flt2) >= NIL); else
+            if (cmd_code == CMD_JA ) cond = (num_flt1 >  num_flt2);             else
+            if (cmd_code == CMD_JAE) cond = (num_flt1 >= num_flt2);             else
+            if (cmd_code == CMD_JB ) cond = (num_flt1 <  num_flt2);             else
+            if (cmd_code == CMD_JBE) cond = (num_flt1 <= num_flt2);
             if (cond)
                 p_cpu->bcode.ptr = *(ptr_t*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             else
@@ -526,11 +531,11 @@ int Execute(cpu_t* p_cpu, char* filename)
 
             CPU_ASSERTOK((p_cpu->bcode.size - p_cpu->bcode.ptr < 1), CPU_NO_SPACE_FOR_REGISTER, 1, p_cpu);
 
-            reg = p_cpu->bcode.data[p_cpu->bcode.ptr++];
-            CPU_ASSERTOK(((reg > REG_NUM) || (reg == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
-            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
+            reg_code = p_cpu->bcode.data[p_cpu->bcode.ptr++];
+            CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, 1, p_cpu);
+            CPU_ASSERTOK((TEMPLATE(isPOISON, NUM_FLT_TYPE) (p_cpu->registers[reg_code - 1])), CPU_EMPTY_REGISTER, 1, p_cpu);
 
-            ptr = (PTR_TYPE)(int)p_cpu->registers[reg - 1];
+            ptr = (PTR_TYPE)(int)p_cpu->registers[reg_code - 1];
             CPU_ASSERTOK((TEMPLATE(isPOISON, PTR_TYPE) (ptr)), CPU_EMPTY_REGISTER, 1, p_cpu);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, 1, p_cpu);
 
@@ -542,7 +547,7 @@ int Execute(cpu_t* p_cpu, char* filename)
             CPU_ASSERTOK(((width <= 0) || (height <= 0)), CPU_INCORRECT_WINDOW_SIZES, 0, p_cpu);
             CPU_ASSERTOK((ptr + width * height * PIXEL_SIZE > RAM_SIZE), CPU_NO_VIDEO_MEMORY, 1, p_cpu);
 
-            if (p_cpu->scrnum == 0)
+            if (p_cpu->screens_num == 0)
             {
                 txCreateWindow(width, height);
                 filename = GetTrueFileName(filename);
@@ -557,14 +562,14 @@ int Execute(cpu_t* p_cpu, char* filename)
             }
 
             strcpy(pictname, filename);
-            sprintf(scrnumstr, "%d", p_cpu->scrnum);
+            sprintf(scrnumstr, "%d", p_cpu->screens_num);
             strcat(pictname, "(");
             strcat(pictname, scrnumstr);
             strcat(pictname, ")");
             strcat(pictname, ".bmp");
             txSaveImage(pictname);
 
-            ++p_cpu->scrnum;
+            ++p_cpu->screens_num;
             break;
 
         default:
@@ -580,7 +585,7 @@ int Execute(cpu_t* p_cpu, char* filename)
 
 //------------------------------------------------------------------------------
 
-void Pop1IntNumber(cpu_t* p_cpu, NUM_INT_TYPE* num)
+void Pop1IntNumber(CPU* p_cpu, NUM_INT_TYPE* num)
 {
     assert(p_cpu != nullptr);
     assert(num   != nullptr);
@@ -591,7 +596,7 @@ void Pop1IntNumber(cpu_t* p_cpu, NUM_INT_TYPE* num)
 
 //------------------------------------------------------------------------------
 
-void Pop2IntNumbers(cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2)
+void Pop2IntNumbers(CPU* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2)
 {
     assert(p_cpu != nullptr);
     assert(num1  != nullptr);
@@ -606,7 +611,7 @@ void Pop2IntNumbers(cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2)
 
 //------------------------------------------------------------------------------
 
-void Pop1FloatNumber(cpu_t* p_cpu, NUM_FLT_TYPE* num)
+void Pop1FloatNumber(CPU* p_cpu, NUM_FLT_TYPE* num)
 {
     assert(p_cpu != nullptr);
     assert(num   != nullptr);
@@ -617,7 +622,7 @@ void Pop1FloatNumber(cpu_t* p_cpu, NUM_FLT_TYPE* num)
 
 //------------------------------------------------------------------------------
 
-void Pop2FloatNumbers(cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
+void Pop2FloatNumbers(CPU* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
 {
     assert(p_cpu != nullptr);
     assert(num1  != nullptr);
@@ -632,7 +637,7 @@ void Pop2FloatNumbers(cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2)
 
 //------------------------------------------------------------------------------
 
-void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
+void CPUPrintCode(CPU* p_cpu, const char* logname, int err)
 {
     assert(p_cpu   != nullptr);
     assert(logname != nullptr);
@@ -658,7 +663,7 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
     fprintf(log, "\n");
     printf (     "\n");
 
-    size_t line = p_cpu->bcode.ptr - (p_cpu->bcode.ptr % 0x10);
+    size_t line      = p_cpu->bcode.ptr  - (p_cpu->bcode.ptr  % 0x10);
     size_t last_line = p_cpu->bcode.size - (p_cpu->bcode.size % 0x10);
 
     for (char i = -0x20; i <= 0x20; i += 0x10)
@@ -668,12 +673,12 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
             fprintf(log, "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
             printf (     "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
 
-            for (char b = 0; b < 0x10; ++b)
+            for (char byte = 0; byte < 0x10; ++byte)
             {
-                if (line + i + b == p_cpu->bcode.size) break;
+                if (line + i + byte == p_cpu->bcode.size) break;
 
-                fprintf(log, "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + b]);
-                printf (     "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + b]);
+                fprintf(log, "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + byte]);
+                printf (     "%02X  ", (unsigned char)p_cpu->bcode.data[line + i + byte]);
             }
 
             fprintf(log, "\n");
@@ -700,8 +705,8 @@ void CPUPrintCode(cpu_t* p_cpu, const char* logname, int err)
 void CPUPrintError(const char* logname, const char* file, int line, const char* function, int err)
 {
     assert(function != nullptr);
-    assert(logname != nullptr);
-    assert(file != nullptr);
+    assert(logname  != nullptr);
+    assert(file     != nullptr);
 
     FILE* log = fopen(logname, "a");
     assert(log != nullptr);

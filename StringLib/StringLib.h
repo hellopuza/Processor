@@ -51,11 +51,11 @@ static const char* str_errstr[] =
     "The file has no any symbols!"                                     ,
 };
 
-static const char* string_logname = "string.log";
+static const char* STRING_LOGNAME = "string.log";
 
 #define STR_ASSERTOK(cond, err)  if (cond)                                                                 \
                                  {                                                                         \
-                                     StrPrintError(string_logname, __FILE__, __LINE__, __FUNCTION__, err); \
+                                     StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
                                      return err; /**/                                                      \
                                  }
 
@@ -80,27 +80,27 @@ static const char* string_logname = "string.log";
 #endif // PTR_T
 
 
-typedef struct Line
+struct Line
 {
     char*  str = nullptr;
     size_t len = 0;
-} line_t;
+};
 
-typedef struct text_info
+struct Text
 {
-   char*   text        = nullptr;
-   size_t  size        = 0;
+   char*  text  = nullptr;
+   size_t size  = 0;
    
-   size_t  num         = 0;
-   line_t* lines       = nullptr;
-} text_t;
+   size_t num   = 0;
+   Line*  lines = nullptr;
+};
 
-typedef struct bin_code
+struct BinCode
 {
     char*  data = nullptr;
     size_t size = 0;
     ptr_t  ptr  = 0;
-} bcode_t;
+};
 
 
 //==============================================================================
@@ -118,30 +118,30 @@ typedef struct bin_code
  *  @return  error code
  */
 
-int TextConstruct (text_t* txtstruct, const char* filename);
+int TextConstruct (Text* txtstruct, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Text structure constructor with number of lines and their lengths.
  *
  *  @param   txtstruct   Pointer to the text structure
- *  @param   num         Number of lines
- *  @param   len         Lengths of lines
+ *  @param   lines_num   Number of lines
+ *  @param   line_len    Lengths of lines
  *
  *  @return  error code
  */
 
-int TextConstruct (text_t* txtstruct, size_t num, size_t len);
+int TextConstruct (Text* txtstruct, size_t lines_num, size_t line_len);
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the number of text structure lines by 2 times.
  * 
  *  @param   txtstruct   Pointer to the text structure
- *  @param   len         Length of each line
+ *  @param   line_len    Length of each line
  * 
  *  @return  error code
  */
 
-int TextExpand (text_t* txtstruct, size_t len);
+int TextExpand (Text* txtstruct, size_t line_len);
 
 //------------------------------------------------------------------------------
 /*! @brief   Fill the structure of text from file.
@@ -152,7 +152,7 @@ int TextExpand (text_t* txtstruct, size_t len);
  *  @return  error code
  */
 
-int fillinTextStruct (text_t* txtstruct, FILE* fp);
+int fillinTextStruct (Text* txtstruct, FILE* fp);
 
 //------------------------------------------------------------------------------
 /*! @brief   Text structure destructor.
@@ -162,7 +162,7 @@ int fillinTextStruct (text_t* txtstruct, FILE* fp);
  *  @return  error code
  */
 
-int TextDestruct (text_t* txtstruct);
+int TextDestruct (Text* txtstruct);
 
 //------------------------------------------------------------------------------
 /*! @brief   Binary code structure constructor with size.
@@ -173,7 +173,7 @@ int TextDestruct (text_t* txtstruct);
  *  @return  error code
  */
 
-int BCodeConstruct (bcode_t* p_bcode, size_t size);
+int BinCodeConstruct (BinCode* p_bcode, size_t size);
 
 //------------------------------------------------------------------------------
 /*! @brief   Fill the binary code structure from file.
@@ -184,7 +184,7 @@ int BCodeConstruct (bcode_t* p_bcode, size_t size);
  *  @return  error code
  */
 
-int BCodeConstruct (bcode_t* p_bcode, const char* filename);
+int BinCodeConstruct (BinCode* p_bcode, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the binary code data size by 2 times.
@@ -194,7 +194,7 @@ int BCodeConstruct (bcode_t* p_bcode, const char* filename);
  *  @return  error code
  */
 
-int BCodeExpand (bcode_t* p_bcode);
+int BinCodeExpand (BinCode* p_bcode);
 
 //------------------------------------------------------------------------------
 /*! @brief   Binary code structure destructor.
@@ -204,7 +204,7 @@ int BCodeExpand (bcode_t* p_bcode);
  *  @return  error code
  */
 
-int BCodeDestruct (bcode_t* p_bcode);
+int BinCodeDestruct (BinCode* p_bcode);
 
 //------------------------------------------------------------------------------
 /*! @brief   Get name of a file from command line.
@@ -268,7 +268,7 @@ size_t GetLineNum (char* text, size_t len);
  *  @return  array of lines
  */
 
-line_t* GetLine (char* text, size_t num);
+Line* GetLine (char* text, size_t num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Get number of words in string.
@@ -278,7 +278,7 @@ line_t* GetLine (char* text, size_t num);
  *  @return  number of words
  */
 
-size_t GetWordNum(line_t line);
+size_t GetWordsNum (Line line);
 
 //------------------------------------------------------------------------------
 /*! @brief   Counting characters in string.
@@ -342,7 +342,7 @@ int CompareFromRight (const void *p1, const void *p2);
  *  @return  negative integer if first line smaller then second
  */
 
-int StrCompare (line_t line1, line_t line2, int dir);
+int StrCompare (Line line1, Line line2, int dir);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write lines to the file.
@@ -352,7 +352,7 @@ int StrCompare (line_t line1, line_t line2, int dir);
  *  @param   filename    Name of the file
  */
 
-void Write (line_t* Lines, size_t num, const char* filename);
+void Write (Line* Lines, size_t num, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write text to the file.

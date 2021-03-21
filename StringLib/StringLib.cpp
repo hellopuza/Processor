@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------------
 
-int TextConstruct(text_t* txtstruct, const char* filename)
+int TextConstruct(Text* txtstruct, const char* filename)
 {
     assert(txtstruct != nullptr);
     assert(filename  != nullptr);
@@ -35,20 +35,20 @@ int TextConstruct(text_t* txtstruct, const char* filename)
 
 //------------------------------------------------------------------------------
 
-int TextConstruct(text_t* txtstruct, size_t num, size_t len)
+int TextConstruct(Text* txtstruct, size_t lines_num, size_t line_len)
 {
     assert(txtstruct != nullptr);
-    assert(num);
-    assert(len);
+    assert(lines_num);
+    assert(line_len);
 
-    txtstruct->num = num;
-    txtstruct->lines = (line_t*)calloc(num, sizeof(line_t));
+    txtstruct->num = lines_num;
+    txtstruct->lines = (Line*)calloc(lines_num, sizeof(Line));
     STR_ASSERTOK((txtstruct->lines == nullptr) , STR_NO_MEMORY);
 
     for (int i = 0; i < txtstruct->num; ++i)
     {
-        txtstruct->lines[i].len = len;
-        txtstruct->lines[i].str = (char*)calloc(len, 1);
+        txtstruct->lines[i].len = line_len;
+        txtstruct->lines[i].str = (char*)calloc(line_len, 1);
         STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
     }
 
@@ -57,27 +57,27 @@ int TextConstruct(text_t* txtstruct, size_t num, size_t len)
 
 //------------------------------------------------------------------------------
 
-int TextExpand(text_t* txtstruct, size_t len)
+int TextExpand(Text* txtstruct, size_t line_len)
 {
     assert(txtstruct != nullptr);
 
     txtstruct->num *= 2;
 
-    void* temp = calloc(txtstruct->num + 2, sizeof(line_t));
+    void* temp = calloc(txtstruct->num + 2, sizeof(Line));
     if (temp == nullptr)
         return STR_NO_MEMORY;
 
     void* oldtemp = txtstruct->lines;
 
-    memcpy(temp, txtstruct->lines, txtstruct->num * sizeof(line_t) / 2);
+    memcpy(temp, txtstruct->lines, txtstruct->num * sizeof(Line) / 2);
     free(oldtemp);
 
-    txtstruct->lines = (line_t*)temp;
+    txtstruct->lines = (Line*)temp;
 
     for (int i = txtstruct->num / 2; i < txtstruct->num; ++i)
     {
-        txtstruct->lines[i].len = len;
-        txtstruct->lines[i].str = (char*)calloc(len, 1);
+        txtstruct->lines[i].len = line_len;
+        txtstruct->lines[i].str = (char*)calloc(line_len, 1);
         STR_ASSERTOK((txtstruct->lines[i].str == nullptr) , STR_NO_MEMORY);
     }
 
@@ -86,7 +86,7 @@ int TextExpand(text_t* txtstruct, size_t len)
 
 //------------------------------------------------------------------------------
 
-int fillinTextStruct(text_t* txtstruct, FILE* fp)
+int fillinTextStruct(Text* txtstruct, FILE* fp)
 {
     assert(txtstruct != nullptr);
     assert(fp != nullptr);
@@ -112,7 +112,7 @@ int fillinTextStruct(text_t* txtstruct, FILE* fp)
 
 //------------------------------------------------------------------------------
 
-int TextDestruct(text_t* txtstruct)
+int TextDestruct(Text* txtstruct)
 {
     assert(txtstruct != nullptr);
 
@@ -126,7 +126,7 @@ int TextDestruct(text_t* txtstruct)
 
     if (txtstruct->size != 0)
     {
-        assert(txtstruct->text  != nullptr);
+        assert(txtstruct->text != nullptr);
         free(txtstruct->text);
         txtstruct->text = nullptr;
         txtstruct->size = 0;
@@ -137,7 +137,7 @@ int TextDestruct(text_t* txtstruct)
 
 //------------------------------------------------------------------------------
 
-int BCodeConstruct(bcode_t* p_bcode, size_t size)
+int BinCodeConstruct(BinCode* p_bcode, size_t size)
 {
     assert(p_bcode != nullptr);
     assert(size);
@@ -153,7 +153,7 @@ int BCodeConstruct(bcode_t* p_bcode, size_t size)
 
 //------------------------------------------------------------------------------
 
-int BCodeConstruct(bcode_t* p_bcode, const char* filename)
+int BinCodeConstruct(BinCode* p_bcode, const char* filename)
 {
     assert(p_bcode  != nullptr);
     assert(filename != nullptr);
@@ -181,7 +181,7 @@ int BCodeConstruct(bcode_t* p_bcode, const char* filename)
 
 //------------------------------------------------------------------------------
 
-int BCodeExpand(bcode_t* p_bcode)
+int BinCodeExpand(BinCode* p_bcode)
 {
     assert(p_bcode != nullptr);
 
@@ -202,7 +202,7 @@ int BCodeExpand(bcode_t* p_bcode)
 
 //------------------------------------------------------------------------------
 
-int BCodeDestruct(bcode_t* p_bcode)
+int BinCodeDestruct(BinCode* p_bcode)
 {
     assert(p_bcode != nullptr);
 
@@ -305,16 +305,16 @@ size_t GetLineNum(char* text, size_t len)
 
 //------------------------------------------------------------------------------
 
-line_t* GetLine(char* text, size_t num)
+Line* GetLine(char* text, size_t num)
 {
     assert(text != nullptr);
     assert(num);
 
-    line_t* Lines = (line_t*)calloc(num + 2, sizeof(line_t));
+    Line* Lines = (Line*)calloc(num + 2, sizeof(Line));
     if (Lines == nullptr)
         return nullptr;
 
-    line_t* temp1 = Lines;
+    Line* temp1 = Lines;
 
     while (num-- > 0)
     {
@@ -338,7 +338,7 @@ line_t* GetLine(char* text, size_t num)
 
 //------------------------------------------------------------------------------
 
-size_t GetWordNum(line_t line)
+size_t GetWordsNum(Line line)
 {
     assert(line.str != nullptr);
 
@@ -389,7 +389,7 @@ int CompareLines(const void* p1, const void* p2)
     assert(p2 != nullptr);
     assert(p1 != p2);
 
-    return strcmp(((line_t*)p1)->str, ((line_t*)p2)->str);
+    return strcmp(((Line*)p1)->str, ((Line*)p2)->str);
 }
 
 //------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ int CompareFromLeft(const void* p1, const void* p2)
     assert(p2 != nullptr);
     assert(p1 != p2);
 
-    return StrCompare(*(line_t*)p1, *(line_t*)p2, 1);
+    return StrCompare(*(Line*)p1, *(Line*)p2, 1);
 }
 
 //------------------------------------------------------------------------------
@@ -411,12 +411,12 @@ int CompareFromRight(const void* p1, const void* p2)
     assert(p2 != nullptr);
     assert(p1 != p2);
 
-    return StrCompare(*(line_t*)p1, *(line_t*)p2, -1);
+    return StrCompare(*(Line*)p1, *(Line*)p2, -1);
 }
 
 //------------------------------------------------------------------------------
 
-int StrCompare(line_t line1, line_t line2, int dir)
+int StrCompare(Line line1, Line line2, int dir)
 {
     assert((dir == 1) || (dir == -1));
 
@@ -471,7 +471,7 @@ int isAlpha(const unsigned char c)
 
 //------------------------------------------------------------------------------
 
-void Write(line_t* lines, size_t num, const char* filename)
+void Write(Line* lines, size_t num, const char* filename)
 {
     assert(lines != nullptr);
     assert(num);

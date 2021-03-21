@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     
-    asm_t assembler = {};
+    Assembler assembler = {};
     AsmConstruct(&assembler, argv[1]);
 
     Assemble(&assembler);

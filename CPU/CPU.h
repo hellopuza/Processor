@@ -104,13 +104,15 @@ static const char* cpu_errstr[] =
     "Memory access violation"                                          ,
 };
 
+static const char* CPU_LOGNAME = "cpu.log";
+
 #define CPU_ASSERTOK(cond, err, printcode, p_cpu) if (cond)                                                                                \
                                                   {                                                                                        \
-                                                    CPUPrintError(cpu_logname, __FILE__, __LINE__, __FUNCTION__, err);                     \
-                                                    if (printcode) CPUPrintCode(p_cpu, cpu_logname, err);                                  \
-                                                    TEMPLATE(StackDump, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, __FUNCTION__, cpu_logname); \
-                                                    TEMPLATE(StackDump, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, __FUNCTION__, cpu_logname); \
-                                                    TEMPLATE(StackDump, PTR_TYPE    ) (&p_cpu->stkCPU_PTR    , __FUNCTION__, cpu_logname); \
+                                                    CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err);                     \
+                                                    if (printcode) CPUPrintCode(p_cpu, CPU_LOGNAME, err);                                  \
+                                                    TEMPLATE(StackDump, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, __FUNCTION__, CPU_LOGNAME); \
+                                                    TEMPLATE(StackDump, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, __FUNCTION__, CPU_LOGNAME); \
+                                                    TEMPLATE(StackDump, PTR_TYPE    ) (&p_cpu->stkCPU_PTR    , __FUNCTION__, CPU_LOGNAME); \
                                                     exit(err); /**/                                                                        \
                                                   }
 
@@ -122,21 +124,19 @@ static const char* cpu_errstr[] =
 //==============================================================================
 
 
-static const char* cpu_logname = "cpu.log";
-
 const size_t DEFAULT_STACK_CAPACITY = 8;
 const double NIL                    = 1e-7;
 const size_t RAM_SIZE               = 2097152; // 2 MB
 const size_t PIXEL_SIZE             = 3;
 
-typedef struct CPU
+struct CPU
 {
-    int state  = CPU_NOT_CONSTRUCTED;
-    int scrnum = 0;
+    int state       = CPU_NOT_CONSTRUCTED;
+    int screens_num = 0;
 
-    bcode_t bcode = {};
+    BinCode bcode = {};
 
-    char* RAM;
+    char* RAM = nullptr;
 
     TEMPLATE(stack, NUM_INT_TYPE) stkCPU_NUM_INT;
     TEMPLATE(stack, NUM_FLT_TYPE) stkCPU_NUM_FLT;
@@ -144,7 +144,7 @@ typedef struct CPU
     TEMPLATE(stack, PTR_TYPE) stkCPU_PTR;
 
     NUM_FLT_TYPE registers[REG_NUM] = {};
-} cpu_t;
+};
 
 
 //==============================================================================
@@ -162,7 +162,7 @@ typedef struct CPU
  *  @return  error code
  */
 
-int CPUConstruct (cpu_t* p_cpu, const char* filename);
+int CPUConstruct (CPU* p_cpu, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   CPU destructor.
@@ -172,7 +172,7 @@ int CPUConstruct (cpu_t* p_cpu, const char* filename);
  *  @return  error code
  */
 
-int CPUDestruct (cpu_t* p_cpu);
+int CPUDestruct (CPU* p_cpu);
 
 //------------------------------------------------------------------------------
 /*! @brief   Execution process.
@@ -187,7 +187,7 @@ int CPUDestruct (cpu_t* p_cpu);
  *  @return  error code
  */
 
-int Execute (cpu_t* p_cpu, char* filename);
+int Execute (CPU* p_cpu, char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop one int number from stack.
@@ -195,7 +195,7 @@ int Execute (cpu_t* p_cpu, char* filename);
  *  @param   num         Pointer to the number
  */
 
-void Pop1IntNumber (cpu_t* p_cpu, NUM_INT_TYPE* num);
+void Pop1IntNumber (CPU* p_cpu, NUM_INT_TYPE* num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop two int numbers from stack.
@@ -204,7 +204,7 @@ void Pop1IntNumber (cpu_t* p_cpu, NUM_INT_TYPE* num);
  *  @param   num2        Pointer to the second number of stack
  */
 
-void Pop2IntNumbers (cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
+void Pop2IntNumbers (CPU* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop one float number from stack.
@@ -212,7 +212,7 @@ void Pop2IntNumbers (cpu_t* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
  *  @param   num         Pointer to the number
  */
 
-void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num);
+void Pop1FloatNumber (CPU* p_cpu, NUM_FLT_TYPE* num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop two float numbers from stack.
@@ -221,7 +221,7 @@ void Pop1FloatNumber (cpu_t* p_cpu, NUM_FLT_TYPE* num);
  *  @param   num2        Pointer to the second number of stack
  */
 
-void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
+void Pop2FloatNumbers (CPU* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.
@@ -231,7 +231,7 @@ void Pop2FloatNumbers (cpu_t* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
  *  @param   err         Error code
  */
 
-void CPUPrintCode (cpu_t* p_cpu, const char* logname, int err);
+void CPUPrintCode (CPU* p_cpu, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

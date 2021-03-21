@@ -85,10 +85,12 @@ static const char* asm_errstr[] =
     "Wrong screen operand. Operand can only be a register"             ,
 };
 
+static const char* ASSEMBLER_LOGNAME = "assembler.log";
+
 #define ASM_ASSERTOK(cond, err, printcode, text, i) if (cond)                                                                  \
                                                     {                                                                          \
-                                                      AsmPrintError(assembler_logname, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                      if (printcode) AsmPrintCode(text, i, assembler_logname, err);            \
+                                                      AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                      if (printcode) AsmPrintCode(text, i, ASSEMBLER_LOGNAME, err);            \
                                                       exit(err); /**/                                                          \
                                                     }
 
@@ -100,42 +102,39 @@ static const char* asm_errstr[] =
 //==============================================================================
 
 
-static const char* assembler_logname = "assembler.log";
-static const char* CODE_TYPE         = ".code";
-
 const size_t DEFAULT_BCODE_SIZE = 1024;
 const size_t DEFAULT_LABEL_NUM  = 8;
 const size_t MAX_WORDS_IN_LINE  = 2;
 
+static const char* CODE_TYPE = ".code";
+static const char  COMMENT   = ';';
+
 static const char* DELIMETERS = " \t\r\0";
 
-static const char COMMENT = ';';
-
-
-typedef struct label
+struct Label
 {
     char   name[128] = "";
     ptr_t  ptr       = 0;
     size_t line      = 0;
-} label_t;
+};
 
-typedef struct labels
+struct Labels
 {
-    label_t* labels;
-    size_t   num = DEFAULT_LABEL_NUM;
-    size_t   pos = 0;
-} labs_t;
+    Label* labels;
+    size_t num = DEFAULT_LABEL_NUM;
+    size_t pos = 0;
+};
 
-typedef struct assembler
+struct Assembler
 {
     int state = ASM_NOT_CONSTRUCTED;
 
-    text_t  input = {};
-    bcode_t bcode = {};
+    Text    input = {};
+    BinCode bcode = {};
     
-    labs_t defined_labels   = {};
-    labs_t undefined_labels = {};
-} asm_t;
+    Labels defined_labels   = {};
+    Labels undefined_labels = {};
+};
 
 
 //==============================================================================
@@ -153,7 +152,7 @@ typedef struct assembler
  *  @return  error code
  */
 
-int AsmConstruct (asm_t* p_asm, const char* filename);
+int AsmConstruct (Assembler* p_asm, const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Assmebler destructor.
@@ -163,7 +162,7 @@ int AsmConstruct (asm_t* p_asm, const char* filename);
  *  @return  error code
  */
 
-int AsmDestruct (asm_t* p_asm);
+int AsmDestruct (Assembler* p_asm);
 
 //------------------------------------------------------------------------------
 /*! @brief   Assembly process.
@@ -178,7 +177,7 @@ int AsmDestruct (asm_t* p_asm);
  *  @return  error code
  */
 
-int Assemble (asm_t* p_asm);
+int Assemble (Assembler* p_asm);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write binary program text to the file.
@@ -189,7 +188,7 @@ int Assemble (asm_t* p_asm);
  *  @return  error code
  */
 
-int AsmWrite (asm_t* p_asm, char* filename);
+int AsmWrite (Assembler* p_asm, char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Command identifier.
@@ -217,93 +216,93 @@ char REGIdentify (const char* word);
  *  @param   line        Pointer to the line structure
  *  @param   comment     Comment char
  * 
- *  @return  position of comment in the line if found, else pointer to line, NULL if comment at the begin of the line
+ *  @return  pointer to comment in the line if found, else pointer to line, NULL if comment at the begin of the line
  */
 
-char* DeleteComments (line_t* line, const char comment);
+char* DeleteComments (Line* line, const char comment);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write an int number to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   word        C string to be recognized as a number
+ *  @param   op_word     C string to be recognized as a number
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  *  @param   flag        Additional command flag
  */
 
-void WriteIntNumber (asm_t* p_asm, char* word, size_t line, int err);
+void WriteIntNumber (Assembler* p_asm, char* op_word, size_t line, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command without any operands to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   cmd         Command code
+ *  @param   cmd_code    Command code
  *  @param   flag        Additional command flag
  */
 
-void WriteCommandSingle (asm_t* p_asm, char cmd, char flag);
+void WriteCommandSingle (Assembler* p_asm, char cmd_code, char flag);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command with an int number operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   cmd         Command code
- *  @param   word        C string to be recognized as a number
+ *  @param   cmd_code    Command code
+ *  @param   op_word     Operand word to be recognized as a number
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  *  @param   flag        Additional command flag
  */
 
-void WriteCommandWithIntNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag);
+void WriteCommandWithIntNumber (Assembler* p_asm, char cmd_code, char* op_word, size_t line, int err, char flag);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command with a float number operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   cmd         Command code
- *  @param   word        C string to be recognized as a number
+ *  @param   cmd_code    Command code
+ *  @param   op_word     Operand word to be recognized as a number
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  */
 
-void WriteCommandWithFloatNumber (asm_t* p_asm, char cmd, char* word, size_t line, int err);
+void WriteCommandWithFloatNumber (Assembler* p_asm, char cmd_code, char* op_word, size_t line, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command with register operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   cmd         Command code
- *  @param   word        C string to be recognized as a register
+ *  @param   cmd_code    Command code
+ *  @param   op_word     Operand word to be recognized as a register
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  *  @param   flag        Additional command flag
  */
 
-void WriteCommandWithRegister (asm_t* p_asm, char cmd, char* word, size_t line, int err, char flag);
+void WriteCommandWithRegister (Assembler* p_asm, char cmd_code, char* op_word, size_t line, int err, char flag);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write register operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
- *  @param   word        C string to be recognized as a register
+ *  @param   op_word     Operand word to be recognized as a register
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  */
 
-void WriteRegister (asm_t* p_asm, char* word, size_t line, int err);
+void WriteRegister (Assembler* p_asm, char* op_word, size_t line, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command with pointer operand to the binary code.
  * 
  *  @param   p_asm       Pointer to the assembler
  *  @param   cmd         Command code
- *  @param   word        C string to be recognized as a register
+ *  @param   op_word     Operand word to be recognized as a pointer
  *  @param   line        Number of line in the program text
  *  @param   err         Error code
  */
 
-void WriteCommandWithPointer (asm_t* p_asm, char cmd, char* word, size_t line, int err);
+void WriteCommandWithPointer (Assembler* p_asm, char cmd, char* op_word, size_t line, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Labels constructor.
@@ -314,7 +313,7 @@ void WriteCommandWithPointer (asm_t* p_asm, char cmd, char* word, size_t line, i
  *  @return  error code
  */
 
-int LabelsConstruct (labs_t* p_labs, size_t num);
+int LabelsConstruct (Labels* p_labs, size_t num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Labels destructor.
@@ -324,7 +323,7 @@ int LabelsConstruct (labs_t* p_labs, size_t num);
  *  @return  error code
  */
 
-int LabelsDestruct (labs_t* p_labs);
+int LabelsDestruct (Labels* p_labs);
 
 //------------------------------------------------------------------------------
 /*! @brief   Checking if the line is a label.
@@ -338,7 +337,7 @@ int LabelsDestruct (labs_t* p_labs);
  *  @return  error code
  */
 
-int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
+int LabelCheck (Labels* p_labs, Line line, size_t pos);
 
 //------------------------------------------------------------------------------
 /*! @brief   Defining labels.
@@ -347,13 +346,13 @@ int LabelCheck (labs_t* p_labs, line_t line, size_t pos);
  *           locates in the program code, otherwise this label and its position locate in undefined_labels
  *
  *  @param   p_asm       Pointer to the assembler.
- *  @param   name        Name of a label
+ *  @param   lab_name    Name of a label
  *  @param   line        Number of the line in the code
  *
  *  @return  error code
  */
 
-int LabelDefining (asm_t* p_asm, char* name, size_t line);
+int LabelDefining (Assembler* p_asm, char* lab_name, size_t line);
 
 //------------------------------------------------------------------------------
 /*! @brief   Redefinition of undefined labels.
@@ -366,7 +365,7 @@ int LabelDefining (asm_t* p_asm, char* name, size_t line);
  *  @return  -1 if ok, else the number of the undefined label in the array
  */
 
-int LabelRedefine (asm_t* p_asm);
+int LabelRedefine (Assembler* p_asm);
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the labels array by 2 times.
@@ -376,7 +375,7 @@ int LabelRedefine (asm_t* p_asm);
  *  @return  error code
  */
 
-int LabelsExpand (labs_t* p_labs);
+int LabelsExpand (Labels* p_labs);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.
@@ -387,7 +386,7 @@ int LabelsExpand (labs_t* p_labs);
  *  @param   err         Error code
  */
 
-void AsmPrintCode (text_t text, size_t line, const char* logname, int err);
+void AsmPrintCode (Text text, size_t line, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

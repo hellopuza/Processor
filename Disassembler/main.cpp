@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     
-    dsm_t disasm = {};
+    Disassembler disasm = {};
     DsmConstruct(&disasm, argv[1]);
 
     Disassemble(&disasm);
