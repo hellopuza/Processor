@@ -50,6 +50,7 @@ enum AssemblerErrors
     ASM_WRONG_OUT_OPERAND_REGISTER                                     ,
     ASM_WRONG_POP_OPERAND_POINTER                                      ,
     ASM_WRONG_POP_OPERAND_REGISTER                                     ,
+    ASM_WRONG_PUSH_OPERAND_NULL                                        ,
     ASM_WRONG_PUSH_OPERAND_NUMBER                                      ,
     ASM_WRONG_PUSH_OPERAND_POINTER                                     ,
     ASM_WRONG_PUSH_OPERAND_REGISTER                                    ,
@@ -78,6 +79,7 @@ static const char* asm_errstr[] =
     "Wrong out operand register"                                       ,
     "Wrong pop operand pointer"                                        ,
     "Wrong pop operand register"                                       ,
+    "Instruction push/pushq implies operand"                           ,
     "Wrong push operand number. Operand can only be an int number"     ,
     "Wrong push operand pointer"                                       ,
     "Wrong push operand register"                                      ,
@@ -87,12 +89,12 @@ static const char* asm_errstr[] =
 
 static const char* ASSEMBLER_LOGNAME = "assembler.log";
 
-#define ASM_ASSERTOK(cond, err, printcode, text, i) if (cond)                                                                  \
-                                                    {                                                                          \
-                                                      AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                      if (printcode) AsmPrintCode(text, i, ASSEMBLER_LOGNAME, err);            \
-                                                      exit(err); /**/                                                          \
-                                                    }
+#define ASM_ASSERTOK(cond, err, printcode, p_asm, line) if (cond)                                                                  \
+                                                        {                                                                          \
+                                                          AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                                          if (printcode) AsmPrintCode(p_asm, line, ASSEMBLER_LOGNAME, err);        \
+                                                          exit(err); /**/                                                          \
+                                                        }
 
 
 //==============================================================================
@@ -134,6 +136,8 @@ struct Assembler
     
     Labels defined_labels   = {};
     Labels undefined_labels = {};
+
+    char* prev_line = nullptr;
 };
 
 
@@ -386,7 +390,7 @@ int LabelsExpand (Labels* p_labs);
  *  @param   err         Error code
  */
 
-void AsmPrintCode (Text text, size_t line, const char* logname, int err);
+void AsmPrintCode (Assembler* p_asm, size_t line, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

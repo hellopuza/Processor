@@ -492,7 +492,7 @@ int Execute(CPU* p_cpu, char* filename)
             if (cmd_code == CMD_JA ) cond = (num_flt1 >  num_flt2);             else
             if (cmd_code == CMD_JAE) cond = (num_flt1 >= num_flt2);             else
             if (cmd_code == CMD_JB ) cond = (num_flt1 <  num_flt2);             else
-            if (cmd_code == CMD_JBE) cond = (num_flt1 <= num_flt2);
+            if (cmd_code == CMD_JBE) cond = (num_flt1 <= num_flt2);/////////////////
             if (cond)
                 p_cpu->bcode.ptr = *(ptr_t*)(p_cpu->bcode.data + p_cpu->bcode.ptr);
             else
