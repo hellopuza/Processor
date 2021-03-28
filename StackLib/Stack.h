@@ -72,7 +72,7 @@
         TEMPLATE(_StackConstruct, STK_TYPE) (&##NAME, capacity, (char*)#NAME);
 
 
-typedef struct TEMPLATE(Stack, TYPE)
+struct TEMPLATE(stack, TYPE)
 {
 ///////////////TRY-TO-HACK///////////////
 #ifdef CANARY_PROTECT
@@ -97,7 +97,7 @@ typedef struct TEMPLATE(Stack, TYPE)
     can_t canary2;
 #endif //CANARY_PROTECT
 ///////////////TRY-TO-HACK///////////////
-} TEMPLATE(stack, TYPE);
+};
 
 
 //==============================================================================
