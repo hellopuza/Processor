@@ -3,13 +3,15 @@
     * Description: Functions to compute hash message digest of files or memory *
                    blocks.                                                     *
     * Created:     1 dec 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2020 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "hash.h"
+
+//------------------------------------------------------------------------------
 
 int bit_rotate(void* buf, size_t size, int dir)
 {

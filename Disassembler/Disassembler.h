@@ -3,10 +3,10 @@
     * Description: Declaration of functions and data types used for            *
     *              disassembling bibary programs.                              *
     * Created:     7 feb 2021                                                  *
-    * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef DISASSEMBLER_H

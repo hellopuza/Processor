@@ -2,10 +2,10 @@
     * File:        StringLib.h                                                 *
     * Description: String functions library                                    *
     * Created:     6 nov 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef STRINGLIB_H_INCLUDED
@@ -39,6 +39,15 @@ enum StringErrors
 
     STR_NO_LINES                                                       ,
     STR_NO_SYMB                                                        ,
+    STR_NULL_INPUT_BINCODE_FILENAME                                    ,
+    STR_NULL_INPUT_BINCODE_PTR                                         ,
+    STR_NULL_INPUT_BINCODE_SIZE                                        ,
+    STR_NULL_INPUT_TEXT_FILE_NAME                                      ,
+    STR_NULL_INPUT_TEXT_LINES_NUM                                      ,
+    STR_NULL_INPUT_TEXT_LINES_LEN                                      ,
+    STR_NULL_INPUT_TEXT_PTR                                            ,
+    STR_BINCODE_DESTRUCTED                                             ,
+    STR_TEXT_DESTRUCTED                                                ,
 };
 
 static const char* str_errstr[] =
@@ -49,14 +58,23 @@ static const char* str_errstr[] =
 
     "There are no lines with letters in text!"                         ,
     "The file has no any symbols!"                                     ,
+    "The input value of the BinCode filename turned out to be zero"    ,
+    "The input value of the BinCode pointer turned out to be zero"     ,
+    "The input value of the BinCode size turned out to be zero"        ,
+    "The input value of the Text file pointer turned out to be zero"   ,
+    "The input value of lines Text number turned out to be zero"       ,
+    "The input value of lines Text length turned out to be zero"       ,
+    "The input value of the Text pointer turned out to be zero"        ,
+    "BinCode has already destructed"                                   ,
+    "Text has already destructed"                                      ,
 };
 
 static const char* STRING_LOGNAME = "string.log";
 
 #define STR_ASSERTOK(cond, err)  if (cond)                                                                 \
                                  {                                                                         \
-                                     StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                     return err; /**/                                                      \
+                                   StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                   exit(err); /**/                                                       \
                                  }
 
 
@@ -86,125 +104,113 @@ struct Line
     size_t len = 0;
 };
 
-struct Text
+class Text
 {
-   char*  text  = nullptr;
-   size_t size  = 0;
+public:
+
+   char*  text_  = nullptr;
+   size_t size_  = 0;
    
-   size_t num   = 0;
-   Line*  lines = nullptr;
-};
+   size_t num_   = 0;
+   Line*  lines_ = nullptr;
 
-struct BinCode
-{
-    char*  data = nullptr;
-    size_t size = 0;
-    ptr_t  ptr  = 0;
-};
-
-
-//==============================================================================
-/*------------------------------------------------------------------------------
-                   StringLib implementations                                   *
-*///----------------------------------------------------------------------------
-//==============================================================================
+   size_t state_;
 
 //------------------------------------------------------------------------------
-/*! @brief   Text structure constructor from file.
- *
- *  @param   txtstruct   Pointer to the text structure
- *  @param   filename    Name of the text file
- *
- *  @return  error code
+/*! @brief   Text constructor.
  */
 
-int TextConstruct (Text* txtstruct, const char* filename);
+    Text ();
 
 //------------------------------------------------------------------------------
-/*! @brief   Text structure constructor with number of lines and their lengths.
+/*! @brief   Text constructor from file.
  *
- *  @param   txtstruct   Pointer to the text structure
+ *  @param   filename    Name of the text file
+ */
+
+    Text (const char* filename);
+
+//------------------------------------------------------------------------------
+/*! @brief   Text constructor with number of lines and their lengths.
+ *
  *  @param   lines_num   Number of lines
  *  @param   line_len    Lengths of lines
- *
- *  @return  error code
  */
 
-int TextConstruct (Text* txtstruct, size_t lines_num, size_t line_len);
+    Text (size_t lines_num, size_t line_len);
+
+//------------------------------------------------------------------------------
+/*! @brief   Text destructor.
+ */
+
+   ~Text ();
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the number of text structure lines by 2 times.
  * 
- *  @param   txtstruct   Pointer to the text structure
  *  @param   line_len    Length of each line
  * 
  *  @return  error code
  */
 
-int TextExpand (Text* txtstruct, size_t line_len);
+    int Expand (size_t line_len);
 
 //------------------------------------------------------------------------------
-/*! @brief   Fill the structure of text from file.
- *
- *  @param   txtstruct   Pointer to the text structure
- *  @param   fp          Pointer to the text file
- *
- *  @return  error code
+};
+
+
+class BinCode
+{
+public:
+
+    char*  data_ = nullptr;
+    size_t size_ = 0;
+    ptr_t  ptr_  = 0;
+
+    size_t state_;
+
+//------------------------------------------------------------------------------
+/*! @brief   BinCode constructor.
  */
 
-int fillinTextStruct (Text* txtstruct, FILE* fp);
+    BinCode ();
 
 //------------------------------------------------------------------------------
-/*! @brief   Text structure destructor.
+/*! @brief   BinCode constructor with size.
  *
- *  @param   txtstruct   Pointer to the text structure
- *
- *  @return  error code
- */
-
-int TextDestruct (Text* txtstruct);
-
-//------------------------------------------------------------------------------
-/*! @brief   Binary code structure constructor with size.
- *
- *  @param   p_bcode     Pointer to the binary code structure
  *  @param   size        Size of the data
- *
- *  @return  error code
  */
 
-int BinCodeConstruct (BinCode* p_bcode, size_t size);
+    BinCode (size_t size);
 
 //------------------------------------------------------------------------------
-/*! @brief   Fill the binary code structure from file.
+/*! @brief   BinCode constructor from file.
  *
- *  @param   p_bcode     Pointer to the binary code structure
  *  @param   filename    Name of the input file
- *
- *  @return  error code
  */
 
-int BinCodeConstruct (BinCode* p_bcode, const char* filename);
+    BinCode (const char* filename);
+
+//------------------------------------------------------------------------------
+/*! @brief   BinCode destructor.
+ */
+
+   ~BinCode ();
 
 //------------------------------------------------------------------------------
 /*! @brief   Increase the binary code data size by 2 times.
  * 
- *  @param   p_bcode     Pointer to the binary code structure
- * 
  *  @return  error code
  */
 
-int BinCodeExpand (BinCode* p_bcode);
+int Expand ();
 
 //------------------------------------------------------------------------------
-/*! @brief   Binary code structure destructor.
- *
- *  @param   p_bcode     Pointer to the binary code structure
- *
- *  @return  error code
- */
+};
 
-int BinCodeDestruct (BinCode* p_bcode);
+
+
+
 
 //------------------------------------------------------------------------------
 /*! @brief   Get name of a file from command line.

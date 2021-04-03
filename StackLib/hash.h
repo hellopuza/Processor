@@ -3,10 +3,10 @@
     * Description: Declaration of functions and data types used for hash sum   *
                    computing library functions.                                *
     * Created:     1 dec 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2020 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef HASH_H_INCLUDED

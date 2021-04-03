@@ -3,10 +3,10 @@
     * Description: Declaration of functions and data types used for executing  *
                    binary programs                                             *
     * Created:     7 feb 2021                                                  *
-    * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef CPU_H_INCLUDED
@@ -84,8 +84,8 @@ static const char* cpu_errstr[] =
     "OK"                                                               ,
     "Failed to allocate memory"                                        ,
 
-    "CPU already constructed"                                          ,
-    "CPU already destructed"                                           ,
+    "CPU has already constructed"                                      ,
+    "CPU has already destructed"                                       ,
     "Division by zero"                                                 ,
     "Register is empty"                                                ,
     "Incorrect input"                                                  ,

@@ -3,10 +3,10 @@
     * Description: Stack library. You have to define stack TYPE before         *
                    including this file.                                        *
     * Created:     1 dec 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -264,7 +264,6 @@ static void TEMPLATE(CanaryPlacing, TYPE) (TEMPLATE(stack, TYPE)* p_stk);
 /*! @brief   Check stack for canaries (if enabled).
  *
  *  @param   p_stk       Pointer to the stack
- *  @param   funcname    Name of the function from which the StackCheck was called
  *
  *  @return  OK if all canaries aren't damaged, otherwise NOT_OK
  */
@@ -785,10 +784,14 @@ static void TEMPLATE(printError, TYPE) (const char* logname, const char* file, i
 
 //------------------------------------------------------------------------------
 
+#ifdef CANARY_PROTECT
+
 static can_t TEMPLATE(CanaryChange, TYPE) (can_t canary)
 {
     return (canary * 2 + rand() * ((can_t)rand() % 3 - 1)) % ULLONG_MAX;
 }
+
+#endif //CANARY_PROTECT
 
 //------------------------------------------------------------------------------
 

@@ -2,10 +2,10 @@
     * File:        main.cpp                                                    *
     * Description: Program for parsing programs on the assembler language.     *
     * Created:     7 feb 2021                                                  *
-    * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "Assembler.h"
@@ -20,14 +20,13 @@ int main(int argc, char* argv[])
         return 0;
     }
     
-    Assembler assembler = {};
-    AsmConstruct(&assembler, argv[1]);
+    Assembler assembler(argv[1]);
 
-    Assemble(&assembler);
+    printf("1");
+    assembler.Assemble();
+    printf("!!!!");
 
-    AsmWrite(&assembler, argv[1]);
-    
-    AsmDestruct(&assembler);
+    assembler.Write(argv[1]);
 
     return 0;
 }

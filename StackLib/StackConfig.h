@@ -3,14 +3,14 @@
     * Description: Stack congigurations which define different stack types,    *
                    canary, hashes and errors                                   *
     * Created:     1 dec 2020                                                  *
-    * Copyright:   (C) 2020 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
-#ifndef STACK_CONFIG_H_DEFINED
-#define STACK_CONFIG_H_DEFINED
+#ifndef STACK_CONFIG_H_INCLUDED
+#define STACK_CONFIG_H_INCLUDED
 
 
 #include <limits.h>
@@ -153,4 +153,4 @@ static const char* stk_errstr[] =
 };
 
 
-#endif // STACK_CONFIG_H_DEFINED
+#endif // STACK_CONFIG_H_INCLUDED
