@@ -47,21 +47,36 @@
 #endif // NO_HASH
 
 
-#ifndef PTR_T
-
-    #define PTR_T
-    typedef size_t ptr_t;
-
-    #define POINTER_PRINT_FORMAT "%u"
-
-    #include <limits.h>
-    #define PTR_MAX UINT_MAX
-
-#endif // PTR_T
-
-
 static const char* stack_logname = "stack.log";
 
+
+template<typename TYPE> const TYPE POISON;
+
+template<> const double POISON<double> = NAN;
+template<> const float  POISON<float>  = NAN;
+template<> const int    POISON<int>    = INT_MAX;
+template<> const size_t POISON<size_t> = UINT_MAX;
+template<> const char   POISON<char>   = '\0';
+
+
+template<typename TYPE> const char* PRINT_TYPE;
+
+template<> const char* PRINT_TYPE<double> = "double";
+template<> const char* PRINT_TYPE<float>  = "float";
+template<> const char* PRINT_TYPE<int>    = "int";
+template<> const char* PRINT_TYPE<size_t> = "size_t";
+template<> const char* PRINT_TYPE<char>   = "char";
+
+
+template<typename TYPE> const char* PRINT_FORMAT;
+
+template<> const char* PRINT_FORMAT<double> = "%lf";
+template<> const char* PRINT_FORMAT<float>  = "%f";
+template<> const char* PRINT_FORMAT<int>    = "%d";
+template<> const char* PRINT_FORMAT<size_t> = "0x%08X";
+template<> const char* PRINT_FORMAT<char>   = "%c";
+
+/*
 #define double_PRINT_FORMAT  "%lf"
 #define double_PRINT_TYPE    "double"
 #define double_POISON         NAN
@@ -85,6 +100,7 @@ static const char* stack_logname = "stack.log";
 #define char_PRINT_FORMAT    "%c"
 #define char_PRINT_TYPE      "char"
 #define char_POISON          '\0'
+*/
 
 
 static const size_t MAX_STACK_NUM = 100;
@@ -114,7 +130,6 @@ enum StackErrors
 
     STACK_CANARY_DIED                                               ,
     STACK_CAPACITY_WRONG_VALUE                                      ,
-    STACK_CONSTRUCTED                                               ,
     STACK_DESTRUCTED                                                ,
     STACK_EMPTY_STACK                                               ,
     STACK_INCORRECT_HASH                                            ,
@@ -137,7 +152,6 @@ static const char* stk_errstr[] =
 
     "Stack cracked, canary was killed"                              ,
     "Bad size stack capacity"                                       ,
-    "Stack already constructed"                                     ,
     "Stack already destructed"                                      ,
     "Stack is empty"                                                ,
     "Stack cracked, hash corrupted"                                 ,

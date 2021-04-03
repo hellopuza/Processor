@@ -42,6 +42,7 @@ enum AssemblerErrors
     ASM_LABEL_DEFINITION_NOT_FOUND                                     ,
     ASM_LABEL_NEED                                                     ,
     ASM_LABEL_REDIFINITION                                             ,
+    ASM_LABELS_DESTRUCTED                                              ,
     ASM_NULL_INPUT_ASSEMBLER_PTR                                       ,
     ASM_NULL_INPUT_FILENAME                                            ,
     ASM_NULL_INPUT_LABELS_PTR                                          ,
@@ -57,7 +58,6 @@ enum AssemblerErrors
     ASM_WRONG_PUSH_OPERAND_REGISTER                                    ,
     ASM_WRONG_PUSHQ_OPERAND_NUMBER                                     ,
     ASM_WRONG_SCREEN_OPERAND_REGISTER                                  ,
-    LABS_DESTRUCRED                                                    ,
 };
 
 static const char* asm_errstr[] =
@@ -72,7 +72,9 @@ static const char* asm_errstr[] =
     "Label definition not found"                                       ,
     "A label is needed here"                                           ,
     "Label redifinition"                                               ,
+    "Labels have already destructed"                                   ,
     "The input value of the assembler pointer turned out to be zero"   ,
+    "The input value of the assembler filename turned out to be zero"  ,
     "The input value of the labels pointer turned out to be zero"      ,
     "Too many words in line"                                           ,
     "Unidentified command"                                             ,
@@ -86,7 +88,6 @@ static const char* asm_errstr[] =
     "Wrong push operand register"                                      ,
     "Wrong pushq operand number. Operand can only be a float number"   ,
     "Wrong screen operand. Operand can only be a register"             ,
-    "Labels have already destructed"                                   ,
 };
 
 static const char* ASSEMBLER_LOGNAME = "assembler.log";
@@ -112,6 +113,8 @@ static const char* ASSEMBLER_LOGNAME = "assembler.log";
 //==============================================================================
 
 
+const size_t DEFAULT_LABELS_NUM = 8;
+
 struct Label
 {
     char   name[128] = "";
@@ -121,13 +124,13 @@ struct Label
 
 class Labels
 {
+    int state_;
+
 public:
 
     Label* labels_ = nullptr;
     size_t num_    = 0;
     size_t pos_    = 0;
-
-    int state_;
 
 //------------------------------------------------------------------------------
 /*! @brief   Labels constructor.
@@ -174,7 +177,6 @@ public:
 
 
 const size_t DEFAULT_BCODE_SIZE = 1024;
-const size_t DEFAULT_LABELS_NUM = 8;
 const size_t MAX_WORDS_IN_LINE  = 2;
 
 static const char* CODE_TYPE = ".code";

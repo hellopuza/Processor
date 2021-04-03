@@ -19,7 +19,6 @@
 
 #include <assert.h>
 
-#include "../Template.h"
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
@@ -28,17 +27,7 @@
 #define NO_CANARY
 #define NO_HASH
 
-#define TYPE NUM_INT_TYPE
 #include "../StackLib/Stack.h"
-#undef TYPE
-
-#define TYPE NUM_FLT_TYPE
-#include "../StackLib/Stack.h"
-#undef TYPE
-
-#define TYPE PTR_TYPE
-#include "../StackLib/Stack.h"
-#undef TYPE
 
 #undef NO_HASH
 #undef NO_CANARY
@@ -58,7 +47,6 @@ enum CPUErrors
     CPU_OK = 0                                                         ,
     CPU_NO_MEMORY                                                      ,
 
-    CPU_CONSTRUCTED                                                    ,
     CPU_DESTRUCTED                                                     ,
     CPU_DIVISION_BY_ZERO                                               ,
     CPU_EMPTY_REGISTER                                                 ,
@@ -69,9 +57,9 @@ enum CPUErrors
     CPU_NO_SPACE_FOR_NUMBER_FLT                                        ,
     CPU_NO_SPACE_FOR_POINTER                                           ,
     CPU_NO_SPACE_FOR_REGISTER                                          ,
-    CPU_NOT_CONSTRUCTED                                                ,
     CPU_NO_VIDEO_MEMORY                                                ,
     CPU_NULL_INPUT_CPU_PTR                                             ,
+    CPU_NULL_INPUT_FILENAME                                            ,
     CPU_ROOT_OF_A_NEG_NUMBER                                           ,
     CPU_UNIDENTIFIED_COMMAND                                           ,
     CPU_UNIDENTIFIED_REGISTER                                          ,
@@ -84,7 +72,6 @@ static const char* cpu_errstr[] =
     "OK"                                                               ,
     "Failed to allocate memory"                                        ,
 
-    "CPU has already constructed"                                      ,
     "CPU has already destructed"                                       ,
     "Division by zero"                                                 ,
     "Register is empty"                                                ,
@@ -95,9 +82,9 @@ static const char* cpu_errstr[] =
     "Not enough space to determine the float number"                   ,
     "Not enough space to determine the pointer"                        ,
     "Not enough space to determine the register"                       ,
-    "CPU did not constructed, operation is impossible"                 ,
     "No video memory"                                                  ,
     "The input value of the CPU pointer turned out to be zero"         ,
+    "The input value of the CPU filename turned out to be zero"        ,
     "Root of a negative number"                                        ,
     "Unidentified command"                                             ,
     "Unidentified register"                                            ,
@@ -106,15 +93,15 @@ static const char* cpu_errstr[] =
 
 static const char* CPU_LOGNAME = "cpu.log";
 
-#define CPU_ASSERTOK(cond, err, printcode, p_cpu) if (cond)                                                                                \
-                                                  {                                                                                        \
-                                                    CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err);                     \
-                                                    if (printcode) CPUPrintCode(p_cpu, CPU_LOGNAME, err);                                  \
-                                                    TEMPLATE(StackDump, NUM_INT_TYPE) (&p_cpu->stkCPU_NUM_INT, __FUNCTION__, CPU_LOGNAME); \
-                                                    TEMPLATE(StackDump, NUM_FLT_TYPE) (&p_cpu->stkCPU_NUM_FLT, __FUNCTION__, CPU_LOGNAME); \
-                                                    TEMPLATE(StackDump, PTR_TYPE    ) (&p_cpu->stkCPU_PTR    , __FUNCTION__, CPU_LOGNAME); \
-                                                    exit(err); /**/                                                                        \
-                                                  }
+#define CPU_ASSERTOK(cond, err, p_cpu) if (cond)                                                            \
+                                       {                                                                    \
+                                         CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                         if (p_cpu != nullptr) PrintCode(CPU_LOGNAME, err);                 \
+                                         stkCPU_INT_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
+                                         stkCPU_FLT_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
+                                         stkCPU_PTR_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
+                                         exit(err); /**/                                                    \
+                                       }
 
 
 //==============================================================================
@@ -129,50 +116,47 @@ const double NIL                    = 1e-7;
 const size_t RAM_SIZE               = 2097152; // 2 MB
 const size_t PIXEL_SIZE             = 3;
 
-struct CPU
+class CPU
 {
-    int state       = CPU_NOT_CONSTRUCTED;
-    int screens_num = 0;
+private:
 
-    BinCode bcode = {};
+    int state_;
+    int screens_num_ = 0;
 
-    char* RAM = nullptr;
+    char* filename_ = nullptr;
 
-    TEMPLATE(stack, NUM_INT_TYPE) stkCPU_NUM_INT;
-    TEMPLATE(stack, NUM_FLT_TYPE) stkCPU_NUM_FLT;
+    BinCode bcode_;
 
-    TEMPLATE(stack, PTR_TYPE) stkCPU_PTR;
+    char* RAM_ = nullptr;
 
-    NUM_FLT_TYPE registers[REG_NUM] = {};
-};
+    Stack<INT_TYPE> stkCPU_INT_;
+    Stack<FLT_TYPE> stkCPU_FLT_;
+    Stack<PTR_TYPE> stkCPU_PTR_;
+
+    /*
+    Stack<INT_TYPE> stk_NUM_INT_ (DEFAULT_STACK_CAPACITY, (char*)"stk_NUM_INT_");
+    Stack<FLT_TYPE> stk_NUM_FLT_ (DEFAULT_STACK_CAPACITY, (char*)"stk_NUM_FLT_");
+    Stack<PTR_TYPE> stk_PTR_     (DEFAULT_STACK_CAPACITY, (char*)"stk_PTR_");
+    */
 
 
-//==============================================================================
-/*------------------------------------------------------------------------------
-                   CPU implementations                                         *
-*///----------------------------------------------------------------------------
-//==============================================================================
+    FLT_TYPE registers_[REG_NUM] = {};
+
+public:
 
 //------------------------------------------------------------------------------
 /*! @brief   CPU constructor.
  *
- *  @param   p_cpu       Pointer to the CPU
  *  @param   filename    Name of a binary code file
- *
- *  @return  error code
  */
 
-int CPUConstruct (CPU* p_cpu, const char* filename);
+    CPU (char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   CPU destructor.
- *
- *  @param   p_cpu       Pointer to the CPU
- *
- *  @return  error code
  */
 
-int CPUDestruct (CPU* p_cpu);
+   ~CPU ();
 
 //------------------------------------------------------------------------------
 /*! @brief   Execution process.
@@ -181,13 +165,16 @@ int CPUDestruct (CPU* p_cpu);
  *           executes commands, goes to the addresses in the code. If an error is found,
  *           the process stops and the code section with the error is output.
  *
- *  @param   p_cpu       Pointer to the CPU
- *  @param   filename    Name of a binary code file
- *
  *  @return  error code
  */
 
-int Execute (CPU* p_cpu, char* filename);
+    int Execute ();
+
+/*------------------------------------------------------------------------------
+                   Private functions                                           *
+*///----------------------------------------------------------------------------
+
+private:
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop one int number from stack.
@@ -195,7 +182,7 @@ int Execute (CPU* p_cpu, char* filename);
  *  @param   num         Pointer to the number
  */
 
-void Pop1IntNumber (CPU* p_cpu, NUM_INT_TYPE* num);
+    void Pop1IntNumber (INT_TYPE* num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop two int numbers from stack.
@@ -204,7 +191,7 @@ void Pop1IntNumber (CPU* p_cpu, NUM_INT_TYPE* num);
  *  @param   num2        Pointer to the second number of stack
  */
 
-void Pop2IntNumbers (CPU* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
+    void Pop2IntNumbers (INT_TYPE* num1, INT_TYPE* num2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop one float number from stack.
@@ -212,7 +199,7 @@ void Pop2IntNumbers (CPU* p_cpu, NUM_INT_TYPE* num1, NUM_INT_TYPE* num2);
  *  @param   num         Pointer to the number
  */
 
-void Pop1FloatNumber (CPU* p_cpu, NUM_FLT_TYPE* num);
+    void Pop1FloatNumber (FLT_TYPE* num);
 
 //------------------------------------------------------------------------------
 /*! @brief   Pop two float numbers from stack.
@@ -221,17 +208,19 @@ void Pop1FloatNumber (CPU* p_cpu, NUM_FLT_TYPE* num);
  *  @param   num2        Pointer to the second number of stack
  */
 
-void Pop2FloatNumbers (CPU* p_cpu, NUM_FLT_TYPE* num1, NUM_FLT_TYPE* num2);
+    void Pop2FloatNumbers (FLT_TYPE* num1, FLT_TYPE* num2);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with an error to the console and to the log file.
  * 
- *  @param   p_cpu       Pointer to the CPU
  *  @param   logname     Name of the log file
  *  @param   err         Error code
  */
 
-void CPUPrintCode (CPU* p_cpu, const char* logname, int err);
+    void PrintCode (const char* logname, int err);
+
+//------------------------------------------------------------------------------
+};
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

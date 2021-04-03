@@ -12,7 +12,7 @@
 
 //------------------------------------------------------------------------------
 
-Text::Text () : state_ (STR_OK) {}
+Text::Text () : state_ (STR_TEXT_NOT_CONSTRUCTED) {}
 
 //------------------------------------------------------------------------------
 
@@ -35,15 +35,15 @@ Text::Text (const char* filename) :
 
     text_ = GetText(fp, size_);
     STR_ASSERTOK((text_ == nullptr), STR_NO_MEMORY);
-    printf("size: %d\n", text_);
+    printf("text: %d\n", text_);
 
     num_ = GetLineNum(text_, size_);
     STR_ASSERTOK((num_ == 0), STR_NO_LINES);
-    printf("size: %d\n", num_);
+    printf("num: %d\n", num_);
 
     lines_ = GetLine(text_, num_);
     STR_ASSERTOK((lines_ == nullptr), STR_NO_MEMORY);
-    printf("size: %d\n", lines_);
+    printf("lines: %d\n", lines_);
 
     fclose(fp);
 }
@@ -73,6 +73,7 @@ Text::Text (size_t lines_num, size_t line_len) :
 Text::~Text ()
 {
     STR_ASSERTOK((this == nullptr), STR_NULL_INPUT_TEXT_PTR);
+    STR_ASSERTOK(state_, state_);
 
     if (state_ != STR_TEXT_DESTRUCTED)
     {
@@ -101,6 +102,7 @@ Text::~Text ()
 int Text::Expand (size_t line_len)
 {
     STR_ASSERTOK((this == nullptr), STR_NULL_INPUT_TEXT_PTR);
+    STR_ASSERTOK(state_, state_);
 
     num_ *= 2;
 
@@ -127,7 +129,7 @@ int Text::Expand (size_t line_len)
 
 //------------------------------------------------------------------------------
 
-BinCode::BinCode () : state_ (STR_OK) {}
+BinCode::BinCode () : state_ (STR_BINCODE_NOT_CONSTRUCTED) {}
 
 //------------------------------------------------------------------------------
 
@@ -176,6 +178,7 @@ BinCode::BinCode (const char* filename) :
 BinCode::~BinCode ()
 {
     STR_ASSERTOK((this == nullptr), STR_NULL_INPUT_BINCODE_PTR);
+    STR_ASSERTOK(state_, state_);
 
     if (state_ != STR_BINCODE_DESTRUCTED)
     {
@@ -195,6 +198,7 @@ BinCode::~BinCode ()
 int BinCode::Expand ()
 {
     STR_ASSERTOK((this == nullptr), STR_NULL_INPUT_BINCODE_PTR);
+    STR_ASSERTOK(state_, state_);
 
     size_ *= 2;
 

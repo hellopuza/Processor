@@ -30,48 +30,105 @@
 
 enum DisassemblerErrors
 {
-    DSM_NOT_OK = -1                                                    ,
-    DSM_OK = 0                                                         ,
-    DSM_NO_MEMORY                                                      ,
+    DSM_NOT_OK = -1                                                       ,
+    DSM_OK = 0                                                            ,
+    DSM_NO_MEMORY                                                         ,
 
-    DSM_CONSTRUCTED                                                    ,
-    DSM_DESTRUCTED                                                     ,
-    DSM_NO_SPACE_FOR_NUMBER_INT                                        ,
-    DSM_NO_SPACE_FOR_NUMBER_FLT                                        ,
-    DSM_NO_SPACE_FOR_POINTER                                           ,
-    DSM_NO_SPACE_FOR_REGISTER                                          ,
-    DSM_NOT_CONSTRUCTED                                                ,
-    DSM_NULL_INPUT_DISASSEMBLER_PTR                                    ,
-    DSM_UNIDENTIFIED_COMMAND                                           ,
-    DSM_UNIDENTIFIED_REGISTER                                          ,
+    DSM_DESTRUCTED                                                        ,
+    DSM_LABELS_DESTRUCTED                                                 ,
+    DSM_NO_SPACE_FOR_NUMBER_INT                                           ,
+    DSM_NO_SPACE_FOR_NUMBER_FLT                                           ,
+    DSM_NO_SPACE_FOR_POINTER                                              ,
+    DSM_NO_SPACE_FOR_REGISTER                                             ,
+    DSM_NULL_INPUT_DISASSEMBLER_PTR                                       ,
+    DSM_NULL_INPUT_FILENAME                                               ,
+    DSM_NULL_INPUT_LABELS_PTR                                             ,
+    DSM_UNIDENTIFIED_COMMAND                                              ,
+    DSM_UNIDENTIFIED_REGISTER                                             ,
 };
 
-static const char* asm_errstr[] =
+static const char* dsm_errstr[] =
 {
-    "ERROR"                                                            ,
-    "OK"                                                               ,
-    "Failed to allocate memory"                                        ,
+    "ERROR"                                                               ,
+    "OK"                                                                  ,
+    "Failed to allocate memory"                                           ,
 
-    "Disassembler already constructed"                                 ,
-    "Disassembler already destructed"                                  ,
-    "Not enough space to determine the int number"                     ,
-    "Not enough space to determine the float number"                   ,
-    "Not enough space to determine the pointer"                        ,
-    "Not enough space to determine the register"                       ,
-    "Disassembler did not constructed, operation is impossible"        ,
-    "The input value of the disassembler pointer turned out to be zero",
-    "Unidentified command"                                             ,
-    "Unidentified register"                                            ,
+    "Disassembler has already destructed"                                 ,
+    "Labels have already destructed"                                      ,
+    "Not enough space to determine the int number"                        ,
+    "Not enough space to determine the float number"                      ,
+    "Not enough space to determine the pointer"                           ,
+    "Not enough space to determine the register"                          ,
+    "The input value of the disassembler pointer turned out to be zero"   ,
+    "The input value of the disassembler filaneme turned out to be zero"  ,
+    "The input value of the labels pointer turned out to be zero"         ,
+    "Unidentified command"                                                ,
+    "Unidentified register"                                               ,
 };
 
 static const char* DISASSEMBLER_LOGNAME = "disassembler.log";
 
-#define DSM_ASSERTOK(cond, err, printcode, p_dsm) if (cond)                                                                     \
-                                                  {                                                                             \
-                                                    DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                                    if (printcode) DsmPrintCode(p_dsm, DISASSEMBLER_LOGNAME, err);              \
-                                                    exit(err); /**/                                                             \
-                                                  }
+#define DSM_ASSERTOK(cond, err, p_dsm) if (cond)                                                                     \
+                                       {                                                                             \
+                                         DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                         if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME, err);                 \
+                                         exit(err); /**/                                                             \
+                                       }
+
+#define LABS_ASSERTOK(cond, err) if (cond)                                                                     \
+                                 {                                                                             \
+                                   DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                   exit(err); /**/                                                             \
+                                 }
+
+
+//==============================================================================
+/*------------------------------------------------------------------------------
+                   Labels constants and types                                  *
+*///----------------------------------------------------------------------------
+//==============================================================================
+
+
+const size_t DEFAULT_LABELS_NUM = 8;
+
+struct Label
+{
+    size_t code = 0;
+    size_t addr = 0;
+};
+
+class Labels
+{
+public:
+
+    int state_;
+
+    Label* data_ = nullptr;
+    size_t num_  = 0;
+    size_t pos_  = 0;
+
+//------------------------------------------------------------------------------
+/*! @brief   Labels constructor.
+ */
+
+    Labels ();
+
+//------------------------------------------------------------------------------
+/*! @brief   Labels destructor.
+ */
+
+   ~Labels ();
+
+//------------------------------------------------------------------------------
+/*! @brief   Increase the labels array by 2 times.
+ * 
+ *  @return  error code
+ */
+
+    int Expand ();
+
+//------------------------------------------------------------------------------
+};
 
 
 //==============================================================================
@@ -85,61 +142,37 @@ static const char* CODE_TYPE = "_dis.asm";
 static const char* LABEL     = "L";
 static const char COMMENT    = ';';
 
-const size_t DEFAULT_LABEL_NUM = 8;
 const size_t DEFAULT_LINES_NUM = 32;
 const size_t MAX_CHARS_IN_LINE = 128;
 const size_t SECOND_WORD_PLACE = 8;
 const size_t COMMENT_PLACE     = 32;
 
-struct Label
+
+class Disassembler
 {
-    size_t code = 0;
-    size_t addr = 0;
-};
+private:
 
-struct Labels
-{
-    Label* data = nullptr;
-    size_t num  = DEFAULT_LABEL_NUM;
-    size_t pos  = 0;
-};
+    int state_;
 
-struct Disassembler
-{
-    int state = DSM_NOT_CONSTRUCTED;
+    Text    output_;
+    BinCode bcode_;
+    Labels  labels_;
 
-    Text    output = {};
-    BinCode bcode  = {};
-    Labels  labels = {};
-};
-
-
-//==============================================================================
-/*------------------------------------------------------------------------------
-                   Disassembler implementations                                *
-*///----------------------------------------------------------------------------
-//==============================================================================
+public:
 
 //------------------------------------------------------------------------------
 /*! @brief   Disassmebler constructor.
  *
- *  @param   p_dsm       Pointer to the disassembler
  *  @param   filename    Name of a binary code file
- *
- *  @return  error code
  */
 
-int DsmConstruct (Disassembler* p_dsm, const char* filename);
+    Disassembler (const char* filename);
 
 //------------------------------------------------------------------------------
 /*! @brief   Disassmebler destructor.
- *
- *  @param   p_dsm       Pointer to the disassembler
- *
- *  @return  error code
  */
 
-int DsmDestruct (Disassembler* p_dsm);
+   ~Disassembler ();
 
 //------------------------------------------------------------------------------
 /*! @brief   Disassembly process.
@@ -150,12 +183,25 @@ int DsmDestruct (Disassembler* p_dsm);
  *           If an error is found, the process stops and the code section with the error
  *           is output.
  *
- *  @param   p_dsm       Pointer to the disassembler
+ *  @return  error code
+ */
+
+    int Disassemble ();
+
+//------------------------------------------------------------------------------
+/*! @brief   Write disassembled program text to the file.
+ *  @param   filename    File name for the program binary
  *
  *  @return  error code
  */
 
-int Disassemble (Disassembler* p_dsm);
+    int Write (char* filename);
+
+/*------------------------------------------------------------------------------
+                   Private functions                                           *
+*///----------------------------------------------------------------------------
+
+private:
 
 //------------------------------------------------------------------------------
 /*! @brief   Write command to the text line.
@@ -168,7 +214,7 @@ int Disassemble (Disassembler* p_dsm);
  *  @return  error code
  */
 
-int writeCMD (Text* text, char cmd_code, size_t line, size_t endpos);
+    int writeCMD (Text* text, char cmd_code, size_t line, size_t endpos);
 
 //------------------------------------------------------------------------------
 /*! @brief   Write operands to the text line.
@@ -187,7 +233,7 @@ int writeCMD (Text* text, char cmd_code, size_t line, size_t endpos);
  *  @return  error code
  */
 
-int writeOperands (Text* text, char cmd_code, char reg_code, NUM_INT_TYPE num_int, NUM_FLT_TYPE num_flt, ptr_t num_ptr, size_t lab_num, size_t line, size_t startpos, size_t endpos);
+    int writeOperands (Text* text, char cmd_code, char reg_code, INT_TYPE num_int, FLT_TYPE num_flt, ptr_t num_ptr, size_t lab_num, size_t line, size_t startpos, size_t endpos);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints a section of code with command and operands to the text line like comment.
@@ -201,49 +247,19 @@ int writeOperands (Text* text, char cmd_code, char reg_code, NUM_INT_TYPE num_in
  *  @param   comment     Comment character
  */
 
-void writeCode (Text* text, BinCode* bcode, size_t line, size_t pos, ptr_t ptr, size_t size, const char comment);
+    void writeCode (Text* text, BinCode* bcode, size_t line, size_t pos, ptr_t ptr, size_t size, const char comment);
 
 //------------------------------------------------------------------------------
-/*! @brief   Write disassembled program text to the file.
+/*! @brief   Prints a section of code with an error to the console and to the log file.
  *
- *  @param   p_dsm       Pointer to the disassembler
- *  @param   filename    File name for the program binary
- *
- *  @return  error code
+ *  @param   logname     Name of the log file
+ *  @param   err         Error code
  */
 
-int DsmWrite (Disassembler* p_dsm, char* filename);
+    void PrintCode (const char* logname, int err);
 
 //------------------------------------------------------------------------------
-/*! @brief   Labels constructor.
- *
- *  @param   p_labs      Pointer to the labels array
- *  @param   num         Number of labels to be constructed
- *
- *  @return  error code
- */
-
-int LabelsConstruct (Labels* p_labs, size_t num);
-
-//------------------------------------------------------------------------------
-/*! @brief   Labels destructor.
- *
- *  @param   p_labs      Pointer to the labels array
- *
- *  @return  error code
- */
-
-int LabelsDestruct (Labels* p_labs);
-
-//------------------------------------------------------------------------------
-/*! @brief   Increase the labels array by 2 times.
- * 
- *  @param   p_labs      Pointer to the labels array
- * 
- *  @return  error code
- */
-
-int LabelsExpand (Labels* p_labs);
+};
 
 //------------------------------------------------------------------------------
 /*! @brief   Compare two labels by their addresses.
@@ -257,16 +273,6 @@ int LabelsExpand (Labels* p_labs);
  */
 
 int labcmp (const void* p1, const void* p2);
-
-//------------------------------------------------------------------------------
-/*! @brief   Prints a section of code with an error to the console and to the log file.
- * 
- *  @param   p_dsm       Pointer to the disassembler
- *  @param   logname     Name of the log file
- *  @param   err         Error code
- */
-
-void DsmPrintCode (Disassembler* p_dsm, const char* logname, int err);
 
 //------------------------------------------------------------------------------
 /*! @brief   Prints an error wih description to the console and to the log file.

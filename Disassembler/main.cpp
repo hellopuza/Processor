@@ -21,13 +21,10 @@ int main(int argc, char* argv[])
     }
     
     Disassembler disasm(argv[1]);
-    //DsmConstruct(&disasm, argv[1]);
 
     disasm.Disassemble();
 
     disasm.Write(argv[1]);
-    
-    //DsmDestruct(&disasm);
 
     return 0;
 }

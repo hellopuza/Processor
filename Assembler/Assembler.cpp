@@ -15,11 +15,10 @@
 Assembler::Assembler (const char* filename) :
     state_ (ASM_OK)
 {
-    ASM_ASSERTOK((this == nullptr),     ASM_NULL_INPUT_ASSEMBLER_PTR, -1);
     ASM_ASSERTOK((filename == nullptr), ASM_NULL_INPUT_FILENAME,      -1);
     
-    input_ = Text(filename);
-    bcode_ = BinCode(DEFAULT_BCODE_SIZE);
+    // input_ ?? Text(filename);
+    // bcode_ ?? BinCode(DEFAULT_BCODE_SIZE);
 }
 
 //------------------------------------------------------------------------------
@@ -43,19 +42,14 @@ Assembler::~Assembler ()
 int Assembler::Assemble ()
 {
     ASM_ASSERTOK((this == nullptr), ASM_NULL_INPUT_ASSEMBLER_PTR, -1);
-
-    printf("2");
     
     for (int line_cur = 0; line_cur < input_.num_; ++line_cur)
     {
         if (input_.lines_[line_cur].len == 0) continue;
 
         char previous_line[128] = "";
-        printf("3");
-        printf("%d\n", input_.lines_[line_cur].len);
         strcpy(previous_line, input_.lines_[line_cur].str);
         prev_line_ = previous_line;
-        printf("4");
 
         char* comment_ptr = DeleteComments(&input_.lines_[line_cur], COMMENT);
         if (comment_ptr == NULL) continue;
@@ -163,7 +157,7 @@ int Assembler::Assemble ()
             }
             else
             {
-                ASM_ASSERTOK((reg == ASM_NOT_OK), ASM_EXTRA_WORD, 1, p_asm, line_cur);
+                ASM_ASSERTOK((reg == ASM_NOT_OK), ASM_EXTRA_WORD, line_cur);
             }
             break;
         }
@@ -260,7 +254,7 @@ void Assembler::WriteIntNumber (char* op_word, size_t line, int err)
     ASM_ASSERTOK((strchr(op_word, '.') != NULL), err, line);
     
     char* end_word = 0;
-    NUM_INT_TYPE number = (NUM_INT_TYPE)strtod(op_word, &end_word);
+    INT_TYPE number = (INT_TYPE)strtod(op_word, &end_word);
     ASM_ASSERTOK((end_word[0] != '\0'), err, line);
 
     if (bcode_.ptr_ == bcode_.size_ - NUMBER_INT_SIZE)
@@ -302,7 +296,7 @@ void Assembler::WriteCommandWithFloatNumber (char cmd_code, char* op_word, size_
     assert(op_word != nullptr);
 
     char* end_word = 0;
-    NUM_FLT_TYPE number = (NUM_FLT_TYPE)strtod(op_word, &end_word);
+    FLT_TYPE number = (FLT_TYPE)strtod(op_word, &end_word);
     ASM_ASSERTOK((end_word[0] != '\0'), err, line);
 
     if (bcode_.ptr_ == bcode_.size_ - NUMBER_FLT_SIZE - 1)
@@ -513,14 +507,14 @@ Labels::~Labels ()
 {
     LABS_ASSERTOK((this == nullptr), ASM_NULL_INPUT_LABELS_PTR);
 
-    if (state_ != LABS_DESTRUCRED)
+    if (state_ != ASM_LABELS_DESTRUCTED)
     {
         free(labels_);
 
         num_ = 0;
         pos_ = 0;
 
-        state_ = LABS_DESTRUCRED;
+        state_ = ASM_LABELS_DESTRUCTED;
     }
 }
 

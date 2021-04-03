@@ -47,7 +47,9 @@ enum StringErrors
     STR_NULL_INPUT_TEXT_LINES_LEN                                      ,
     STR_NULL_INPUT_TEXT_PTR                                            ,
     STR_BINCODE_DESTRUCTED                                             ,
+    STR_BINCODE_NOT_CONSTRUCTED                                        ,
     STR_TEXT_DESTRUCTED                                                ,
+    STR_TEXT_NOT_CONSTRUCTED                                           ,
 };
 
 static const char* str_errstr[] =
@@ -66,7 +68,9 @@ static const char* str_errstr[] =
     "The input value of lines Text length turned out to be zero"       ,
     "The input value of the Text pointer turned out to be zero"        ,
     "BinCode has already destructed"                                   ,
+    "BinCode did not constructed, operation is impossible"             ,
     "Text has already destructed"                                      ,
+    "Text did not constructed, operation is impossible"                ,
 };
 
 static const char* STRING_LOGNAME = "string.log";
@@ -106,6 +110,8 @@ struct Line
 
 class Text
 {
+    int state_;
+
 public:
 
    char*  text_  = nullptr;
@@ -113,8 +119,6 @@ public:
    
    size_t num_   = 0;
    Line*  lines_ = nullptr;
-
-   size_t state_;
 
 //------------------------------------------------------------------------------
 /*! @brief   Text constructor.
@@ -161,13 +165,13 @@ public:
 
 class BinCode
 {
+    int state_;
+
 public:
 
     char*  data_ = nullptr;
     size_t size_ = 0;
     ptr_t  ptr_  = 0;
-
-    size_t state_;
 
 //------------------------------------------------------------------------------
 /*! @brief   BinCode constructor.

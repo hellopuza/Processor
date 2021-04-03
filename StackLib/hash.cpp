@@ -2,11 +2,10 @@
     * File:        hash.cpp                                                    *
     * Description: Functions to compute hash message digest of files or memory *
                    blocks.                                                     *
-    * Created:     1 dec 2020                                                  *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2020 Artem Puzankov. All rights reserved.                    *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "hash.h"

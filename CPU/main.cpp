@@ -21,11 +21,8 @@ int main(int argc, char* argv[])
     }
     
     CPU cpu(argv[1]);
-    //CPUConstruct(&cpu, argv[1]);
 
-    cpu.Execute(&cpu, argv[1]);
-
-    //CPUDestruct(&cpu);
+    cpu.Execute();
 
     return 0;
 }

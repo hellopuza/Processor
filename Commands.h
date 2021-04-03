@@ -2,10 +2,10 @@
     * File:        Commands.h                                                  *
     * Description: Names of commands, registers and their codes                *
     * Created:     7 feb 2021                                                  *
-    * Copyright:   (C) 2021 MIPT                                               *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
+    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef COMMANDS_H_INCLUDED
@@ -27,8 +27,8 @@
 #endif // PTR_T
 
 
-#define NUM_INT_TYPE int
-#define NUM_FLT_TYPE double
+#define INT_TYPE int
+#define FLT_TYPE double
 
 #define INT_PRINT_FORMAT "%d"
 #define FLT_PRINT_FORMAT "%lf"
@@ -36,8 +36,8 @@
 #define PTR_TYPE ptr_t
 
 const size_t POINTER_SIZE     = sizeof(PTR_TYPE);
-const size_t NUMBER_INT_SIZE  = sizeof(NUM_INT_TYPE);
-const size_t NUMBER_FLT_SIZE  = sizeof(NUM_FLT_TYPE);
+const size_t NUMBER_INT_SIZE  = sizeof(INT_TYPE);
+const size_t NUMBER_FLT_SIZE  = sizeof(FLT_TYPE);
 
 const int NUM_FLAG = 0x80;
 const int REG_FLAG = 0x40;
