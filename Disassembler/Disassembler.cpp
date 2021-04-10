@@ -12,15 +12,11 @@
 
 //------------------------------------------------------------------------------
 
-Disassembler::Disassembler (const char* filename)
-{
-    DSM_ASSERTOK((filename == nullptr), DSM_NULL_INPUT_FILENAME, nullptr);
-
-    // bcode_ ?? BinCode(filename);
-    // output_ ?? Text(DEFAULT_LINES_NUM, MAX_CHARS_IN_LINE);
-
-    state_ = DSM_OK;
-}
+Disassembler::Disassembler (const char* filename) :
+    bcode_  (filename),
+    output_ (DEFAULT_LINES_NUM, MAX_CHARS_IN_LINE),
+    state_  (DSM_OK)
+{ }
 
 //------------------------------------------------------------------------------
 

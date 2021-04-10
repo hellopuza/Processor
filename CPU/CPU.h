@@ -22,15 +22,8 @@
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
 
-
 #define NO_DUMP
-#define NO_CANARY
-#define NO_HASH
-
 #include "../StackLib/Stack.h"
-
-#undef NO_HASH
-#undef NO_CANARY
 #undef NO_DUMP
 
 
@@ -111,7 +104,6 @@ static const char* CPU_LOGNAME = "cpu.log";
 //==============================================================================
 
 
-const size_t DEFAULT_STACK_CAPACITY = 8;
 const double NIL                    = 1e-7;
 const size_t RAM_SIZE               = 2097152; // 2 MB
 const size_t PIXEL_SIZE             = 3;
@@ -132,13 +124,6 @@ private:
     Stack<INT_TYPE> stkCPU_INT_;
     Stack<FLT_TYPE> stkCPU_FLT_;
     Stack<PTR_TYPE> stkCPU_PTR_;
-
-    /*
-    Stack<INT_TYPE> stk_NUM_INT_ (DEFAULT_STACK_CAPACITY, (char*)"stk_NUM_INT_");
-    Stack<FLT_TYPE> stk_NUM_FLT_ (DEFAULT_STACK_CAPACITY, (char*)"stk_NUM_FLT_");
-    Stack<PTR_TYPE> stk_PTR_     (DEFAULT_STACK_CAPACITY, (char*)"stk_PTR_");
-    */
-
 
     FLT_TYPE registers_[REG_NUM] = {};
 

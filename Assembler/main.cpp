@@ -22,9 +22,7 @@ int main(int argc, char* argv[])
     
     Assembler assembler(argv[1]);
 
-    printf("1 ");
     assembler.Assemble();
-    printf("!!!!");
 
     assembler.Write(argv[1]);
 

@@ -13,17 +13,13 @@
 //------------------------------------------------------------------------------
 
 CPU::CPU (char* filename) : 
-    filename_ (filename),
-    state_    (CPU_OK)
+    bcode_      (filename),
+    filename_   (filename),
+    stkCPU_INT_ ((char*)"stkCPU_INT_", DEFAULT_STACK_CAPACITY),
+    stkCPU_FLT_ ((char*)"stkCPU_FLT_", DEFAULT_STACK_CAPACITY),
+    stkCPU_PTR_ ((char*)"stkCPU_PTR_", DEFAULT_STACK_CAPACITY),
+    state_      (CPU_OK)
 {
-    CPU_ASSERTOK((filename == nullptr), CPU_NULL_INPUT_FILENAME, nullptr);
-
-    // bcode_ ?? BinCode(filename);
-
-    // stkCPU_INT_ ?? Stack<INT_TYPE>(DEFAULT_STACK_CAPACITY, (char*)"stkCPU_INT_");
-    // stkCPU_FLT_ ?? Stack<FLT_TYPE>(DEFAULT_STACK_CAPACITY, (char*)"stkCPU_FLT_");
-    // stkCPU_PTR_ ?? Stack<PTR_TYPE>(DEFAULT_STACK_CAPACITY, (char*)"stkCPU_PTR_");
-
     for (int i = 0; i < REG_NUM; ++i)
     {
         registers_[i] = POISON<FLT_TYPE>;

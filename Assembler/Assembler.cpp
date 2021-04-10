@@ -13,13 +13,10 @@
 //------------------------------------------------------------------------------
 
 Assembler::Assembler (const char* filename) :
+    input_ (filename),
+    bcode_ (DEFAULT_BCODE_SIZE),
     state_ (ASM_OK)
-{
-    ASM_ASSERTOK((filename == nullptr), ASM_NULL_INPUT_FILENAME,      -1);
-    
-    // input_ ?? Text(filename);
-    // bcode_ ?? BinCode(DEFAULT_BCODE_SIZE);
-}
+{ }
 
 //------------------------------------------------------------------------------
 

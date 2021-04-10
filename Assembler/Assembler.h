@@ -15,7 +15,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
-#include "../TXLib.h"
 
 #include <time.h>
 #include <assert.h>

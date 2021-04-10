@@ -33,20 +33,6 @@
 #endif // NO_DUMP
 
 
-#ifndef NO_CANARY
-
-    #define CANARY_PROTECT
-
-#endif // NO_CANARY
-
-
-#ifndef NO_HASH
-
-    #define HASH_PROTECT
-
-#endif // NO_HASH
-
-
 static const char* stack_logname = "stack.log";
 
 
@@ -57,6 +43,7 @@ template<> const float  POISON<float>  = NAN;
 template<> const int    POISON<int>    = INT_MAX;
 template<> const size_t POISON<size_t> = UINT_MAX;
 template<> const char   POISON<char>   = '\0';
+template<>       char*  POISON<char*>  = nullptr;
 
 
 template<typename TYPE> const char* PRINT_TYPE;
@@ -66,6 +53,7 @@ template<> const char* PRINT_TYPE<float>  = "float";
 template<> const char* PRINT_TYPE<int>    = "int";
 template<> const char* PRINT_TYPE<size_t> = "size_t";
 template<> const char* PRINT_TYPE<char>   = "char";
+template<> const char* PRINT_TYPE<char*>  = "char*";
 
 
 template<typename TYPE> const char* PRINT_FORMAT;
@@ -75,51 +63,11 @@ template<> const char* PRINT_FORMAT<float>  = "%f";
 template<> const char* PRINT_FORMAT<int>    = "%d";
 template<> const char* PRINT_FORMAT<size_t> = "0x%08X";
 template<> const char* PRINT_FORMAT<char>   = "%c";
-
-/*
-#define double_PRINT_FORMAT  "%lf"
-#define double_PRINT_TYPE    "double"
-#define double_POISON         NAN
-
-#define float_PRINT_FORMAT   "%f"
-#define float_PRINT_TYPE     "float"
-#define float_POISON          NAN
-
-#define int_PRINT_FORMAT     "%d"
-#define int_PRINT_TYPE       "int"
-#define int_POISON            INT_MAX
-
-#define size_t_PRINT_FORMAT  "%u"
-#define size_t_PRINT_TYPE    "size_t"
-#define size_t_POISON         UINT_MAX
-
-#define ptr_t_PRINT_FORMAT   "0x%08X"
-#define ptr_t_PRINT_TYPE     "ptr_t"
-#define ptr_t_POISON          PTR_MAX
-
-#define char_PRINT_FORMAT    "%c"
-#define char_PRINT_TYPE      "char"
-#define char_POISON          '\0'
-*/
+template<> const char* PRINT_FORMAT<char*>  = "%s";
 
 
 static const size_t MAX_STACK_NUM = 100;
 static const size_t MAX_CAPACITY  = 100000;
-
-
-#ifdef CANARY_PROTECT
-
-    typedef unsigned long long can_t;
-    #define CAN_PRINT_FORMAT "%llu"
-
-    static can_t perfect_canary = (srand(time(NULL)), rand());
-    static can_t canaries[MAX_STACK_NUM] = {};
-
-#else
-
-    typedef char can_t;
-
-#endif //CANARY_PROTECT
 
 
 enum StackErrors
@@ -128,11 +76,10 @@ enum StackErrors
     STACK_OK = 0                                                    ,
     STACK_NO_MEMORY                                                 ,
 
-    STACK_CANARY_DIED                                               ,
     STACK_CAPACITY_WRONG_VALUE                                      ,
     STACK_DESTRUCTED                                                ,
     STACK_EMPTY_STACK                                               ,
-    STACK_INCORRECT_HASH                                            ,
+    STACK_MEM_ACCESS_VIOLATION                                      ,
     STACK_NOT_CONSTRUCTED                                           ,
     STACK_NULL_DATA_PTR                                             ,
     STACK_NULL_INPUT_STACK_PTR                                      ,
@@ -150,11 +97,10 @@ static const char* stk_errstr[] =
     "OK"                                                            ,
     "Failed to allocate memory"                                     ,
 
-    "Stack cracked, canary was killed"                              ,
     "Bad size stack capacity"                                       ,
     "Stack already destructed"                                      ,
     "Stack is empty"                                                ,
-    "Stack cracked, hash corrupted"                                 ,
+    "Memory access violation"                                       ,
     "Stack did not constructed, operation is impossible"            ,
     "The pointer to the stack is null, data lost"                   ,
     "The input value of the stack pointer turned out to be zero"    ,
