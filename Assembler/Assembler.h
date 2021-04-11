@@ -138,6 +138,16 @@ public:
     Labels ();
 
 //------------------------------------------------------------------------------
+/*! @brief   Labels copy constructor (deleted).
+ *
+ *  @param   obj         Source labels
+ */
+
+    Labels (const Labels& obj);
+
+    Labels& operator = (const Labels& obj); // deleted
+
+//------------------------------------------------------------------------------
 /*! @brief   Labels destructor.
  */
 
@@ -207,6 +217,16 @@ public:
  */
 
     Assembler (const char* filename);
+
+//------------------------------------------------------------------------------
+/*! @brief   Assembler copy constructor (deleted).
+ *
+ *  @param   obj         Source Assembler
+ */
+
+    Assembler (const Assembler& obj);
+
+    Assembler& operator = (const Assembler& obj); // deleted
 
 //------------------------------------------------------------------------------
 /*! @brief   Assmebler destructor.

@@ -144,6 +144,16 @@ public:
     Text (size_t lines_num, size_t line_len);
 
 //------------------------------------------------------------------------------
+/*! @brief   Text copy constructor (deleted).
+ *
+ *  @param   obj         Source text
+ */
+
+    Text (const Text& obj);
+
+    Text& operator = (const Text& obj); // deleted
+
+//------------------------------------------------------------------------------
 /*! @brief   Text destructor.
  */
 
@@ -194,6 +204,16 @@ public:
  */
 
     BinCode (const char* filename);
+
+//------------------------------------------------------------------------------
+/*! @brief   BinCode copy constructor (deleted).
+ *
+ *  @param   obj         Source BinCode
+ */
+
+    BinCode (const BinCode& obj);
+
+    BinCode& operator = (const BinCode& obj); // deleted
 
 //------------------------------------------------------------------------------
 /*! @brief   BinCode destructor.

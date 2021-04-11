@@ -45,17 +45,14 @@ Stack<TYPE>::Stack (char* stack_name, size_t capacity) :
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
-Stack<TYPE>::Stack (const Stack& obj) :
-    data_     (nullptr),
-    size_cur_ (obj.size_cur_),
-    capacity_ (obj.capacity_),
-    name_     (obj.name_),
-    id_       (stack_id++),
-    errCode_  (STACK_OK)
+void Stack<TYPE>::dCopy (const Stack& obj)
 {
     STACK_ASSERTOK((capacity_ > MAX_CAPACITY),   STACK_WRONG_INPUT_CAPACITY_VALUE_BIG);
     STACK_ASSERTOK((capacity_ == 0),             STACK_WRONG_INPUT_CAPACITY_VALUE_NIL);
     STACK_ASSERTOK((stack_id == MAX_STACK_NUM),  STACK_TOO_MANY_STACKS);
+
+    size_cur_ = obj.size_cur_;
+    capacity_ = obj.capacity_;
 
     try
     {
@@ -67,6 +64,7 @@ Stack<TYPE>::Stack (const Stack& obj) :
     }
 
     for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
+    errCode_ = STACK_OK;
 
     STACK_CHECK;
 
@@ -80,18 +78,24 @@ Stack<TYPE>::~Stack ()
 {
     DUMP_PRINT{ Dump (__FUNC_NAME__); }
 
-    if ((errCode_ != STACK_DESTRUCTED) && (errCode_ != STACK_NOT_CONSTRUCTED))
+    if (errCode_ == STACK_NOT_CONSTRUCTED) {}
+
+    else if (errCode_ != STACK_DESTRUCTED)
     {
         size_cur_ = 0;
 
         fillPoison();
 
         delete [] data_;
+        data_  = nullptr;
 
         capacity_ = 0;
 
-        data_  = nullptr;
         errCode_ = STACK_DESTRUCTED;
+    }
+    else
+    {
+        STACK_ASSERTOK(STACK_DESTRUCTOR_REPEATED, STACK_DESTRUCTOR_REPEATED);
     }
 }
 
@@ -164,15 +168,6 @@ const TYPE& Stack<TYPE>::operator [] (size_t n) const
     STACK_ASSERTOK((n >= capacity_), STACK_MEM_ACCESS_VIOLATION);
     
     return data_[n];
-}
-//------------------------------------------------------------------------------
-
-template <typename TYPE>
-Stack<TYPE>& Stack<TYPE>::operator = (const Stack& obj)
-{
-    Stack<TYPE> ret(obj);
-
-    return ret;
 }
 
 //------------------------------------------------------------------------------

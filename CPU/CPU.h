@@ -138,6 +138,16 @@ public:
     CPU (char* filename);
 
 //------------------------------------------------------------------------------
+/*! @brief   Assembler copy constructor (deleted).
+ *
+ *  @param   obj         Source Assembler
+ */
+
+    CPU (const CPU& obj);
+
+    CPU& operator = (const CPU& obj); // deleted
+
+//------------------------------------------------------------------------------
 /*! @brief   CPU destructor.
  */
 

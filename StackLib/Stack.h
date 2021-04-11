@@ -103,12 +103,20 @@ public:
     Stack (char* stack_name, size_t capacity = DEFAULT_STACK_CAPACITY);
 
 //------------------------------------------------------------------------------
-/*! @brief   Stack copy constructor.
+/*! @brief   Stack copy constructor (deleted).
  *
  *  @param   obj         Source stack
  */
 
     Stack (const Stack& obj);
+
+//------------------------------------------------------------------------------
+/*! @brief   Stack deep copy constructor.
+ *
+ *  @param   obj         Source stack
+ */
+
+    void dCopy (const Stack& obj);
 
 //------------------------------------------------------------------------------
 /*! @brief   Stack destructor.
@@ -146,7 +154,7 @@ public:
 
     const TYPE& operator [] (size_t n) const;
 
-    Stack& operator = (const Stack& obj);
+    Stack& operator = (const Stack& obj); // deleted
 
 //------------------------------------------------------------------------------
 /*! @brief   Print the contents of the stack and its data to the logfile.

@@ -188,7 +188,7 @@ const int REG_NUM = sizeof(reg_names) / sizeof(reg_names[0]);
 
 //------------------------------------------------------------------------------
 
-static int isJUMP(char code)
+inline int isJUMP(char code)
 {
     return ( (code == CMD_JMP ) ||
              (code == CMD_JE  ) ||
@@ -202,7 +202,7 @@ static int isJUMP(char code)
 
 //------------------------------------------------------------------------------
 
-static int CompareCMD_Names(const void* p1, const void* p2)
+inline int CompareCMD_Names(const void* p1, const void* p2)
 {
     assert(p1 != nullptr);
     assert(p2 != nullptr);
@@ -215,7 +215,7 @@ static int CompareCMD_Names(const void* p1, const void* p2)
 
 //------------------------------------------------------------------------------
 
-static int CompareREG_Names(const void* p1, const void* p2)
+inline int CompareREG_Names(const void* p1, const void* p2)
 {
     assert(p1 != nullptr);
     assert(p2 != nullptr);

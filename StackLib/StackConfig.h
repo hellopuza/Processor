@@ -21,7 +21,6 @@
 
 #define CONSOLE_PRINT  if(1)
 
-
 #ifdef  NO_DUMP
 
     #define DUMP_PRINT if(0)
@@ -78,6 +77,7 @@ enum StackErrors
 
     STACK_CAPACITY_WRONG_VALUE                                      ,
     STACK_DESTRUCTED                                                ,
+    STACK_DESTRUCTOR_REPEATED                                       ,
     STACK_EMPTY_STACK                                               ,
     STACK_MEM_ACCESS_VIOLATION                                      ,
     STACK_NOT_CONSTRUCTED                                           ,
@@ -99,6 +99,7 @@ static const char* stk_errstr[] =
 
     "Bad size stack capacity"                                       ,
     "Stack already destructed"                                      ,
+    "Stack destructor repeated"                                     ,
     "Stack is empty"                                                ,
     "Memory access violation"                                       ,
     "Stack did not constructed, operation is impossible"            ,
