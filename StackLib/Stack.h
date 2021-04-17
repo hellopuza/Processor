@@ -15,10 +15,6 @@
 //#define NDEBUG
 
 
-#if defined(_WIN32)
-    #include <windows.h>
-#endif
-
 #include "StackConfig.h"
 #include <assert.h>
 #include <limits.h>
@@ -28,6 +24,10 @@
 #include <stdio.h>
 #include <time.h>
 #include <new>
+
+#ifdef HASH_PROTECT
+#include "hash.h"
+#endif // HASH_PROTECT
 
 
 #if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
@@ -82,8 +82,13 @@ private:
 
     TYPE* data_ = nullptr;
 
-    int errCode_;
     int id_ = 0;
+    int errCode_;
+
+#ifdef HASH_PROTECT
+    hash_t stackhash_ = 0;
+    hash_t datahash_  = 0;
+#endif // HASH_PROTECT
 
 public:
 
@@ -217,6 +222,18 @@ private:
  */
 
     void printError (const char* logname, const char* file, int line, const char* function, int err);
+
+//------------------------------------------------------------------------------
+/*! @brief   Calculates the size of the structure stack without hash and second canary.
+ *
+ *  @return  stack size for hash
+ */
+
+#ifdef HASH_PROTECT
+
+    size_t SizeForHash ();
+
+#endif // HASH_PROTECT
 
 //------------------------------------------------------------------------------
 };

@@ -37,6 +37,11 @@ Stack<TYPE>::Stack (char* stack_name, size_t capacity) :
 
     fillPoison();
 
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
+
     STACK_CHECK;
 
     DUMP_PRINT{ Dump(__FUNC_NAME__); }
@@ -66,6 +71,11 @@ void Stack<TYPE>::dCopy (const Stack& obj)
     for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
     errCode_ = STACK_OK;
 
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
+
     STACK_CHECK;
 
     DUMP_PRINT{ Dump(__FUNC_NAME__); }
@@ -91,6 +101,11 @@ Stack<TYPE>::~Stack ()
 
         capacity_ = 0;
 
+        #ifdef HASH_PROTECT
+            datahash_  = 0;
+            stackhash_ = 0;
+        #endif // HASH_PROTECT
+
         errCode_ = STACK_DESTRUCTED;
     }
     else
@@ -109,6 +124,11 @@ int Stack<TYPE>::Push (TYPE value)
     if (size_cur_ == capacity_ - 1) Expand();
 
     data_[size_cur_++] = value;
+
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
 
     STACK_CHECK;
 
@@ -130,12 +150,24 @@ TYPE Stack<TYPE>::Pop ()
     {
         DUMP_PRINT{ Dump (__FUNC_NAME__); }
 
+        #ifdef HASH_PROTECT
+            datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+            stackhash_ = hash(this, SizeForHash());
+        #endif // HASH_PROTECT
+
         return POISON<TYPE>;
     }
 
     TYPE value = data_[--size_cur_];
 
     data_[size_cur_] = POISON<TYPE>;
+
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
+
+    STACK_CHECK;
 
     DUMP_PRINT{ Dump (__FUNC_NAME__); }
 
@@ -286,6 +318,17 @@ int Stack<TYPE>::Dump (const char* funcname, const char* logfile)
     fprintf(fp, "\tCapacity           = %u\n",   capacity_);
     fprintf(fp, "\tCurrent size       = %u\n\n", size_cur_);
 
+#ifdef HASH_PROTECT
+    fprintf(fp, "\tStack hash         = " HASH_PRINT_FORMAT "\n",   stackhash_);
+    fprintf(fp, "\tData hash          = " HASH_PRINT_FORMAT "\n\n", datahash_);
+
+    if ((errCode_ != STACK_OK) && (errCode_ != STACK_EMPTY_STACK) && (errCode_ != STACK_NO_MEMORY))
+    {
+        fprintf(fp, "\tTrue stack hash    = " HASH_PRINT_FORMAT "\n",   hash(this, SizeForHash()));
+        fprintf(fp, "\tTrue data hash     = " HASH_PRINT_FORMAT "\n\n", hash(data_, capacity_ * sizeof(TYPE)));
+    }
+#endif // HASH_PROTECT
+
     fprintf(fp, "\tData [0x%p]\n", data_);
     fprintf(fp, "\t\t{\n");
 
@@ -318,45 +361,56 @@ int Stack<TYPE>::Check ()
         return STACK_NULL_STACK_PTR;
     }
 
-    if (errCode_ == STACK_NOT_CONSTRUCTED)
+    else if (errCode_ == STACK_NOT_CONSTRUCTED)
     {
         return STACK_NOT_CONSTRUCTED;
     }
 
-    if (errCode_ == STACK_DESTRUCTED)
+    else if (errCode_ == STACK_DESTRUCTED)
     {
         return STACK_DESTRUCTED;
     }
 
-    if (data_ == nullptr)
+#ifdef HASH_PROTECT
+    else if (stackhash_ != hash(this, SizeForHash()))
+    {
+        errCode_ = STACK_INCORRECT_HASH;
+    }
+#endif // HASH_PROTECT
+
+    else if (data_ == nullptr)
     {
         errCode_ = STACK_NULL_DATA_PTR;
-        return STACK_NULL_DATA_PTR;
     }
 
-    if (size_cur_ > capacity_)
+    else if (size_cur_ > capacity_)
     {
         errCode_ = STACK_SIZE_BIGGER_CAPACITY;
-        return STACK_SIZE_BIGGER_CAPACITY;
     }
 
-    if ((capacity_ == 0) || (capacity_ > MAX_CAPACITY))
+    else if ((capacity_ == 0) || (capacity_ > MAX_CAPACITY))
     {
         errCode_ = STACK_CAPACITY_WRONG_VALUE;
-        return STACK_CAPACITY_WRONG_VALUE;
     }
 
-    if (! isPOISON(data_[size_cur_]))
+    else if (! isPOISON(data_[size_cur_]))
     {
         errCode_ = STACK_WRONG_CUR_SIZE;
-        return STACK_WRONG_CUR_SIZE;
     }
+
+#ifdef HASH_PROTECT
+    else if (datahash_ != hash(data_, capacity_ * sizeof(TYPE)))
+    {
+        errCode_ = STACK_INCORRECT_HASH;
+    }
+#endif // HASH_PROTECT
 
     else
     {
         errCode_ = STACK_OK;
-        return STACK_OK;
     }
+
+    return errCode_;
 }
 
 //------------------------------------------------------------------------------
@@ -411,5 +465,27 @@ void Stack<TYPE>::printError (const char* logname, const char* file, int line, c
 
     fclose(log);
 }
+
+//------------------------------------------------------------------------------
+
+#ifdef HASH_PROTECT
+
+template <typename TYPE>
+size_t Stack<TYPE>::SizeForHash ()
+{
+    assert(this != nullptr);
+
+    size_t size = 0;
+
+    size += sizeof(name_);
+    size += sizeof(capacity_);
+    size += sizeof(size_cur_);
+    size += sizeof(data_);
+    size += sizeof(id_);
+
+    return size;
+}
+
+#endif // HASH_PROTECT
 
 //------------------------------------------------------------------------------

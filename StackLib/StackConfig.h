@@ -31,6 +31,12 @@
 
 #endif // NO_DUMP
 
+#ifndef NO_HASH
+
+    #define HASH_PROTECT
+
+#endif // NO_HASH
+
 
 static const char* stack_logname = "stack.log";
 
@@ -79,6 +85,7 @@ enum StackErrors
     STACK_DESTRUCTED                                                ,
     STACK_DESTRUCTOR_REPEATED                                       ,
     STACK_EMPTY_STACK                                               ,
+    STACK_INCORRECT_HASH                                            ,
     STACK_MEM_ACCESS_VIOLATION                                      ,
     STACK_NOT_CONSTRUCTED                                           ,
     STACK_NULL_DATA_PTR                                             ,
@@ -101,6 +108,7 @@ static const char* stk_errstr[] =
     "Stack already destructed"                                      ,
     "Stack destructor repeated"                                     ,
     "Stack is empty"                                                ,
+    "Stack cracked, hash corrupted"                                 ,
     "Memory access violation"                                       ,
     "Stack did not constructed, operation is impossible"            ,
     "The pointer to the stack is null, data lost"                   ,
