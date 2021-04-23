@@ -101,19 +101,6 @@ static const char* STRING_LOGNAME = "string.log";
 //==============================================================================
 
 
-#ifndef PTR_T
-
-    #define PTR_T
-    typedef size_t ptr_t;
-
-    #define POINTER_PRINT_FORMAT "%u"
-
-    #include <limits.h>
-    #define PTR_MAX UINT_MAX
-
-#endif // PTR_T
-
-
 struct Line
 {
     char*  str = nullptr;
@@ -193,7 +180,7 @@ public:
 
     char*  data_ = nullptr;
     size_t size_ = 0;
-    ptr_t  ptr_  = 0;
+    size_t ptr_  = 0;
 
 //------------------------------------------------------------------------------
 /*! @brief   BinCode constructor.
