@@ -233,7 +233,7 @@ public:
 //------------------------------------------------------------------------------
 /*! @brief   Assembler copy constructor (deleted).
  *
- *  @param   obj         Source Assembler
+ *  @param   obj         Source assembler
  */
 
     Assembler (const Assembler& obj);

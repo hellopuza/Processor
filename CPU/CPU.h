@@ -153,9 +153,9 @@ public:
     CPU (char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Assembler copy constructor (deleted).
+/*! @brief   CPU copy constructor (deleted).
  *
- *  @param   obj         Source Assembler
+ *  @param   obj         Source cpu
  */
 
     CPU (const CPU& obj);

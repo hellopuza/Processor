@@ -127,9 +127,9 @@ public:
     Labels ();
 
 //------------------------------------------------------------------------------
-/*! @brief   Assembler copy constructor (deleted).
+/*! @brief   Labels copy constructor (deleted).
  *
- *  @param   obj         Source Assembler
+ *  @param   obj         Source labels
  */
 
     Labels (const Labels& obj);
@@ -192,9 +192,9 @@ public:
     Disassembler (const char* filename);
 
 //------------------------------------------------------------------------------
-/*! @brief   Assembler copy constructor (deleted).
+/*! @brief   Disassmebler copy constructor (deleted).
  *
- *  @param   obj         Source Assembler
+ *  @param   obj         Source disassmebler
  */
 
     Disassembler (const Disassembler& obj);
