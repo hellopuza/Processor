@@ -15,6 +15,19 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
+
+#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
+    #define __FUNC_NAME__   __PRETTY_FUNCTION__
+
+#elif defined (_MSC_VER)
+    #define __FUNC_NAME__   __FUNCSIG__
+
+#else
+    #define __FUNC_NAME__   __FUNCTION__
+
+#endif
+
+
 #include <time.h>
 #include <assert.h>
 #include "../Commands.h"
@@ -68,17 +81,17 @@ static const char* dsm_errstr[] =
 
 static const char* DISASSEMBLER_LOGNAME = "disassembler.log";
 
-#define DSM_ASSERTOK(cond, err, p_dsm) if (cond)                                                                     \
-                                       {                                                                             \
-                                         DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                         if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME, err);                 \
-                                         exit(err); /**/                                                             \
+#define DSM_ASSERTOK(cond, err, p_dsm) if (cond)                                                                      \
+                                       {                                                                              \
+                                         DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
+                                         if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME, err);                  \
+                                         exit(err); /**/                                                              \
                                        }
 
-#define LABS_ASSERTOK(cond, err) if (cond)                                                                     \
-                                 {                                                                             \
-                                   DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                   exit(err); /**/                                                             \
+#define LABS_ASSERTOK(cond, err) if (cond)                                                                      \
+                                 {                                                                              \
+                                   DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
+                                   exit(err); /**/                                                              \
                                  }
 
 

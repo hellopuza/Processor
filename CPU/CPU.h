@@ -15,6 +15,19 @@
 #define _CRT_SECURE_NO_WARNINGS
 //#define NDEBUG
 
+
+#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
+    #define __FUNC_NAME__   __PRETTY_FUNCTION__
+
+#elif defined (_MSC_VER)
+    #define __FUNC_NAME__   __FUNCSIG__
+
+#else
+    #define __FUNC_NAME__   __FUNCTION__
+
+#endif
+
+
 #include "../TXLib.h"
 
 #include <assert.h>
@@ -88,14 +101,14 @@ static const char* cpu_errstr[] =
 
 static const char* CPU_LOGNAME = "cpu.log";
 
-#define CPU_ASSERTOK(cond, err, p_cpu) if (cond)                                                            \
-                                       {                                                                    \
-                                         CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                         if (p_cpu != nullptr) PrintCode(CPU_LOGNAME, err);                 \
-                                         stkCPU_INT_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
-                                         stkCPU_FLT_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
-                                         stkCPU_PTR_.Dump(__FUNCTION__, CPU_LOGNAME);                       \
-                                         exit(err); /**/                                                    \
+#define CPU_ASSERTOK(cond, err, p_cpu) if (cond)                                                             \
+                                       {                                                                     \
+                                         CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
+                                         if (p_cpu != nullptr) PrintCode(CPU_LOGNAME, err);                  \
+                                         stkCPU_INT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
+                                         stkCPU_FLT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
+                                         stkCPU_PTR_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
+                                         exit(err); /**/                                                     \
                                        }
 
 
