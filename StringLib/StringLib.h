@@ -15,18 +15,6 @@
 //#define NDEBUG
 
 
-#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
-    #define __FUNC_NAME__   __PRETTY_FUNCTION__
-
-#elif defined (_MSC_VER)
-    #define __FUNC_NAME__   __FUNCSIG__
-
-#else
-    #define __FUNC_NAME__   __FUNCTION__
-
-#endif
-
-
 #include <sys\stat.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -89,8 +77,8 @@ static const char* STRING_LOGNAME = "string.log";
 
 #define STR_ASSERTOK(cond, err)  if (cond)                                                                 \
                                  {                                                                         \
-                                   StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err);  \
-                                   exit(err); /**/                                                         \
+                                   StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
+                                   exit(err); /**/                                                       \
                                  }
 
 

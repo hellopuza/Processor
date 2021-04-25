@@ -119,9 +119,9 @@ static const char* CPU_LOGNAME = "cpu.log";
 //==============================================================================
 
 
-const double NIL                    = 1e-7;
-const size_t RAM_SIZE               = 2097152; // 2 MB
-const size_t PIXEL_SIZE             = 3;
+const double NIL        = 1e-7;
+const size_t RAM_SIZE   = 2097152; // 2 MB
+const size_t PIXEL_SIZE = 3;
 
 class CPU
 {

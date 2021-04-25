@@ -18,6 +18,18 @@
 #include <time.h>
 
 
+#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
+    #define __FUNC_NAME__   __PRETTY_FUNCTION__
+
+#elif defined (_MSC_VER)
+    #define __FUNC_NAME__   __FUNCSIG__
+
+#else
+    #define __FUNC_NAME__   __FUNCTION__
+
+#endif
+
+
 #define CONSOLE_PRINT  if(1)
 
 #ifdef  NO_DUMP
@@ -37,7 +49,7 @@
 #endif // NO_HASH
 
 
-static const char* stack_logname = "stack.log";
+static const char* STACK_LOGNAME = "stack.log";
 
 static const size_t MAX_STACK_NUM = 100;
 static const size_t MAX_CAPACITY  = 100000;
@@ -64,6 +76,7 @@ enum StackErrors
     STACK_WRONG_CUR_SIZE                                            ,
     STACK_WRONG_INPUT_CAPACITY_VALUE_BIG                            ,
     STACK_WRONG_INPUT_CAPACITY_VALUE_NIL                            ,
+    STACK_WRONG_INPUT_STACK_NAME                                    ,
 };
 
 static const char* stk_errstr[] =
@@ -87,6 +100,7 @@ static const char* stk_errstr[] =
     "Current size of stack data is wrong"                           ,
     "Wrong capacity value: - is too big"                            ,
     "Wrong capacity value: - is nil"                                ,
+    "Wrong input stack name"                                        ,
 };
 
 

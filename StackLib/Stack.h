@@ -30,39 +30,26 @@
 #endif // HASH_PROTECT
 
 
-#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
-    #define __FUNC_NAME__   __PRETTY_FUNCTION__
-
-#elif defined (_MSC_VER)
-    #define __FUNC_NAME__   __FUNCSIG__
-
-#else
-    #define __FUNC_NAME__   __FUNCTION__
-
-#endif
-
-
 #define STACK_CHECK if (Check ())                                                                                      \
                     {                                                                                                  \
-                      FILE* log = fopen(stack_logname, "a");                                                           \
+                      FILE* log = fopen(STACK_LOGNAME, "a");                                                           \
                       assert (log != nullptr);                                                                         \
                       fprintf(log, "ERROR: file %s  line %d  function \"%s\"\n\n", __FILE__, __LINE__, __FUNC_NAME__); \
                       printf (     "ERROR: file %s  line %d  function \"%s\"\n",   __FILE__, __LINE__, __FUNC_NAME__); \
                       fclose(log);                                                                                     \
-                      Dump( __FUNC_NAME__, stack_logname);                                                             \
+                      Dump( __FUNC_NAME__, STACK_LOGNAME);                                                             \
                       exit(errCode_); /**/                                                                             \
                     }
 
 
 #define STACK_ASSERTOK(cond, err) if (cond)                                                              \
                                   {                                                                      \
-                                    printError (stack_logname , __FILE__, __LINE__, __FUNC_NAME__, err); \
+                                    printError (STACK_LOGNAME , __FILE__, __LINE__, __FUNC_NAME__, err); \
                                     exit(err); /**/                                                      \
                                   }
 
 const size_t DEFAULT_STACK_CAPACITY = 8;
 static int   stack_id   = 0;
-static char* stack_name = nullptr;
 
 #define newStack_size(NAME, capacity, STK_TYPE) \
         Stack<STK_TYPE> NAME ((char*)#NAME, capacity);
@@ -170,7 +157,7 @@ public:
  *  @return  error code
  */
 
-    int Dump (const char* funcname = nullptr, const char* logfile = stack_logname);
+    int Dump (const char* funcname = nullptr, const char* logfile = STACK_LOGNAME);
 
 /*------------------------------------------------------------------------------
                    Private functions                                           *
@@ -184,8 +171,8 @@ private:
 
     void fillPoison ();
 
- //------------------------------------------------------------------------------
- /*! @brief   Increase the stack by 2 times.
+//------------------------------------------------------------------------------
+/*! @brief   Increase the stack by 2 times.
  *
  *  @return  error code
  */
@@ -210,19 +197,6 @@ private:
 
     void ErrorPrint (FILE * fp);
 
- //------------------------------------------------------------------------------
-/*! @brief   Print error explanations to log file and to console.
- *
- *  @param   logname     Name of the log file
- *  @param   file        Name of the file from which this function was called
- *  @param   line        Line of the code from which this function was called
- *  @param   function    Name of the function from which this function was called
- *
- *  @return  error code
- */
-
-    void printError (const char* logname, const char* file, int line, const char* function, int err);
-
 //------------------------------------------------------------------------------
 /*! @brief   Calculates the size of the structure stack without hash and second canary.
  *
@@ -239,15 +213,17 @@ private:
 };
 
 //------------------------------------------------------------------------------
-/*! @brief   Check if value is POISON.
+/*! @brief   Print error explanations to log file and to console.
  *
- *  @param   value       Value to be checked
+ *  @param   logname     Name of the log file
+ *  @param   file        Name of the file from which this function was called
+ *  @param   line        Line of the code from which this function was called
+ *  @param   function    Name of the function from which this function was called
  *
- *  @return 1 if value is POISON, else 0
+ *  @return  error code
  */
 
-template <typename TYPE>
-int isPOISON (TYPE value);
+static void printError (const char* logname, const char* file, int line, const char* function, int err);
 
 //------------------------------------------------------------------------------
 

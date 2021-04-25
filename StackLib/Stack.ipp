@@ -24,6 +24,7 @@ Stack<TYPE>::Stack (char* stack_name, size_t capacity) :
 {
     STACK_ASSERTOK((capacity > MAX_CAPACITY),   STACK_WRONG_INPUT_CAPACITY_VALUE_BIG);
     STACK_ASSERTOK((capacity == 0),             STACK_WRONG_INPUT_CAPACITY_VALUE_NIL);
+    STACK_ASSERTOK((stack_name == nullptr),     STACK_WRONG_INPUT_STACK_NAME);
     STACK_ASSERTOK((stack_id == MAX_STACK_NUM), STACK_TOO_MANY_STACKS);
 
     try
@@ -215,22 +216,6 @@ void Stack<TYPE>::fillPoison ()
     {
         data_[i] = POISON<TYPE>;
     }
-}
-
-//------------------------------------------------------------------------------
-
-template <typename TYPE>
-int isPOISON (TYPE value)
-{
-    if (value == POISON<TYPE>) return 1;
-
-    if (isnan(*(double*)&POISON<TYPE>))
-        if (isnan(*(double*)&value))
-            return 1;
-        else
-            return 0;
-
-    return (value == POISON<TYPE>);
 }
 
 //------------------------------------------------------------------------------
@@ -435,8 +420,7 @@ void Stack<TYPE>::ErrorPrint (FILE* fp)
 
 //------------------------------------------------------------------------------
 
-template <typename TYPE>
-void Stack<TYPE>::printError (const char* logname, const char* file, int line, const char* function, int err)
+static void printError (const char* logname, const char* file, int line, const char* function, int err)
 {
     assert(function != nullptr);
     assert(logname  != nullptr);
