@@ -104,7 +104,7 @@ static const char* CPU_LOGNAME = "cpu.log";
 #define CPU_ASSERTOK(cond, err, p_cpu) if (cond)                                                             \
                                        {                                                                     \
                                          CPUPrintError(CPU_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                         if (p_cpu != nullptr) PrintCode(CPU_LOGNAME, err);                  \
+                                         if (p_cpu != nullptr) PrintCode(CPU_LOGNAME);                       \
                                          stkCPU_INT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
                                          stkCPU_FLT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
                                          stkCPU_PTR_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
@@ -224,10 +224,9 @@ private:
 /*! @brief   Prints a section of code with an error to the console and to the log file.
  * 
  *  @param   logname     Name of the log file
- *  @param   err         Error code
  */
 
-    void PrintCode (const char* logname, int err);
+    void PrintCode (const char* logname);
 
 //------------------------------------------------------------------------------
 };

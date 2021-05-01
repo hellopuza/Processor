@@ -614,7 +614,7 @@ void CPU::Pop2FloatNumbers(FLT_TYPE* num1, FLT_TYPE* num2)
 
 //------------------------------------------------------------------------------
 
-void CPU::PrintCode (const char* logname, int err)
+void CPU::PrintCode (const char* logname)
 {
     assert(logname != nullptr);
 

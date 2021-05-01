@@ -309,7 +309,7 @@ void Disassembler::writeCode (Text* text, BinCode* bcode, size_t line, size_t po
 
 //------------------------------------------------------------------------------
 
-void Disassembler::PrintCode (const char* logname, int err)
+void Disassembler::PrintCode (const char* logname)
 {
     assert(logname != nullptr);
 

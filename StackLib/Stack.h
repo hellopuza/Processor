@@ -142,6 +142,14 @@ public:
 
     size_t getSize() const;
 
+//------------------------------------------------------------------------------
+/*! @brief   Get name of the stack.
+ *
+ *  @return  stack name
+ */
+
+    const char* getName() const;
+
     TYPE& operator [] (size_t n);
 
     const TYPE& operator [] (size_t n) const;
@@ -180,7 +188,7 @@ private:
     int Expand ();
 
 //------------------------------------------------------------------------------
-/*! @brief   Check stack for problems, canaries, hash (if enabled).
+/*! @brief   Check stack for problems and hash (if enabled).
  *
  *  @return  error code
  */

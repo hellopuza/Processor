@@ -232,14 +232,14 @@ char* GetTrueFileName (char* filename)
 
     int ptr_end = strlen(filename) - 1;
 
-    for (int i = 0; i < strlen(filename); ++i)
+    for (int i = ptr_end; i > -1; --i)
     {
-        if (filename[ptr_end - i] == '.')
-            filename[ptr_end - i] = '\0';
+        if (filename[i] == '.')
+            filename[i] = '\0';
         else
-        if ((filename[ptr_end - i] == '/') ||
-            (filename[ptr_end - i] == '\\'))
-            return filename + ptr_end - i + 1;
+        if ((filename[i] == '/') ||
+            (filename[i] == '\\'))
+            return filename + i + 1;
     }
 
     return filename;

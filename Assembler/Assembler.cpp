@@ -452,7 +452,7 @@ int Assembler::LabelRedefine ()
 
 //------------------------------------------------------------------------------
 
-void Assembler::PrintCode (size_t line, const char* logname, int err)
+void Assembler::PrintCode (size_t line, const char* logname)
 {
     assert(logname != nullptr);
 

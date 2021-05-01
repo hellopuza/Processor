@@ -84,7 +84,7 @@ static const char* DISASSEMBLER_LOGNAME = "disassembler.log";
 #define DSM_ASSERTOK(cond, err, p_dsm) if (cond)                                                                      \
                                        {                                                                              \
                                          DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                         if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME, err);                  \
+                                         if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME);                       \
                                          exit(err); /**/                                                              \
                                        }
 
@@ -286,10 +286,9 @@ private:
 /*! @brief   Prints a section of code with an error to the console and to the log file.
  *
  *  @param   logname     Name of the log file
- *  @param   err         Error code
  */
 
-    void PrintCode (const char* logname, int err);
+    void PrintCode (const char* logname);
 
 //------------------------------------------------------------------------------
 };

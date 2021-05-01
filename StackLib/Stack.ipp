@@ -186,6 +186,14 @@ size_t Stack<TYPE>::getSize() const
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
+const char* Stack<TYPE>::getName() const
+{
+    return name_;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename TYPE>
 TYPE& Stack<TYPE>::operator [] (size_t n)
 {
     STACK_ASSERTOK((n >= capacity_), STACK_MEM_ACCESS_VIOLATION);
@@ -429,8 +437,6 @@ static void printError (const char* logname, const char* file, int line, const c
     FILE* log = fopen(logname, "a");
     assert(log != nullptr);
 
-    fprintf(log, "********************************************************************************\n");
-
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     fprintf(log, "TIME: %d-%02d-%02d %02d:%02d:%02d\n\n",
@@ -446,6 +452,8 @@ static void printError (const char* logname, const char* file, int line, const c
 
     printf("ERROR: file %s  line %d  function %s\n", file, line, function);
     printf("%s\n\n", stk_errstr[err + 1]);
+
+    fprintf(log, "********************************************************************************\n");
 
     fclose(log);
 }

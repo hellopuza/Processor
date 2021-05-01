@@ -106,7 +106,7 @@ static const char* ASSEMBLER_LOGNAME = "assembler.log";
 #define ASM_ASSERTOK(cond, err, line) if (cond)                                                                   \
                                       {                                                                           \
                                         AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                        if (line > -1) PrintCode(line, ASSEMBLER_LOGNAME, err);                   \
+                                        if (line > -1) PrintCode(line, ASSEMBLER_LOGNAME);                        \
                                         exit(err); /**/                                                           \
                                       }
 
@@ -412,10 +412,9 @@ private:
  *
  *  @param   line        Number of line with an error
  *  @param   logname     Name of the log file
- *  @param   err         Error code
  */
 
-    void PrintCode (size_t line, const char* logname, int err);
+    void PrintCode (size_t line, const char* logname);
 
 //------------------------------------------------------------------------------
 };
