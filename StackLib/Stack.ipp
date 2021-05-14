@@ -51,14 +51,15 @@ Stack<TYPE>::Stack (char* stack_name, size_t capacity) :
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
-void Stack<TYPE>::dCopy (const Stack& obj)
+Stack<TYPE>::Stack (const Stack& obj) :
+    size_cur_ (obj.size_cur_),
+    capacity_ (obj.capacity_),
+    id_       (stack_id++),
+    errCode_  (STACK_OK)
 {
-    STACK_ASSERTOK((capacity_ > MAX_CAPACITY),   STACK_WRONG_INPUT_CAPACITY_VALUE_BIG);
-    STACK_ASSERTOK((capacity_ == 0),             STACK_WRONG_INPUT_CAPACITY_VALUE_NIL);
-    STACK_ASSERTOK((stack_id == MAX_STACK_NUM),  STACK_TOO_MANY_STACKS);
-
-    size_cur_ = obj.size_cur_;
-    capacity_ = obj.capacity_;
+    STACK_ASSERTOK((capacity_ > MAX_CAPACITY),  STACK_WRONG_INPUT_CAPACITY_VALUE_BIG);
+    STACK_ASSERTOK((capacity_ == 0),            STACK_WRONG_INPUT_CAPACITY_VALUE_NIL);
+    STACK_ASSERTOK((stack_id == MAX_STACK_NUM), STACK_TOO_MANY_STACKS);
 
     try
     {
@@ -70,7 +71,6 @@ void Stack<TYPE>::dCopy (const Stack& obj)
     }
 
     for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
-    errCode_ = STACK_OK;
 
 #ifdef HASH_PROTECT
     datahash_  = hash(data_, capacity_ * sizeof(TYPE));
@@ -85,13 +85,48 @@ void Stack<TYPE>::dCopy (const Stack& obj)
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
+Stack<TYPE>& Stack<TYPE>::operator = (const Stack& obj)
+{
+    STACK_ASSERTOK((obj.capacity_ > MAX_CAPACITY), STACK_WRONG_INPUT_CAPACITY_VALUE_BIG);
+    STACK_ASSERTOK((obj.capacity_ == 0),           STACK_WRONG_INPUT_CAPACITY_VALUE_NIL);
+
+    size_cur_ = obj.size_cur_;
+    capacity_ = obj.capacity_;
+    errCode_  = STACK_OK;
+
+    try
+    {
+        data_ = new TYPE[capacity_];
+    }
+    catch (std::bad_alloc& err)
+    {
+        STACK_ASSERTOK(STACK_NO_MEMORY, STACK_NO_MEMORY);
+    }
+
+    for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
+
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
+
+    STACK_CHECK;
+
+    DUMP_PRINT{ Dump(__FUNC_NAME__); }
+
+    return *this;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename TYPE>
 Stack<TYPE>::~Stack ()
 {
+    if (errCode_ == STACK_NOT_CONSTRUCTED) return;
+
     DUMP_PRINT{ Dump (__FUNC_NAME__); }
 
-    if (errCode_ == STACK_NOT_CONSTRUCTED) {}
-
-    else if (errCode_ != STACK_DESTRUCTED)
+    if (errCode_ != STACK_DESTRUCTED)
     {
         size_cur_ = 0;
 
@@ -189,6 +224,14 @@ template <typename TYPE>
 const char* Stack<TYPE>::getName() const
 {
     return name_;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename TYPE>
+void Stack<TYPE>::setName(char* name)
+{
+    name_ = name;
 }
 
 //------------------------------------------------------------------------------

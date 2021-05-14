@@ -66,14 +66,11 @@
  *  @param   src         Source variable
  */
 
-    template <typename TYPE>
-    void copyType (TYPE& dst, TYPE& src)
-    {
-        if constexpr (std::is_same<TYPE, char*>::value)
-            strcpy(dst, src);
-        else
-            dst = src;
-    }
+    #define copyType(dst, src)                              \
+            if constexpr (std::is_same<TYPE, char*>::value) \
+                strcpy(dst, src);                           \
+            else                                            \
+                dst = src;                                  \
 
 //------------------------------------------------------------------------------
 
