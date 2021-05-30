@@ -70,7 +70,7 @@ Stack<TYPE>::Stack (const Stack& obj) :
         STACK_ASSERTOK(STACK_NO_MEMORY, STACK_NO_MEMORY);
     }
 
-    for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
+    for (int i = 0; i < capacity_; ++i) copyType(data_[i], obj.data_[i]);
 
 #ifdef HASH_PROTECT
     datahash_  = hash(data_, capacity_ * sizeof(TYPE));
@@ -103,7 +103,7 @@ Stack<TYPE>& Stack<TYPE>::operator = (const Stack& obj)
         STACK_ASSERTOK(STACK_NO_MEMORY, STACK_NO_MEMORY);
     }
 
-    for (int i = 0; i < capacity_; ++i) data_[i] = obj.data_[i];
+    for (int i = 0; i < capacity_; ++i) copyType(data_[i], obj.data_[i]);
 
 #ifdef HASH_PROTECT
     datahash_  = hash(data_, capacity_ * sizeof(TYPE));
@@ -213,7 +213,41 @@ TYPE Stack<TYPE>::Pop ()
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
-size_t Stack<TYPE>::getSize() const
+void Stack<TYPE>::Clean ()
+{
+    STACK_CHECK;
+
+    size_cur_ = 0;
+    fillPoison();
+    delete [] data_;
+
+    capacity_ = DEFAULT_STACK_CAPACITY;
+
+    try
+    {
+        data_ = new TYPE[capacity_];
+    }
+    catch (std::bad_alloc& err)
+    {
+        STACK_ASSERTOK(STACK_NO_MEMORY, STACK_NO_MEMORY);
+    }
+
+    fillPoison();
+
+#ifdef HASH_PROTECT
+    datahash_  = hash(data_, capacity_ * sizeof(TYPE));
+    stackhash_ = hash(this, SizeForHash());
+#endif // HASH_PROTECT
+
+    STACK_CHECK;
+
+    DUMP_PRINT{ Dump (__FUNC_NAME__); }
+}
+
+//------------------------------------------------------------------------------
+
+template <typename TYPE>
+size_t Stack<TYPE>::getSize () const
 {
     return size_cur_;
 }
@@ -221,7 +255,7 @@ size_t Stack<TYPE>::getSize() const
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
-const char* Stack<TYPE>::getName() const
+const char* Stack<TYPE>::getName () const
 {
     return name_;
 }
@@ -229,7 +263,7 @@ const char* Stack<TYPE>::getName() const
 //------------------------------------------------------------------------------
 
 template <typename TYPE>
-void Stack<TYPE>::setName(char* name)
+void Stack<TYPE>::setName (char* name)
 {
     name_ = name;
 }
@@ -372,9 +406,9 @@ int Stack<TYPE>::Dump (const char* funcname, const char* logfile)
     {
         char ispois = isPOISON(data_[i]);
 
-        fprintf(fp, "\t\t%s[%d]: ", (ispois) ? " ": "*", i);
-        fprintf(fp, PRINT_FORMAT<TYPE>, data_[i]);
-        fprintf(fp, "%s\n", (ispois) ? " (POISON)": "");
+        fprintf(fp, "\t\t%s[%d]: [", (ispois) ? " ": "*", i);
+        TypePrint(fp, data_[i]);
+        fprintf(fp, "]%s\n", (ispois) ? " (POISON)": "");
     }
 
     fprintf(fp, "\t\t}\n");

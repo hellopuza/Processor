@@ -301,10 +301,34 @@ size_t GetWordsNum (Line line);
  *  @param   str         C string
  *  @param   c           Character to be counted
  *
- *  @return  number of words
+ *  @return  number of characters
  */
 
 size_t chrcnt (char* str, char c);
+
+//------------------------------------------------------------------------------
+/*! @brief   Delete spaces and other non-visible characters in string.
+ *
+ *  @param   str         C string
+ */
+
+void del_spaces (char* str);
+
+//------------------------------------------------------------------------------
+/*! @brief   Convert each character to uppercase in string.
+ *
+ *  @param   str         C string
+ */
+
+void str_touppper(char* str);
+
+//------------------------------------------------------------------------------
+/*! @brief   Convert each character to lowercase in string.
+ *
+ *  @param   str         C string
+ */
+
+void str_tolower(char* str);
 
 //------------------------------------------------------------------------------
 /*! @brief   Compare two lines from left alphabetically using standart strcmp.

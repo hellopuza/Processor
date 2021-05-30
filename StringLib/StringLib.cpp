@@ -376,6 +376,49 @@ size_t chrcnt (char* str, char c)
 
 //------------------------------------------------------------------------------
 
+void del_spaces (char* str)
+{
+    char* to_write = str;
+    char* to_check = str;
+
+    while (*to_check != '\0')
+    {
+        if (not isspace(*to_check))
+        {
+            *to_write = *to_check;
+            ++to_write;
+        }
+
+        ++to_check;
+    }
+
+    *to_write = '\0';
+}
+
+//------------------------------------------------------------------------------
+
+void str_touppper(char* str)
+{
+    while (*str != '\0')
+    {
+        *str = toupper(*str);
+        ++str;
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void str_tolower(char* str)
+{
+    while (*str != '\0')
+    {
+        *str = tolower(*str);
+        ++str;
+    }
+}
+
+//------------------------------------------------------------------------------
+
 int CompareLines (const void* p1, const void* p2)
 {
     assert(p1 != nullptr);

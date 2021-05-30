@@ -134,7 +134,7 @@ public:
  *  @return  stack data size
  */
 
-    size_t getSize() const;
+    size_t getSize () const;
 
 //------------------------------------------------------------------------------
 /*! @brief   Get name of the stack.
@@ -142,7 +142,7 @@ public:
  *  @return  stack name
  */
 
-    const char* getName() const;
+    const char* getName () const;
 
 //------------------------------------------------------------------------------
 /*! @brief   Get name of the stack.
@@ -150,11 +150,17 @@ public:
  *  @param   name        Stack name
  */
 
-    void setName(char* name);
+    void setName (char* name);
 
     TYPE& operator [] (size_t n);
 
     const TYPE& operator [] (size_t n) const;
+
+//------------------------------------------------------------------------------
+/*! @brief   Clean stack.
+ */
+
+    void Clean ();
 
 //------------------------------------------------------------------------------
 /*! @brief   Print the contents of the stack and its data to the logfile.

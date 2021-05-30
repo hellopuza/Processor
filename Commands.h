@@ -1,6 +1,6 @@
 /*------------------------------------------------------------------------------
     * File:        Commands.h                                                  *
-    * Description: Names of commands, registers and their codes                *
+    * Description: Names of commands, registers and their codes.               *
     * Created:     7 feb 2021                                                  *
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
@@ -202,7 +202,7 @@ inline int isJUMP(char code)
 
 //------------------------------------------------------------------------------
 
-inline int CompareCMD_Names(const void* p1, const void* p2)
+inline int CompareCMD_Names (const void* p1, const void* p2)
 {
     assert(p1 != nullptr);
     assert(p2 != nullptr);
@@ -215,7 +215,7 @@ inline int CompareCMD_Names(const void* p1, const void* p2)
 
 //------------------------------------------------------------------------------
 
-inline int CompareREG_Names(const void* p1, const void* p2)
+inline int CompareREG_Names (const void* p1, const void* p2)
 {
     assert(p1 != nullptr);
     assert(p2 != nullptr);
