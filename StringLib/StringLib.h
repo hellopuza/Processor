@@ -75,11 +75,11 @@ static const char* str_errstr[] =
 
 static const char* STRING_LOGNAME = "string.log";
 
-#define STR_ASSERTOK(cond, err)  if (cond)                                                                 \
-                                 {                                                                         \
+#define STR_ASSERTOK(cond, err)  if (cond)                                                               \
+                                 {                                                                       \
                                    StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                   exit(err); /**/                                                       \
-                                 }
+                                   exit(err);                                                            \
+                                 } //
 
 
 //==============================================================================

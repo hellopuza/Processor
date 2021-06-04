@@ -38,15 +38,15 @@
                       printf (     "ERROR: file %s  line %d  function \"%s\"\n",   __FILE__, __LINE__, __FUNC_NAME__); \
                       fclose(log);                                                                                     \
                       Dump( __FUNC_NAME__, STACK_LOGNAME);                                                             \
-                      exit(errCode_); /**/                                                                             \
-                    }
+                      exit(errCode_);                                                                                  \
+                    } //
 
 
 #define STACK_ASSERTOK(cond, err) if (cond)                                                              \
                                   {                                                                      \
                                     printError (STACK_LOGNAME , __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                    exit(err); /**/                                                      \
-                                  }
+                                    exit(err);                                                           \
+                                  } //
 
 const size_t DEFAULT_STACK_CAPACITY = 8;
 static int   stack_id   = 0;

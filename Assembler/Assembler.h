@@ -107,14 +107,14 @@ static const char* ASSEMBLER_LOGNAME = "assembler.log";
                                       {                                                                           \
                                         AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
                                         if (line > -1) PrintCode(line, ASSEMBLER_LOGNAME);                        \
-                                        exit(err); /**/                                                           \
-                                      }
+                                        exit(err);                                                                \
+                                      } //
 
 #define LABS_ASSERTOK(cond, err) if (cond)                                                                   \
                                  {                                                                           \
                                    AsmPrintError(ASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                   exit(err); /**/                                                           \
-                                 }
+                                   exit(err);                                                                \
+                                 } //
 
 
 //==============================================================================

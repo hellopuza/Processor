@@ -85,14 +85,14 @@ static const char* DISASSEMBLER_LOGNAME = "disassembler.log";
                                        {                                                                              \
                                          DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
                                          if (p_dsm != nullptr) PrintCode(DISASSEMBLER_LOGNAME);                       \
-                                         exit(err); /**/                                                              \
-                                       }
+                                         exit(err);                                                                   \
+                                       } //
 
 #define LABS_ASSERTOK(cond, err) if (cond)                                                                      \
                                  {                                                                              \
                                    DsmPrintError(DISASSEMBLER_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
-                                   exit(err); /**/                                                              \
-                                 }
+                                   exit(err);                                                                   \
+                                 } //
 
 
 //==============================================================================

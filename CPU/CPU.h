@@ -108,8 +108,8 @@ static const char* CPU_LOGNAME = "cpu.log";
                                          stkCPU_INT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
                                          stkCPU_FLT_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
                                          stkCPU_PTR_.Dump(__FUNC_NAME__, CPU_LOGNAME);                       \
-                                         exit(err); /**/                                                     \
-                                       }
+                                         exit(err);                                                          \
+                                       } //
 
 
 //==============================================================================
