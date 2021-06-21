@@ -9,7 +9,7 @@ EXECUTABLE = .bin/asm
 
 all: $(SOURCES) $(EXECUTABLE) clean
 
-$(EXECUTABLE): $(OBJECTS) 
+$(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 
 .cpp.o:
