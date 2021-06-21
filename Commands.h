@@ -5,27 +5,20 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <limits.h>
 
-#ifndef PTR_T
-
-    #define PTR_T
-    typedef size_t ptr_t;
-
-    #define POINTER_PRINT_FORMAT "%u"
-
-    #include <limits.h>
-    #define PTR_MAX UINT_MAX
-
-#endif // PTR_T
-
+typedef unsigned int ptr_t;
+#define POINTER_PRINT_FORMAT "%u"
+#define PTR_MAX UINT_MAX
 
 #define INT_TYPE int
 #define FLT_TYPE double
@@ -33,7 +26,7 @@
 #define INT_PRINT_FORMAT "%d"
 #define FLT_PRINT_FORMAT "%lf"
 
-#define PTR_TYPE ptr_t
+#define PTR_TYPE unsigned int
 
 const size_t POINTER_SIZE     = sizeof(PTR_TYPE);
 const size_t NUMBER_INT_SIZE  = sizeof(INT_TYPE);

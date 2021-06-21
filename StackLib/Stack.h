@@ -5,14 +5,13 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef STACK_H_INCLUDED
 #define STACK_H_INCLUDED
 
 #define _CRT_SECURE_NO_WARNINGS
-//#define NDEBUG
 
 
 #include "StackConfig.h"
@@ -233,8 +232,7 @@ private:
  *  @param   file        Name of the file from which this function was called
  *  @param   line        Line of the code from which this function was called
  *  @param   function    Name of the function from which this function was called
- *
- *  @return  error code
+ *  @param   err         Error code
  */
 
 static void printError (const char* logname, const char* file, int line, const char* function, int err);

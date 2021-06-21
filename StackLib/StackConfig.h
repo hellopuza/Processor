@@ -6,7 +6,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef STACK_CONFIG_H_INCLUDED
@@ -20,15 +20,17 @@
 
 #if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
     #define __FUNC_NAME__   __PRETTY_FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #elif defined (_MSC_VER)
     #define __FUNC_NAME__   __FUNCSIG__
+    #define PRINT_PTR       "0x%p"
 
 #else
     #define __FUNC_NAME__   __FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #endif
-
 
 #define CONSOLE_PRINT  if(1)
 

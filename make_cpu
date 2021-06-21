@@ -1,0 +1,22 @@
+####
+
+CC = g++
+CFLAGS = -c -O3 -std=c++17
+LDFLAGS =
+LIBS = -lsfml-system -lsfml-graphics -lsfml-window
+SOURCES = StringLib/StringLib.cpp CPU/CPU.cpp CPU/main.cpp
+OBJECTS = $(SOURCES:.cpp=.o)
+EXECUTABLE = .bin/cpu
+
+all: $(SOURCES) $(EXECUTABLE) clean
+
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+clean:
+	rm $(OBJECTS)
+
+

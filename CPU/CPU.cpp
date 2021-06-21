@@ -5,7 +5,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "CPU.h"
@@ -25,7 +25,7 @@ CPU::CPU (char* filename) :
         registers_[i] = POISON<FLT_TYPE>;
     }
 
-    RAM_ = (char*)calloc(RAM_SIZE, 1);
+    RAM_ = new char[RAM_SIZE] {};
     CPU_ASSERTOK((RAM_ == nullptr), CPU_NO_MEMORY, nullptr);
 }
 
@@ -36,14 +36,12 @@ CPU::~CPU ()
     CPU_ASSERTOK((this == nullptr),          CPU_NULL_INPUT_CPU_PTR, nullptr);
     CPU_ASSERTOK((state_ == CPU_DESTRUCTED), CPU_DESTRUCTED,         nullptr);
 
-    bcode_.~BinCode();
-
     for (int i = 0; i < REG_NUM; ++i)
     {
         registers_[i] = POISON<FLT_TYPE>;
     }
 
-    free(RAM_);
+    delete [] RAM_;
 
     state_ = CPU_DESTRUCTED;
 }
@@ -60,7 +58,6 @@ int CPU::Execute ()
 
     int width  = 0;
     int height = 0;
-    char pictname[30] = "";
 
     PTR_TYPE ptr = POISON<PTR_TYPE>;
 
@@ -70,10 +67,11 @@ int CPU::Execute ()
     FLT_TYPE num_flt1 = POISON<FLT_TYPE>;
     FLT_TYPE num_flt2 = POISON<FLT_TYPE>;
 
+    sf::RenderWindow* window  = nullptr;
+
     while (bcode_.ptr_ < bcode_.size_)
     {
         char cond = 0;
-        char scrnumstr[5] = "";
 
         unsigned char cmd_code = bcode_.data_[bcode_.ptr_++];
 
@@ -143,7 +141,7 @@ int CPU::Execute ()
             CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, this);
             CPU_ASSERTOK(isPOISON(registers_[reg_code - 1]), CPU_EMPTY_REGISTER, this);
 
-            ptr = (PTR_TYPE)(int)registers_[reg_code - 1];
+            ptr = (PTR_TYPE)(long long int)registers_[reg_code - 1];
             CPU_ASSERTOK((isPOISON(ptr)), CPU_EMPTY_REGISTER, this);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, this);
 
@@ -163,7 +161,7 @@ int CPU::Execute ()
             CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, this);
             CPU_ASSERTOK(isPOISON(registers_[reg_code - 1]), CPU_EMPTY_REGISTER, this);
 
-            ptr = (PTR_TYPE)(int)registers_[reg_code - 1];
+            ptr = (PTR_TYPE)(long long int)registers_[reg_code - 1];
             CPU_ASSERTOK((isPOISON(ptr)), CPU_EMPTY_REGISTER, this);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, this);
             
@@ -237,7 +235,7 @@ int CPU::Execute ()
             reg_code = bcode_.data_[bcode_.ptr_++];
             CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, this);
 
-            ptr = (PTR_TYPE)(int)registers_[reg_code - 1];
+            ptr = (PTR_TYPE)(long long int)registers_[reg_code - 1];
             CPU_ASSERTOK((isPOISON(ptr)), CPU_EMPTY_REGISTER, this);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, this);
 
@@ -261,7 +259,7 @@ int CPU::Execute ()
             reg_code = bcode_.data_[bcode_.ptr_++];
             CPU_ASSERTOK(((reg_code > REG_NUM) || (reg_code == 0)), CPU_UNIDENTIFIED_REGISTER, this);
 
-            ptr = (PTR_TYPE)(int)registers_[reg_code - 1];
+            ptr = (PTR_TYPE)(long long int)registers_[reg_code - 1];
             CPU_ASSERTOK((isPOISON(ptr)), CPU_EMPTY_REGISTER, this);
             CPU_ASSERTOK((ptr >= RAM_SIZE), CPU_WRONG_ADDR, this);
 
@@ -345,7 +343,7 @@ int CPU::Execute ()
 
             printf("OUT: ");
             if (cmd_code == (CMD_OUT | REG_FLAG))
-                printf(PRINT_FORMAT<INT_TYPE>, registers_[reg_code - 1]);
+                printf(PRINT_FORMAT<INT_TYPE>, (int)registers_[reg_code - 1]);
             else
             if (cmd_code == (CMD_OUTQ | REG_FLAG))
                 printf(PRINT_FORMAT<FLT_TYPE>, registers_[reg_code - 1]);
@@ -509,7 +507,7 @@ int CPU::Execute ()
             break;
 
         case CMD_SCREEN:
-
+        {
             CPU_ASSERTOK((bcode_.size_ - bcode_.ptr_ < 1), CPU_NO_SPACE_FOR_REGISTER, this);
 
             reg_code = bcode_.data_[bcode_.ptr_++];
@@ -528,31 +526,9 @@ int CPU::Execute ()
             CPU_ASSERTOK(((width <= 0) || (height <= 0)), CPU_INCORRECT_WINDOW_SIZES, this);
             CPU_ASSERTOK((ptr + width * height * PIXEL_SIZE > RAM_SIZE), CPU_NO_VIDEO_MEMORY, this);
 
-            if (screens_num_ == 0)
-            {
-                txCreateWindow(width, height);
-                filename_ = GetTrueFileName(filename_);
-            }
-
-            for (int y = 0; y < height; ++y)
-            for (int x = 0; x < width;  ++x)
-            {
-                txSetPixel(x, y, RGB(RAM_[ptr + (y * width + x) * PIXEL_SIZE + 0],
-                                     RAM_[ptr + (y * width + x) * PIXEL_SIZE + 1],
-                                     RAM_[ptr + (y * width + x) * PIXEL_SIZE + 2] ));
-            }
-
-            strcpy(pictname, filename_);
-            sprintf(scrnumstr, "%d", screens_num_);
-            strcat(pictname, "(");
-            strcat(pictname, scrnumstr);
-            strcat(pictname, ")");
-            strcat(pictname, ".bmp");
-            txSaveImage(pictname);
-
-            ++screens_num_;
+            DysplayVideoMem(window, width, height, ptr);
             break;
-
+        }
         default:
 
             CPU_ASSERTOK(1, CPU_UNIDENTIFIED_COMMAND, this);
@@ -614,6 +590,57 @@ void CPU::Pop2FloatNumbers(FLT_TYPE* num1, FLT_TYPE* num2)
 
 //------------------------------------------------------------------------------
 
+void CPU::DysplayVideoMem (sf::RenderWindow*& window, size_t width, size_t height, ptr_t ptr)
+{
+    if (screens_num_ == 0)
+    {
+        filename_ = GetTrueFileName(filename_);
+    }
+    else
+    {
+        window->close();
+        delete window;
+    }
+
+    window = new sf::RenderWindow(sf::VideoMode(width, height), "Program");
+    sf::VertexArray pointmap(sf::Points, width * height);
+
+    for (int y = 0; y < height; ++y)
+    for (int x = 0; x < width;  ++x)
+    {
+        pointmap[y*width + x].position = sf::Vector2f(x, y);
+        pointmap[y*width + x].color = sf::Color(RAM_[ptr + (y * width + x) * PIXEL_SIZE + 0],
+                                                RAM_[ptr + (y * width + x) * PIXEL_SIZE + 1],
+                                                RAM_[ptr + (y * width + x) * PIXEL_SIZE + 2] );
+    }
+
+    window->draw(pointmap);
+
+    char pictname[256] = "";
+    char scrnumstr[8]  = "";
+
+    strcpy(pictname, filename_);
+    sprintf(scrnumstr, "%d", screens_num_);
+    strcat(pictname, "(");
+    strcat(pictname, scrnumstr);
+    strcat(pictname, ")");
+    strcat(pictname, ".png");
+
+    sf::Texture screen;
+    screen.create(width, height);
+    screen.update(*window);
+    window->display();
+
+    screen.copyToImage().saveToFile(pictname);
+
+    ++screens_num_;
+
+    window->close();
+    delete window;
+}
+
+//------------------------------------------------------------------------------
+
 void CPU::PrintCode (const char* logname)
 {
     assert(logname != nullptr);
@@ -623,8 +650,8 @@ void CPU::PrintCode (const char* logname)
 
     --bcode_.ptr_;
 
-    fprintf(log, " Address: %08X\n\n", bcode_.ptr_);
-    printf (     " Address: %08X\n\n", bcode_.ptr_);
+    fprintf(log, " Address: %08lX\n\n", bcode_.ptr_);
+    printf (     " Address: %08lX\n\n", bcode_.ptr_);
 
     fprintf(log, "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
     printf (     "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
@@ -646,8 +673,8 @@ void CPU::PrintCode (const char* logname)
     {
         if ((line + i >= 0) && (line + i <= last_line))
         {
-            fprintf(log, "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
-            printf (     "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
+            fprintf(log, "%s%s%08lX ", ((i == 0)? "=>" : "  "), "   ", line + i);
+            printf (     "%s%s%08lX ", ((i == 0)? "=>" : "  "), "   ", line + i);
 
             for (char byte = 0; byte < 0x10; ++byte)
             {

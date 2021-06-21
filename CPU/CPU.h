@@ -6,31 +6,31 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef CPU_H_INCLUDED
 #define CPU_H_INCLUDED
 
 #define _CRT_SECURE_NO_WARNINGS
-//#define NDEBUG
 
 
 #if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
     #define __FUNC_NAME__   __PRETTY_FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #elif defined (_MSC_VER)
     #define __FUNC_NAME__   __FUNCSIG__
+    #define PRINT_PTR       "0x%p"
 
 #else
     #define __FUNC_NAME__   __FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #endif
 
 
-#include "../TXLib.h"
-
-#include <assert.h>
+#include <SFML/Graphics.hpp>
 
 #include "../Commands.h"
 #include "../StringLib/StringLib.h"
@@ -227,6 +227,17 @@ private:
  */
 
     void PrintCode (const char* logname);
+
+//------------------------------------------------------------------------------
+/*! @brief   Prints a section of code with an error to the console and to the log file.
+ * 
+ *  @param   window      Pointer to SFML window
+ *  @param   width       Window width
+ *  @param   height      Window height
+ *  @param   ptr         Pointer to video memory
+ */
+
+    void DysplayVideoMem (sf::RenderWindow*& window, size_t width, size_t height, ptr_t ptr);
 
 //------------------------------------------------------------------------------
 };

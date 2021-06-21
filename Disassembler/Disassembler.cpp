@@ -5,7 +5,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "Disassembler.h"
@@ -24,10 +24,6 @@ Disassembler::~Disassembler ()
 {
     DSM_ASSERTOK((this == nullptr),          DSM_NULL_INPUT_DISASSEMBLER_PTR, nullptr);
     DSM_ASSERTOK((state_ == DSM_DESTRUCTED), DSM_DESTRUCTED,                  nullptr);
-
-    bcode_.~BinCode();
-    output_.~Text();
-    labels_.~Labels();
 
     state_ = DSM_DESTRUCTED;
 }
@@ -81,7 +77,8 @@ int Disassembler::Disassemble ()
 
                 lab_num = labels_.pos_;
                 labels_.data_[labels_.pos_].addr = num_ptr;
-                labels_.data_[labels_.pos_].code = labels_.pos_++;
+                labels_.data_[labels_.pos_].code = labels_.pos_;
+                ++labels_.pos_;
             }
         }
         else if ((cmd_code & REG_FLAG) || (cmd_code == CMD_SCREEN))
@@ -161,7 +158,7 @@ int Disassembler::Write (char* filename)
         while (labels_.data_[labels_.pos_].addr == bcode_.ptr_)
         {
             if (!flag) fprintf(fp, "\n");
-            fprintf(fp, "%s%u:\n", LABEL, labels_.data_[labels_.pos_++].code);
+            fprintf(fp, "%s%lu:\n", LABEL, labels_.data_[labels_.pos_++].code);
             flag = 1;
         }
         if (flag) fprintf(fp, "\n");
@@ -241,7 +238,7 @@ int Disassembler::writeOperands (Text* text, char cmd_code, char reg_code, INT_T
 
     if ((flags & PTR_FLAG) && (flags & NUM_FLAG))
     {
-        char num_word[13] = "";
+        char num_word[16] = "";
         if (flags & REG_FLAG) sprintf(num_word, INT_PRINT_FORMAT,     num_int);
         else                  sprintf(num_word, POINTER_PRINT_FORMAT, num_ptr);
 
@@ -253,7 +250,7 @@ int Disassembler::writeOperands (Text* text, char cmd_code, char reg_code, INT_T
     }
     else if (flags & NUM_FLAG)
     {
-        char num_word[25] = "";
+        char num_word[32] = "";
         if (cmd_code == CMD_PUSHQ) sprintf(num_word, FLT_PRINT_FORMAT, num_flt);
         else                       sprintf(num_word, INT_PRINT_FORMAT, num_int);
 
@@ -263,8 +260,8 @@ int Disassembler::writeOperands (Text* text, char cmd_code, char reg_code, INT_T
 
     if (isJUMP(cmd_code))
     {
-        char lab_word[13] = "";
-        sprintf(lab_word, "%u", lab_num);
+        char lab_word[16] = "";
+        sprintf(lab_word, "%lu", lab_num);
         strcpy(text->lines_[line].str + startpos + len, LABEL);
         len += strlen(LABEL);
 
@@ -293,10 +290,10 @@ void Disassembler::writeCode (Text* text, BinCode* bcode, size_t line, size_t po
     text->lines_[line].str[pos++] = comment;
     text->lines_[line].str[pos++] = ' ';
 
-    char addr[9] = {};
-    sprintf(addr, "%08X", ptr);
+    char addr[32] = {};
+    sprintf(addr, "0x%08X", ptr);
     strcpy(text->lines_[line].str + pos, addr);
-    pos += 8;
+    pos += 10;
 
     text->lines_[line].str[pos++] = ':';
     text->lines_[line].str[pos++] = ' ';
@@ -316,8 +313,8 @@ void Disassembler::PrintCode (const char* logname)
     FILE* log = fopen(logname, "a");
     assert(log != nullptr);
 
-    fprintf(log, " Address: %08X\n\n", bcode_.ptr_);
-    printf (     " Address: %08X\n\n", bcode_.ptr_);
+    fprintf(log, " Address: %08lX\n\n", bcode_.ptr_);
+    printf (     " Address: %08lX\n\n", bcode_.ptr_);
 
     fprintf(log, "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
     printf (     "//////////////////////////////////--CODE--//////////////////////////////////" "\n");
@@ -339,8 +336,8 @@ void Disassembler::PrintCode (const char* logname)
     {
         if ((line + i >= 0) && (line + i <= last_line))
         {
-            fprintf(log, "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
-            printf (     "%s%s%08X ", ((i == 0)? "=>" : "  "), "   ", line + i);
+            fprintf(log, "%s%s%08lX ", ((i == 0)? "=>" : "  "), "   ", line + i);
+            printf (     "%s%s%08lX ", ((i == 0)? "=>" : "  "), "   ", line + i);
 
             for (char byte = 0; byte < 0x10; ++byte)
             {

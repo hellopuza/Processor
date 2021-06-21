@@ -5,7 +5,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "StringLib.h"
@@ -252,7 +252,11 @@ size_t CountSize (FILE* fp)
     assert(fp != nullptr);
 
     struct stat prop;
+#ifdef _MSC_VER
     fstat(_fileno(fp), &prop);
+#else
+    fstat(fileno(fp), &prop);
+#endif
 
     return prop.st_size;
 }
@@ -268,7 +272,7 @@ char* GetText (FILE* fp, size_t len)
     if (text == nullptr)
         return nullptr;
 
-    fread(text, 1, len, fp);
+    int err = fread(text, 1, len, fp);
 
     return text;
 }
@@ -289,7 +293,7 @@ size_t GetLineNum (char* text, size_t len)
         ++num;
 
         text = strchr(text, '\n') + 1;
-        if ((int)text == 1)
+        if (text == (char*)1)
             break;
     }
 
@@ -367,7 +371,7 @@ size_t chrcnt (char* str, char c)
     {
         ++count;
         str = strchr(str + 1, c);
-        if ((int)str == 0)
+        if (str == 0)
             break;
     }
 
@@ -501,8 +505,8 @@ int isAlpha (const unsigned char c)
 {
     return (   ((unsigned char)'a' <= c) && (c <= (unsigned char)'z')
             || ((unsigned char)'A' <= c) && (c <= (unsigned char)'Z')
-            || ((unsigned char)'à' <= c) && (c <= (unsigned char)'ÿ')
-            || ((unsigned char)'À' <= c) && (c <= (unsigned char)'ß'));
+            || ((unsigned char)'Ð°' <= c) && (c <= (unsigned char)'Ñ')
+            || ((unsigned char)'Ð' <= c) && (c <= (unsigned char)'Ð¯'));
 }
 
 //------------------------------------------------------------------------------
@@ -512,6 +516,7 @@ void Write (Line* lines, size_t num, const char* filename)
     assert(lines != nullptr);
     assert(num);
     assert(filename);
+    printf("file: [%s]\n", filename);
 
     FILE* fp = fopen(filename, "w");
 

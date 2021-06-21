@@ -1,0 +1,21 @@
+####
+
+CC = g++
+CFLAGS = -c -O3
+LDFLAGS =
+SOURCES = StringLib/StringLib.cpp Disassembler/Disassembler.cpp Disassembler/main.cpp
+OBJECTS = $(SOURCES:.cpp=.o)
+EXECUTABLE = .bin/dsm
+
+all: $(SOURCES) $(EXECUTABLE) clean
+
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
+
+.cpp.o:
+	$(CC) $(CFLAGS) $< -o $@
+
+clean:
+	rm $(OBJECTS)
+
+

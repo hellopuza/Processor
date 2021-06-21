@@ -6,24 +6,26 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef ASSEMBLER_H_INCLUDED
 #define ASSEMBLER_H_INCLUDED
 
 #define _CRT_SECURE_NO_WARNINGS
-//#define NDEBUG
 
 
 #if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
     #define __FUNC_NAME__   __PRETTY_FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #elif defined (_MSC_VER)
     #define __FUNC_NAME__   __FUNCSIG__
+    #define PRINT_PTR       "0x%p"
 
 #else
     #define __FUNC_NAME__   __FUNCTION__
+    #define PRINT_PTR       "%p"
 
 #endif
 
@@ -200,7 +202,7 @@ public:
 const size_t DEFAULT_BCODE_SIZE = 1024;
 const size_t MAX_WORDS_IN_LINE  = 2;
 
-static const char* CODE_TYPE = ".code";
+static const char* CODE_TYPE = ".bin";
 static const char  COMMENT   = ';';
 
 static const char* DELIMETERS = " \t\r\0";

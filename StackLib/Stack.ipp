@@ -5,7 +5,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 template <typename TYPE>
@@ -367,7 +367,7 @@ int Stack<TYPE>::Dump (const char* funcname, const char* logfile)
         (errCode_ == STACK_SIZE_BIGGER_CAPACITY) ||
         (errCode_ == STACK_CAPACITY_WRONG_VALUE)   )
     {
-        fprintf(fp, "\nStack (ERROR) [0x%p] \"%s\" id (%d)\n", this, name_, id_);
+        fprintf(fp, "\nStack (ERROR) [" PRINT_PTR "] \"%s\" id (%d)\n", this, name_, id_);
         ErrorPrint(fp);
 
         fprintf(fp, "%s\n", divline);
@@ -378,15 +378,16 @@ int Stack<TYPE>::Dump (const char* funcname, const char* logfile)
 
     char* StkState = (char*)stk_errstr[STACK_OK + 1];
 
-   if (errCode_) ErrorPrint(fp);
+    if (errCode_) ErrorPrint(fp);
 
-    fprintf(fp, "\nStack (%s) [0x%p] \"%s\", id (%d)\n", StkState, this, name_, id_);
+    fprintf(fp, "\nStack (%s) [" PRINT_PTR "] \"%s\", id (%d)\n", StkState, this, name_, id_);
+
     fprintf(fp, "\t{\n");
 
     fprintf(fp, "\tType of data is %s\n\n", PRINT_TYPE<TYPE>);
 
-    fprintf(fp, "\tCapacity           = %u\n",   capacity_);
-    fprintf(fp, "\tCurrent size       = %u\n\n", size_cur_);
+    fprintf(fp, "\tCapacity           = %lu\n",   capacity_);
+    fprintf(fp, "\tCurrent size       = %lu\n\n", size_cur_);
 
 #ifdef HASH_PROTECT
     fprintf(fp, "\tStack hash         = " HASH_PRINT_FORMAT "\n",   stackhash_);
@@ -399,7 +400,8 @@ int Stack<TYPE>::Dump (const char* funcname, const char* logfile)
     }
 #endif // HASH_PROTECT
 
-    fprintf(fp, "\tData [0x%p]\n", data_);
+    fprintf(fp, "\tData [" PRINT_PTR "]\n", data_);
+
     fprintf(fp, "\t\t{\n");
 
     for (int i = 0; i < capacity_; i++)

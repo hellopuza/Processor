@@ -5,7 +5,7 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #include "Assembler.h"
@@ -24,12 +24,6 @@ Assembler::~Assembler ()
 {
     ASM_ASSERTOK((this == nullptr),          ASM_NULL_INPUT_ASSEMBLER_PTR, -1);
     ASM_ASSERTOK((state_ == ASM_DESTRUCTED), ASM_DESTRUCTED,               -1);
-
-    input_.~Text();
-    bcode_.~BinCode();
-
-    def_labs_.~Labels();
-    undef_labs_.~Labels();
 
     state_ = ASM_DESTRUCTED;
 }
@@ -470,8 +464,8 @@ void Assembler::PrintCode (size_t line, const char* logname)
     {
         if ((true_line + i > 0) && (true_line + i <= input_.num_))
         {
-            fprintf(log, "%s%5d: %s\n", ((i == 0)? "=>" : "  "), true_line + i, input_.lines_[true_line + i - 1].str);
-            printf (     "%s%5d: %s\n", ((i == 0)? "=>" : "  "), true_line + i, input_.lines_[true_line + i - 1].str);
+            fprintf(log, "%s%5lu: %s\n", ((i == 0)? "=>" : "  "), true_line + i, input_.lines_[true_line + i - 1].str);
+            printf (     "%s%5lu: %s\n", ((i == 0)? "=>" : "  "), true_line + i, input_.lines_[true_line + i - 1].str);
         }
     }
 

@@ -5,23 +5,37 @@
     * Author:      Artem Puzankov                                              *
     * Email:       puzankov.ao@phystech.edu                                    *
     * GitHub:      https://github.com/hellopuza                                *
-    * Copyright © 2021 Artem Puzankov. All rights reserved.                    *
+    * Copyright Â© 2021 Artem Puzankov. All rights reserved.                    *
     *///------------------------------------------------------------------------
 
 #ifndef STRINGLIB_H_INCLUDED
 #define STRINGLIB_H_INCLUDED
 
 #define _CRT_SECURE_NO_WARNINGS
-//#define NDEBUG
 
 
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <time.h>
+
+
+#if defined (__GNUC__) || defined (__clang__) || defined (__clang_major__)
+    #define __FUNC_NAME__   __PRETTY_FUNCTION__
+    #define PRINT_PTR       "%p"
+
+#elif defined (_MSC_VER)
+    #define __FUNC_NAME__   __FUNCSIG__
+    #define PRINT_PTR       "0x%p"
+
+#else
+    #define __FUNC_NAME__   __FUNCTION__
+    #define PRINT_PTR       "%p"
+
+#endif
 
 
 //==============================================================================
@@ -75,10 +89,10 @@ static const char* str_errstr[] =
 
 static const char* STRING_LOGNAME = "string.log";
 
-#define STR_ASSERTOK(cond, err)  if (cond)                                                               \
-                                 {                                                                       \
-                                   StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNCTION__, err); \
-                                   exit(err);                                                            \
+#define STR_ASSERTOK(cond, err)  if (cond)                                                                \
+                                 {                                                                        \
+                                   StrPrintError(STRING_LOGNAME, __FILE__, __LINE__, __FUNC_NAME__, err); \
+                                   exit(err);                                                             \
                                  } //
 
 
