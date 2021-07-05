@@ -66,7 +66,7 @@ enum StringErrors
     STR_TEXT_NOT_CONSTRUCTED                                           ,
 };
 
-static const char* str_errstr[] =
+char const * const str_errstr[] =
 {
     "ERROR"                                                            ,
     "OK"                                                               ,

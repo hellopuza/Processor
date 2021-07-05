@@ -73,7 +73,7 @@ enum AssemblerErrors
     ASM_WRONG_SCREEN_OPERAND_REGISTER                                  ,
 };
 
-static const char* asm_errstr[] =
+char const * const asm_errstr[] =
 {
     "ERROR"                                                            ,
     "OK"                                                               ,

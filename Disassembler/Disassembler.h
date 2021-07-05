@@ -62,7 +62,7 @@ enum DisassemblerErrors
     DSM_UNIDENTIFIED_REGISTER                                             ,
 };
 
-static const char* dsm_errstr[] =
+char const * const dsm_errstr[] =
 {
     "ERROR"                                                               ,
     "OK"                                                                  ,

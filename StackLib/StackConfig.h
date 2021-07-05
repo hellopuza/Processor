@@ -81,7 +81,7 @@ enum StackErrors
     STACK_WRONG_INPUT_STACK_NAME                                    ,
 };
 
-static const char* stk_errstr[] =
+char const * const stk_errstr[] =
 {
     "ERROR"                                                         ,
     "OK"                                                            ,

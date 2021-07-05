@@ -74,7 +74,7 @@ enum CPUErrors
     CPU_WRONG_ADDR                                                     ,
 };
 
-static const char* cpu_errstr[] =
+char const * const cpu_errstr[] =
 {
     "ERROR"                                                            ,
     "OK"                                                               ,
