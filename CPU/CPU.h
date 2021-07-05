@@ -99,7 +99,7 @@ static const char* cpu_errstr[] =
     "Memory access violation"                                          ,
 };
 
-static const char* CPU_LOGNAME = "cpu.log";
+char const * const CPU_LOGNAME = "cpu.log";
 
 #define CPU_ASSERTOK(cond, err, p_cpu) if (cond)                                                             \
                                        {                                                                     \

@@ -103,7 +103,7 @@ static const char* asm_errstr[] =
     "Wrong screen operand. Operand can only be a register"             ,
 };
 
-static const char* ASSEMBLER_LOGNAME = "assembler.log";
+char const * const ASSEMBLER_LOGNAME = "assembler.log";
 
 #define ASM_ASSERTOK(cond, err, line) if (cond)                                                                   \
                                       {                                                                           \
@@ -202,10 +202,10 @@ public:
 const size_t DEFAULT_BCODE_SIZE = 1024;
 const size_t MAX_WORDS_IN_LINE  = 2;
 
-static const char* CODE_TYPE = ".bin";
-static const char  COMMENT   = ';';
+char const * const CODE_TYPE = ".bin";
+const char         COMMENT   = ';';
 
-static const char* DELIMETERS = " \t\r\0";
+char const * const DELIMETERS = " \t\r\0";
 
 
 class Assembler

@@ -81,7 +81,7 @@ static const char* dsm_errstr[] =
     "Unidentified register"                                               ,
 };
 
-static const char* DISASSEMBLER_LOGNAME = "disassembler.log";
+char const * const DISASSEMBLER_LOGNAME = "disassembler.log";
 
 #define DSM_ASSERTOK(cond, err, p_dsm) if (cond)                                                                      \
                                        {                                                                              \
@@ -163,9 +163,9 @@ public:
 //==============================================================================
 
 
-static const char* CODE_TYPE = "_dis.asm";
-static const char* LABEL     = "L";
-static const char COMMENT    = ';';
+char const * const CODE_TYPE = "_dis.asm";
+char const * const LABEL     = "L";
+char const         COMMENT   = ';';
 
 const size_t DEFAULT_LINES_NUM = 32;
 const size_t MAX_CHARS_IN_LINE = 128;
